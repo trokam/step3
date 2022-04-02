@@ -5,5 +5,14 @@ project(Trokam)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3")
 
-add_executable(index_web main.cpp crawler.cpp doc_processor.cpp warehouse.cpp postgresql.cpp)
-target_link_libraries(index_web curl pqxx)
+add_executable(
+    index_web
+    main.cpp
+    crawler.cpp
+    doc_processor.cpp
+    warehouse.cpp
+    postgresql.cpp)
+
+find_package(Boost 1.67 COMPONENTS filesystem regex) 
+
+target_link_libraries(index_web curl pqxx Boost::regex)

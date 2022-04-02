@@ -21,6 +21,9 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
+// C++
+#include <ctime>
+
 // Trokam
 #include "warehouse.h"
 
@@ -116,4 +119,28 @@ std::vector<std::tuple<std::string, int>> Trokam::Warehouse::get_bundle(
 
     std::cout << "reached the max level to get an URL!" << '\n';
     return result;
+}
+
+void Trokam::Warehouse::insert_several_url(
+    const std::vector<std::string> urls)
+{
+    const std::string level = std::to_string(m_current_level + 1);
+    const int epoch = std::time(nullptr);
+    std::vector<std::string> multiple_sql_insert;
+
+    for(size_t i=0; i<urls.size(); i++)
+    {
+        std::string sql_insert;
+        sql_insert=  "INSERT INTO pages(link, level, state, epoch) ";
+        sql_insert+= "VALUES('" + urls[i] + "', ";
+        sql_insert+= level + ", ";
+        sql_insert+= "0, ";
+        sql_insert+= std::to_string(epoch) + ") ";
+        sql_insert+= "ON CONFLICT (link) ";
+        sql_insert+= "DO NOTHING ";
+
+        multiple_sql_insert.push_back(sql_insert);
+    }
+
+    m_db->exec_several(multiple_sql_insert);
 }

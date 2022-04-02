@@ -36,6 +36,7 @@ void Trokam::DocProcessor::show(
                 << " ==================================\n";
     std::cout << "indexed URL:" << doc->url << '\n';
     std::cout << "doc_id:" << doc->id << '\n';
+    std::cout << "content_type:" << doc->content_type << '\n';
     std::cout << "error code:" << retrieval_error << '\n';
     std::cout << "page snippet:" << doc->raw.substr(0, 400) << '\n';
 }

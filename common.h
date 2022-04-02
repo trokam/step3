@@ -24,37 +24,12 @@
 #pragma once
 
 // C++
-#include <memory>
-#include <iostream>
 #include <string>
-#include <vector>
 
-// Postgresql
-#include <pqxx/pqxx>
-
-// Triokam
-#include "postgresql.h"
-
-namespace Trokam
+struct web_doc
 {
-    class Warehouse
-    {
-        public:
-
-            Warehouse();
-
-            std::tuple<std::string, int> get();
-
-            std::vector<std::tuple<std::string, int>>
-                get_bundle(const int &total);
-
-            void insert_several_url(
-                const std::vector<std::string> urls);
-
-        private:
-
-            const int MAX_LEVEL = 7;
-            int m_current_level = -1;
-            std::unique_ptr<Trokam::Postgresql> m_db;
-    };
-}
+    int id;
+    std::string url;
+    std::string raw;
+    std::string content_type;
+};

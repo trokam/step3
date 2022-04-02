@@ -26,9 +26,13 @@
 #include <string>
 #include <vector>
 
+/// Boost
+#include <boost/regex.hpp>
+
 // Trokam
 #include "crawler.h"
 #include "doc_processor.h"
+#include "plain_text_processor.h"
 
 /**
  * Called by libcurl as soon as there is data received that
@@ -53,9 +57,6 @@ static int append_data(
 
 void Trokam::Crawler::run()
 {
-    // The database that keeps the URLs and their state: pending, downloaded, etc.
-    Warehouse house;
-
     // Gets a bundle of URLs for downloading.
     // Try to get TOTAL_PER_RUN number of URLs, but it may get less than that.
     // 'bundle_size' is the the actual number of URLs in the 'url_bundle'.
@@ -123,11 +124,26 @@ void Trokam::Crawler::run()
                 web_doc *doc = nullptr;
                 curl_easy_getinfo(transfer_info->easy_handle, CURLINFO_PRIVATE, &doc);
 
-                // Get the error message of this individual transfer.
-                const std::string retrieval_error = curl_easy_strerror(transfer_info->data.result);
+                // Identify the content type of the document.
+                char *ct;
+                CURLcode res = curl_easy_getinfo(transfer_info->easy_handle, CURLINFO_CONTENT_TYPE, &ct);
+                if((CURLE_OK == res) && ct)
+                {
+                    doc->content_type = ct;
+                }
 
-                // Process the data of an individual transfer.
+                // Get the error message of this individual transfer.
+                const std::string retrieval_error =
+                    curl_easy_strerror(transfer_info->data.result);
+
+                // Extract and save information from the document.
                 processor.show(doc, retrieval_error, downloaded);
+
+                // If the document is of text type, extract the URLs.
+                if(std::string::npos != doc->content_type.find("text"))
+                {
+                    extract_save_url(doc);
+                }
 
                 // Remove the handle of this transfer.
                 CURL *individual_handle = transfer_info->easy_handle;
@@ -188,4 +204,52 @@ void Trokam::Crawler::setup_download(
     curl_easy_setopt(eh, CURLOPT_PRIVATE, doc);
     curl_easy_setopt(eh, CURLOPT_USERAGENT, "Trokambot/1.0 (+http://trokam.com/bot.html)");
     curl_multi_add_handle(curl_multi_handler, eh);
+}
+
+void Trokam::Crawler::extract_save_url(
+    const web_doc *doc)
+{
+    // These are the vectors with the internal and external URLs.
+    // Internal are the URLs with the same domain of the document.
+    // External are the URLs with a different domain of the document.
+    std::vector<std::string> internal;
+    std::vector<std::string> external;
+
+    // Extract the URL from document.
+    PlainTextProcessor::extract_url(
+        MAX_URL_EXTRACTED, doc, internal, external);
+
+    // Randomly select some of the internal URLs.
+    std::vector<std::string> internal_selection =
+        get_selection(MAX_INTERNAL, internal);
+
+    // Randomly select some of the external URLs.
+    std::vector<std::string> external_selection =
+        get_selection(MAX_EXTERNAL, external);
+
+    // Insert multiple URLs in one transaction.
+    house.insert_several_url(internal_selection);
+
+    // Insert multiple URLs in one transaction.    
+    house.insert_several_url(external_selection);
+}
+
+std::vector<std::string> Trokam::Crawler::get_selection(
+    const std::size_t maximum,
+    const std::vector<std::string> &links)
+{
+    if(links.size()>maximum)
+    {
+        std::vector<std::string> result;
+        std::random_device rd;  // Random number generator.
+        std::mt19937 gen(rd()); // Engine seeded with random value.
+        std::uniform_real_distribution<> dis(0, links.size());
+        for(std::size_t i= 0; i<maximum; ++i)
+        {
+            int index = dis(gen);
+            result.push_back(links[index]);
+        }
+        return result;
+    }
+    return links;
 }

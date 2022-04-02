@@ -28,10 +28,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+// C++
+#include <random>
+
 // Libcurl
 #include <curl/curl.h>
 
 // Trokam
+#include "common.h"
 #include "warehouse.h"
 
 namespace Trokam
@@ -41,16 +45,37 @@ namespace Trokam
         public:
             void run();
 
-            void setup_download(
-                CURLM *curl_multi_handler,
-                const std::string &url,
-                const int &id);
-
         private:
             // number of simultaneous transfers
             const size_t MAX_PARALLEL  = 7;    
 
             // number of URL processed per run 
             const int    TOTAL_PER_RUN = 500;  
+
+            // max number to URLs extracted from a web page
+            const int    MAX_URL_EXTRACTED = 300;
+
+            // max number of internal URLs to save
+            const int    MAX_INTERNAL =  10;
+
+            // max number of external URLs to save
+            const int    MAX_EXTERNAL = 10;
+
+            // The database that keeps the URLs and their
+            // state: pending, downloaded, etc.
+            Warehouse house;
+
+            void setup_download(
+                CURLM *curl_multi_handler,
+                const std::string &url,
+                const int &id);
+
+            // Extract and save the URLs in the document.
+            void extract_save_url(
+                const web_doc *doc);
+
+            std::vector<std::string> get_selection(
+                const std::size_t maximum,
+                const std::vector<std::string> &links);
     };
 }

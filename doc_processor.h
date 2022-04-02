@@ -24,12 +24,8 @@
 // C++
 #include <string>
 
-struct web_doc
-{
-    int id;
-    std::string url;
-    std::string raw;
-};
+// Trokam
+#include "common.h"
 
 namespace Trokam
 {

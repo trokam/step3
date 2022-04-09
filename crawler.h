@@ -45,6 +45,12 @@ namespace Trokam
         public:
             void run();
 
+            // Initialise the crawler database.
+            void initialise(
+                const std::string &filename);
+
+            void clean();
+
         private:
             // number of simultaneous transfers
             const size_t MAX_PARALLEL  = 7;    
@@ -65,16 +71,16 @@ namespace Trokam
             // state: pending, downloaded, etc.
             Warehouse house;
 
-            void setup_download(
+            void setupDownload(
                 CURLM *curl_multi_handler,
                 const std::string &url,
                 const int &id);
 
             // Extract and save the URLs in the document.
-            void extract_save_url(
+            void extractSaveUrl(
                 const web_doc *doc);
 
-            std::vector<std::string> get_selection(
+            std::vector<std::string> getSelection(
                 const std::size_t maximum,
                 const std::vector<std::string> &links);
     };

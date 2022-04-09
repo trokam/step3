@@ -50,7 +50,7 @@ std::tuple<std::string, int> Trokam::Warehouse::get()
         sql_select+= "LIMIT 1";
 
         pqxx::result answer;
-        m_db->exec_answer(sql_select, answer);
+        m_db->execAnswer(sql_select, answer);
 
         pqxx::result::iterator row= answer.begin();
         if(row != answer.end())
@@ -71,7 +71,7 @@ std::tuple<std::string, int> Trokam::Warehouse::get()
     return {"",-1};
 }
 
-std::vector<std::tuple<std::string, int>> Trokam::Warehouse::get_bundle(
+std::vector<std::tuple<std::string, int>> Trokam::Warehouse::getBundle(
     const int &total)
 {
     std::vector<std::tuple<std::string, int>> result;
@@ -89,7 +89,7 @@ std::vector<std::tuple<std::string, int>> Trokam::Warehouse::get_bundle(
         sql_select+= "LIMIT " + std::to_string(total);
 
         pqxx::result answer;
-        m_db->exec_answer(sql_select, answer);
+        m_db->execAnswer(sql_select, answer);
 
         pqxx::result::iterator row= answer.begin();
         while(row != answer.end())
@@ -121,7 +121,7 @@ std::vector<std::tuple<std::string, int>> Trokam::Warehouse::get_bundle(
     return result;
 }
 
-void Trokam::Warehouse::insert_several_url(
+void Trokam::Warehouse::insertSeveralUrl(
     const std::vector<std::string> urls)
 {
     const std::string level = std::to_string(m_current_level + 1);
@@ -142,5 +142,79 @@ void Trokam::Warehouse::insert_several_url(
         multiple_sql_insert.push_back(sql_insert);
     }
 
-    m_db->exec_several(multiple_sql_insert);
+    m_db->execSeveral(multiple_sql_insert);
+}
+
+bool Trokam::Warehouse::isEmpty()
+{
+    std::string sql_select;
+    sql_select=  "SELECT COUNT(*) ";
+    sql_select+= "FROM pages ";
+
+    pqxx::result answer;
+    m_db->execAnswer(sql_select, answer);
+
+    pqxx::result::iterator row= answer.begin();
+    if(row != answer.end())
+    {
+        const int count= row[0].as(int());
+        std::cout << "count: " << count << "\n";
+        if(count == 0)
+        {
+            return true;
+        }
+    }
+    else
+    {
+        // No answer.
+        // std::cerr << "Error, no answer.\n";
+    }
+
+    return false;    
+}
+
+void Trokam::Warehouse::clean()
+{
+    std::string sql_drop;
+    sql_drop = "DROP TABLE pages;";
+    m_db->execNoAnswer(sql_drop);
+
+    std::string sql_create_table;
+    sql_create_table = "CREATE TABLE pages(";
+    sql_create_table+= "link varchar(500) PRIMARY KEY, ";
+    sql_create_table+= "doc_id serial, ";
+    sql_create_table+= "level integer, ";
+    sql_create_table+= "state integer, ";
+    sql_create_table+= "epoch integer)";
+    m_db->execNoAnswer(sql_create_table);
+    
+    std::string sql_create_index;
+    sql_create_index = "CREATE INDEX doc_id_key ON pages(doc_id);";
+    m_db->execNoAnswer(sql_create_index);
+
+    sql_create_index = "CREATE INDEX epoch_key ON pages(epoch);";
+    m_db->execNoAnswer(sql_create_index);
+
+    // Now the database is empty, the level is -1.
+    m_current_level = -1;
+}
+
+void Trokam::Warehouse::setIndexed(
+    std::vector<std::tuple<std::string, int>> &bundle)
+{
+    std::vector<std::string> multiple_sql_update;
+
+    for(size_t i=0; i<bundle.size(); i++)
+    {
+        const int doc_id = std::get<1>(bundle[i]);
+
+        std::string sql_update;
+        sql_update=  "UPDATE pages ";
+        sql_update+= "SET state=1 ";
+        sql_update+= "WHERE doc_id=" + std::to_string(doc_id);
+
+        multiple_sql_update.push_back(sql_update);
+    }
+
+    m_db->execSeveral(multiple_sql_update);
 }

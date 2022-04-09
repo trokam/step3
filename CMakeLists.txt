@@ -6,13 +6,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3")
 
 add_executable(
-    index_web
-    main.cpp
+    trokam
     crawler.cpp
     doc_processor.cpp
-    warehouse.cpp
-    postgresql.cpp)
+    file_ops.cpp
+    main.cpp
+    options.cpp
+    postgresql.cpp
+    warehouse.cpp)
 
-find_package(Boost 1.67 COMPONENTS filesystem regex) 
+find_package(Boost 1.67 COMPONENTS filesystem regex program_options) 
 
-target_link_libraries(index_web curl pqxx Boost::regex)
+target_link_libraries(trokam curl pqxx Boost::regex Boost::program_options)

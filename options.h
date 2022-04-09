@@ -23,44 +23,28 @@
 
 #pragma once
 
-// C++
-#include <string>
-#include <vector>
+/// C++
+// #include <string>
 
-// Postgresql
-#include <pqxx/pqxx>
-
-/**
- * Keep the connection with and perform the SQL sentences
- * in the PostgreSQL database.
- */
 namespace Trokam
 {
-    class Postgresql
+    class Options
     {
         public:
 
-            Postgresql();
-
-            Postgresql(
-                const std::string &host = "",
-                const std::string &port = "",
-                const std::string &name = "",
-                const std::string &user = "",
-                const std::string &pass = "");
-
-            void execNoAnswer(
-                const std::string &sentence);
-
-            void execAnswer(
-                const std::string &sentence,
-                pqxx::result &answer);
-
-            void execSeveral(
-                std::vector<std::string> &bundle);
+            Options(int argc, char* argv[]);
+            // bool clear() const;
+            // bool init() const;
+            // bool index() const;
+            std::string action() const;
+            std::string seedsFile() const;
 
         private:
 
-            std::unique_ptr<pqxx::connection> m_connection;
+            // bool opt_clear = false;
+            // bool opt_init  = false;
+            // bool opt_index = false;
+            std::string opt_action;
+            std::string opt_seeds_file;
     };
 }

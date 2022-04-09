@@ -21,46 +21,33 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-#pragma once
-
 // C++
-#include <string>
-#include <vector>
+#include <fstream>
 
-// Postgresql
-#include <pqxx/pqxx>
+// Boost
+#include <boost/algorithm/string.hpp>
 
-/**
- * Keep the connection with and perform the SQL sentences
- * in the PostgreSQL database.
- */
-namespace Trokam
+// Trokam
+#include "file_ops.h"
+
+void Trokam::FileOps::readNoComment(
+    const std::string &filename,
+    std::vector<std::string> &content)
 {
-    class Postgresql
+    std::ifstream inputFile(
+        filename.c_str(),
+        std::ios::in | std::ios::binary);
+
+    std::string line;
+    while(std::getline(inputFile, line))
     {
-        public:
+        boost::algorithm::trim_if(
+            line,
+            boost::algorithm::is_any_of(" \t\n\r\""));
 
-            Postgresql();
-
-            Postgresql(
-                const std::string &host = "",
-                const std::string &port = "",
-                const std::string &name = "",
-                const std::string &user = "",
-                const std::string &pass = "");
-
-            void execNoAnswer(
-                const std::string &sentence);
-
-            void execAnswer(
-                const std::string &sentence,
-                pqxx::result &answer);
-
-            void execSeveral(
-                std::vector<std::string> &bundle);
-
-        private:
-
-            std::unique_ptr<pqxx::connection> m_connection;
-    };
+        if ((line != "") && (line[0] != '#'))
+        {
+            content.push_back(line);
+        }
+    }
 }

@@ -46,14 +46,21 @@ namespace Trokam
             std::tuple<std::string, int> get();
 
             std::vector<std::tuple<std::string, int>>
-                get_bundle(const int &total);
+                getBundle(const int &total);
 
-            void insert_several_url(
+            void insertSeveralUrl(
                 const std::vector<std::string> urls);
+
+            bool isEmpty();
+
+            void clean();
+
+            void setIndexed(
+                std::vector<std::tuple<std::string, int>> &bundle);
 
         private:
 
-            const int MAX_LEVEL = 7;
+            const int MAX_LEVEL = 12;
             int m_current_level = -1;
             std::unique_ptr<Trokam::Postgresql> m_db;
     };

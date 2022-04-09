@@ -32,6 +32,7 @@
 // Trokam
 #include "crawler.h"
 #include "doc_processor.h"
+#include "file_ops.h"
 #include "plain_text_processor.h"
 
 /**
@@ -39,7 +40,7 @@
  * needs to be saved. More info:
  * https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
  */
-static int append_data(
+static int appendData(
     char *incoming_data,
     size_t size,
     size_t nmemb,
@@ -60,7 +61,7 @@ void Trokam::Crawler::run()
     // Gets a bundle of URLs for downloading.
     // Try to get TOTAL_PER_RUN number of URLs, but it may get less than that.
     // 'bundle_size' is the the actual number of URLs in the 'url_bundle'.
-    std::vector<std::tuple<std::string, int>> url_bundle = house.get_bundle(TOTAL_PER_RUN);
+    std::vector<std::tuple<std::string, int>> url_bundle = house.getBundle(TOTAL_PER_RUN);
     size_t bundle_size = url_bundle.size();
 
     // Initialise the curl library for parallel downloading.
@@ -80,7 +81,7 @@ void Trokam::Crawler::run()
         if(i<url_bundle.size())
         {
             std::tuple<std::string, int> result = url_bundle[i];
-            setup_download(curl_multi_handler, std::get<0>(result), std::get<1>(result));
+            setupDownload(curl_multi_handler, std::get<0>(result), std::get<1>(result));
 
             // Increment URLs set for processing in this run.
             set_for_download++;
@@ -142,7 +143,7 @@ void Trokam::Crawler::run()
                 // If the document is of text type, extract the URLs.
                 if(std::string::npos != doc->content_type.find("text"))
                 {
-                    extract_save_url(doc);
+                    extractSaveUrl(doc);
                 }
 
                 // Remove the handle of this transfer.
@@ -162,7 +163,7 @@ void Trokam::Crawler::run()
             if(set_for_download < bundle_size)
             {
                 std::tuple<std::string, int> result = url_bundle[set_for_download];
-                setup_download(curl_multi_handler, std::get<0>(result), std::get<1>(result));
+                setupDownload(curl_multi_handler, std::get<0>(result), std::get<1>(result));
 
                 std::cout << '\n';
                 std::cout << "==== adding: " << std::get<1>(result) << '\n';
@@ -182,9 +183,12 @@ void Trokam::Crawler::run()
 
     curl_multi_cleanup(curl_multi_handler);
     curl_global_cleanup();
+
+    // Set the state of the URSs just processed to 'indexed'.    
+    house.setIndexed(url_bundle);
 }
 
-void Trokam::Crawler::setup_download(
+void Trokam::Crawler::setupDownload(
     CURLM *curl_multi_handler,
     const std::string &url,
     const int &id)
@@ -197,7 +201,7 @@ void Trokam::Crawler::setup_download(
     // More info about 'curl_easy_setopt':
     // https://curl.se/libcurl/c/curl_easy_setopt.html
     CURL *eh = curl_easy_init();
-    curl_easy_setopt(eh, CURLOPT_WRITEFUNCTION, append_data);
+    curl_easy_setopt(eh, CURLOPT_WRITEFUNCTION, appendData);
     curl_easy_setopt(eh, CURLOPT_WRITEDATA, &(doc->raw));
     curl_easy_setopt(eh, CURLOPT_URL, url.c_str());
     curl_easy_setopt(eh, CURLOPT_TIMEOUT, 20L);
@@ -206,7 +210,7 @@ void Trokam::Crawler::setup_download(
     curl_multi_add_handle(curl_multi_handler, eh);
 }
 
-void Trokam::Crawler::extract_save_url(
+void Trokam::Crawler::extractSaveUrl(
     const web_doc *doc)
 {
     // These are the vectors with the internal and external URLs.
@@ -221,20 +225,20 @@ void Trokam::Crawler::extract_save_url(
 
     // Randomly select some of the internal URLs.
     std::vector<std::string> internal_selection =
-        get_selection(MAX_INTERNAL, internal);
+        getSelection(MAX_INTERNAL, internal);
 
     // Randomly select some of the external URLs.
     std::vector<std::string> external_selection =
-        get_selection(MAX_EXTERNAL, external);
+        getSelection(MAX_EXTERNAL, external);
 
     // Insert multiple URLs in one transaction.
-    house.insert_several_url(internal_selection);
+    house.insertSeveralUrl(internal_selection);
 
     // Insert multiple URLs in one transaction.    
-    house.insert_several_url(external_selection);
+    house.insertSeveralUrl(external_selection);
 }
 
-std::vector<std::string> Trokam::Crawler::get_selection(
+std::vector<std::string> Trokam::Crawler::getSelection(
     const std::size_t maximum,
     const std::vector<std::string> &links)
 {
@@ -252,4 +256,36 @@ std::vector<std::string> Trokam::Crawler::get_selection(
         return result;
     }
     return links;
+}
+
+void Trokam::Crawler::initialise(
+    const std::string &filename)
+{
+    // If the database is not empty then exit.
+    bool is_empty = house.isEmpty();
+    if(!is_empty)
+    {
+        std::cout << "The crawler database is not empty.\n";
+        std::cout << "It could not be initialised.\n";
+        exit(1);
+    }
+
+    // The vector with the seed URLs.
+    std::vector<std::string> seed_urls;
+
+    // Read the file and put the URLs in 'seed_urls'.
+    Trokam::FileOps::readNoComment(filename, seed_urls);
+
+    for(const auto &e: seed_urls)
+    {
+        std::cout << "seed: " << e << "\n";
+    }
+ 
+    // Insert multiple URLs in one transaction.
+    house.insertSeveralUrl(seed_urls);
+}
+
+void Trokam::Crawler::clean()
+{
+    house.clean();
 }

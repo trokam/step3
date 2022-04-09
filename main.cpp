@@ -26,12 +26,46 @@
 
 // Trokam
 #include "crawler.h"
+#include "options.h"
 
 int main(int argc, char *argv[])
 {
-    Trokam::Crawler crawler;
-    crawler.run();
+    Trokam::Options opt(argc, argv);
+    const std::string action = opt.action();
 
-    std::cout << "\n---------- Bye! ----------\n";
+    if(action == "clean")
+    {
+        // Initializing the crawler database.
+        std::cout << "Clearing crawler database ...\n";
+        Trokam::Crawler crawler;
+        crawler.clean();
+    }
+    else if(action == "init")
+    {
+        // Initializing the crawler database.
+        std::cout << "Initializing crawler database ...\n";
+        std::string seeds_file = opt.seedsFile();
+        if(seeds_file == "")
+        {
+            std::cerr << "Provide a seeds file using --seeds-file\n";
+            exit(1);
+        }
+
+        Trokam::Crawler crawler;
+        crawler.initialise(seeds_file);
+    }
+    else if(action == "index")
+    {
+        // Indexing the web.
+        std::cout << "Indexind the web ...\n";
+        Trokam::Crawler crawler;
+        crawler.run();
+    }
+    else
+    {
+        std::cerr << "Action '" << action << "' is not valid.\n";
+    }
+
+    std::cout << "\n---------- Bye! ----------\n";        
     return EXIT_SUCCESS;
 }

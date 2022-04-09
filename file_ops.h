@@ -21,46 +21,28 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-#pragma once
+#pragma once    
 
-// C++
+/// C++
 #include <string>
 #include <vector>
 
-// Postgresql
-#include <pqxx/pqxx>
-
 /**
- * Keep the connection with and perform the SQL sentences
- * in the PostgreSQL database.
+ * File Operations.
  */
 namespace Trokam
 {
-    class Postgresql
+    class FileOps
     {
         public:
 
-            Postgresql();
-
-            Postgresql(
-                const std::string &host = "",
-                const std::string &port = "",
-                const std::string &name = "",
-                const std::string &user = "",
-                const std::string &pass = "");
-
-            void execNoAnswer(
-                const std::string &sentence);
-
-            void execAnswer(
-                const std::string &sentence,
-                pqxx::result &answer);
-
-            void execSeveral(
-                std::vector<std::string> &bundle);
-
-        private:
-
-            std::unique_ptr<pqxx::connection> m_connection;
+            /**
+             * Put every line of file in content.
+             * It skips blank lines and commented lines.
+             * Commented lines start with '#'.
+             */
+            static void readNoComment(
+                const std::string &filename,
+                std::vector<std::string> &content);
     };
 }

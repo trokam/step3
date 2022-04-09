@@ -38,5 +38,5 @@ void Trokam::DocProcessor::show(
     std::cout << "doc_id:" << doc->id << '\n';
     std::cout << "content_type:" << doc->content_type << '\n';
     std::cout << "error code:" << retrieval_error << '\n';
-    std::cout << "page snippet:" << doc->raw.substr(0, 400) << '\n';
+    std::cout << "page lenght:" << doc->raw.length() << '\n';
 }

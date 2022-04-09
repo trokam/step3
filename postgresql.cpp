@@ -77,7 +77,7 @@ Trokam::Postgresql::Postgresql(
     }
 }
 
-void Trokam::Postgresql::exec_no_answer(
+void Trokam::Postgresql::execNoAnswer(
     const std::string &sentence)
 {
     try
@@ -106,7 +106,7 @@ void Trokam::Postgresql::exec_no_answer(
     }
 }
 
-void Trokam::Postgresql::exec_answer(
+void Trokam::Postgresql::execAnswer(
     const std::string &sentence,
     pqxx::result &answer)
 {
@@ -136,7 +136,7 @@ void Trokam::Postgresql::exec_answer(
     }
 }
 
-void Trokam::Postgresql::exec_several(
+void Trokam::Postgresql::execSeveral(
     std::vector<std::string> &bundle)
 {
     try

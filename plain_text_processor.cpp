@@ -21,32 +21,45 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-// C++
-#include <string>
+// Boost
+#include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
 
 // Trokam
-#include "common.h"
+#include "plain_text_processor.h"
 
-namespace Trokam
+std::string PlainTextProcessor::getTitle(
+    const std::string &raw)
 {
-    class DocProcessor
+    std::string title = "(empty)";
+    try
     {
-        public:
+        std::string::size_type ini= raw.find("<title") + 6;
+        if (ini != std::string::npos)
+        {
+            ini = raw.find(">", ini) + 1;
+        }
 
-            void show(
-                const web_doc *doc,
-                const std::string &retrieval_error,
-                const int &set_for_download);
+        std::string::size_type end= raw.find("</title>", ini);
+        if((ini != std::string::npos) && (end != std::string::npos))
+        {
+            if((end-ini) < 200)
+            {
+                title= raw.substr(ini, end-ini);
+            }
+            else
+            {
+                title= raw.substr(ini, 200);
+            }
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << __PRETTY_FUNCTION__;
+        std::cerr << "error:" << e.what() << '\n';
+    }
 
-        private:
+    boost::algorithm::trim_if(title, boost::algorithm::is_any_of("\n\r\t\\\""));
 
-            const size_t TEXT_LENGTH_LIMIT = 15000;
-
-            std::string text;
-            std::string title;
-            std::string lang;
-
-            void extractPlainText(const web_doc *doc);
-
-    };
+    return title;
 }

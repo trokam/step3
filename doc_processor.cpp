@@ -26,6 +26,7 @@
 
 // Trokam
 #include "doc_processor.h"
+#include "plain_text_processor.h"
 
 void Trokam::DocProcessor::show(
     const web_doc *doc,
@@ -38,5 +39,88 @@ void Trokam::DocProcessor::show(
     std::cout << "doc_id:" << doc->id << '\n';
     std::cout << "content_type:" << doc->content_type << '\n';
     std::cout << "error code:" << retrieval_error << '\n';
-    std::cout << "page lenght:" << doc->raw.length() << '\n';
+    std::cout << "page length:" << doc->raw.length() << '\n';
+
+    extractPlainText(doc);
+    std::cout << "page content:" << text.substr(0, 300) << '\n';    
+}
+
+void Trokam::DocProcessor::extractPlainText(
+    const web_doc *doc)
+{
+    const std::string &raw = doc->raw;
+
+    title = PlainTextProcessor::getTitle(raw);
+    text.reserve(20000);
+
+    // If the page do not have a 'body', there is nothing to parse.
+    std::string::size_type curr_loc = 0;
+    curr_loc = raw.find("<body", curr_loc);
+    if(curr_loc == std::string::npos)
+    {
+        return;
+    }
+
+    curr_loc += 4;
+
+    try
+    {
+        while(
+            (curr_loc < raw.size()) &&
+            (curr_loc < 1000000) &&
+            (text.length() < TEXT_LENGTH_LIMIT))
+        {
+            while(raw.at(curr_loc) != '>')
+            {
+                curr_loc++;
+            }
+
+            text+= ' ';
+
+            // We know that the character is '>', them we move
+            // one position forward.
+            curr_loc++;
+
+            while(raw.at(curr_loc) != '<')
+            {
+                text += raw.at(curr_loc);
+                curr_loc++;
+            }
+
+            // We know that the current character is '<'.
+            // We pay attention to the tag, because in
+            // in some cases we discard its content.
+            if(raw.substr(curr_loc, 6) == "<style")
+            {
+                std::string::size_type loc= raw.find("</style>", curr_loc);
+                if(loc == std::string::npos)
+                {
+                    break;
+                }
+                curr_loc= loc + 8;
+            }
+            else if(raw.substr(curr_loc, 7) == "<script")
+            {
+                std::string::size_type loc= raw.find("</script>", curr_loc);
+                if(loc == std::string::npos)
+                {
+                    break;
+                }
+                curr_loc= loc + 9;
+            }
+            else if(raw.substr(curr_loc, 6) == "</body")
+            {
+                break;
+            }
+            else if(raw.substr(curr_loc, 6) == "</html")
+            {
+                break;
+            }
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << __PRETTY_FUNCTION__;
+        std::cerr << "error:" << e.what() << '\n';
+    }
 }

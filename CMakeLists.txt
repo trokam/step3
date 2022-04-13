@@ -12,6 +12,7 @@ add_executable(
     file_ops.cpp
     main.cpp
     options.cpp
+    plain_text_processor.cpp
     postgresql.cpp
     warehouse.cpp)
 

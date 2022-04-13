@@ -28,6 +28,10 @@
 #include <string>
 #include <vector>
 
+// Boost
+#include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
+
 // Trokam
 #include "common.h"
 
@@ -200,4 +204,7 @@ class PlainTextProcessor
 
             return url;
         }
+
+       static std::string getTitle(
+            const std::string &raw);
 };

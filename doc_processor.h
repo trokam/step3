@@ -45,8 +45,5 @@ namespace Trokam
             std::string text;
             std::string title;
             std::string lang;
-
-            void extractPlainText(const web_doc *doc);
-
     };
 }

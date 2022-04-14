@@ -151,6 +151,16 @@ void Trokam::Crawler::run()
                 curl_multi_remove_handle(curl_multi_handler, individual_handle);
                 curl_easy_cleanup(individual_handle);
 
+                // Deleting document.
+                if(doc!=nullptr)
+                {
+                    delete doc;
+                }
+                else
+                {
+                    std::cerr << "strange, pointer is null";
+                }
+
                 // Increment the number of URLs downloaded.
                 downloaded++;
             }
@@ -220,7 +230,7 @@ void Trokam::Crawler::extractSaveUrl(
     std::vector<std::string> external;
 
     // Extract the URL from document.
-    PlainTextProcessor::extract_url(
+    Trokam::PlainTextProcessor::extract_url(
         MAX_URL_EXTRACTED, doc, internal, external);
 
     // Randomly select some of the internal URLs.

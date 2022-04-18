@@ -41,6 +41,17 @@ void Trokam::DocProcessor::show(
 
     const std::string &raw = doc->raw;
 
+    Trokam::FileOps::save("/tmp/trokam_raw", raw);
+    std::string command =
+        "lynx -dump -force_html -nolist /tmp/trokam_raw > /tmp/trokam_text";
+    int status = system(command.c_str());
+    text = Trokam::FileOps::read("/tmp/trokam_text");
+
+    Trokam::LanguageDetection ld;
+    lang = ld.detectLanguage(text);
+
+    title = Trokam::PlainTextProcessor::getTitle(raw);
+
     std::cout << "\n\n================================== " << set_for_download
                 << " ==================================\n";
     std::cout << "indexed URL:" << doc->url << '\n';
@@ -48,23 +59,10 @@ void Trokam::DocProcessor::show(
     std::cout << "content_type:" << doc->content_type << '\n';
     std::cout << "error code:" << retrieval_error << '\n';
     std::cout << "page length:" << doc->raw.length() << '\n';
-
-    title = Trokam::PlainTextProcessor::getTitle(raw);
-
-//    Trokam::PlainTextProcessor::extractPlainText(
-//        TEXT_LENGTH_LIMIT, raw, text);
-
-    Trokam::FileOps::save("/tmp/trokam_raw", raw);
-    std::string command =
-        "lynx -dump -force_html -nolist /tmp/trokam_raw > /tmp/trokam_text";
-    int status = system(command.c_str());
-    std::cout << "status:" << status << '\n';
-    text = Trokam::FileOps::read("/tmp/trokam_text");
-
     std::cout << "page title:" << title << '\n';        
-    std::cout << "page content:" << text.substr(0, 300) << '\n';
-
-    Trokam::LanguageDetection ld;
-    lang = ld.detectLanguage(text);
     std::cout << "page lang:" << lang << '\n';            
+    std::cout << "convert status:" << status << '\n';
+    std::cout << "page content:" << text.substr(0, 300) << '\n';   
+
+    grasp.insert(doc->id, title, text);
 }

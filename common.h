@@ -33,3 +33,14 @@ struct web_doc
     std::string raw;
     std::string content_type;
 };
+
+/*
+struct PageData
+{
+    int  id = -1;
+    std::string text;
+    std::string title;
+    std::string lang;
+    std::string url;
+};
+*/

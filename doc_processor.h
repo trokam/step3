@@ -26,6 +26,7 @@
 
 // Trokam
 #include "common.h"
+#include "grasp.h"
 
 namespace Trokam
 {
@@ -41,6 +42,8 @@ namespace Trokam
         private:
 
             const size_t TEXT_LENGTH_LIMIT = 15000;
+
+            Trokam::Grasp grasp;
 
             std::string text;
             std::string title;

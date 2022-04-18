@@ -23,24 +23,35 @@
 
 #pragma once
 
-/// C++
-// #include <string>
+// C++
+#include <memory>
+#include <string>
+
+// Xapian
+#include <xapian.h>
 
 namespace Trokam
 {
-    class Options
+    class Grasp
     {
         public:
 
-            Options(int argc, char* argv[]);
-            std::string action() const;
-            std::string seedsFile() const;
-            std::string terms() const;
+            Grasp();
+
+            void insert(
+                const int &id,
+                const std::string &title,
+                const std::string &text);
+
+            void search(
+                const std::string &querystring,
+                Xapian::doccount offset = 0,
+                Xapian::doccount pagesize = 10);
 
         private:
 
-            std::string opt_action;
-            std::string opt_seeds_file;
-            std::string opt_terms;
+            std::unique_ptr<Xapian::WritableDatabase> db;
+
+            Xapian::TermGenerator term_generator;
     };
 }

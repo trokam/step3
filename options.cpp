@@ -39,8 +39,9 @@ Trokam::Options::Options(int argc, char* argv[])
         boost::program_options::options_description desc("Allowed options");
         desc.add_options()
             ("help",       "Produce help message")
-            ("action",     boost::program_options::value<std::string>(), "Possible actions: empty, init and index.")
-            ("seeds-file", boost::program_options::value<std::string>(), "File with first URLs.");
+            ("action",     boost::program_options::value<std::string>(), "Possible actions: empty, init, index and search.")
+            ("seeds-file", boost::program_options::value<std::string>(), "File with first URLs.")
+            ("terms",      boost::program_options::value<std::string>(), "Terms to search.");
         boost::program_options::variables_map vm;
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
@@ -61,6 +62,11 @@ Trokam::Options::Options(int argc, char* argv[])
             opt_seeds_file = vm["seeds-file"].as<std::string>();
         }
 
+        if(vm.count("terms"))
+        {
+            opt_terms = vm["terms"].as<std::string>();
+        }
+
     }
     catch(const std::exception& e)
     {
@@ -77,4 +83,9 @@ std::string Trokam::Options::action() const
 std::string Trokam::Options::seedsFile() const
 {
     return opt_seeds_file;
+}
+
+std::string Trokam::Options::terms() const
+{
+    return opt_terms;
 }

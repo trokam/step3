@@ -26,6 +26,7 @@
 
 // Trokam
 #include "doc_processor.h"
+#include "file_ops.h"
 #include "plain_text_processor.h"
 #include "language_detection.h"
 
@@ -49,8 +50,16 @@ void Trokam::DocProcessor::show(
     std::cout << "page length:" << doc->raw.length() << '\n';
 
     title = Trokam::PlainTextProcessor::getTitle(raw);
-    Trokam::PlainTextProcessor::extractPlainText(
-        TEXT_LENGTH_LIMIT, raw, text);
+
+//    Trokam::PlainTextProcessor::extractPlainText(
+//        TEXT_LENGTH_LIMIT, raw, text);
+
+    Trokam::FileOps::save("/tmp/trokam_raw", raw);
+    std::string command =
+        "lynx -dump -force_html -nolist /tmp/trokam_raw > /tmp/trokam_text";
+    int status = system(command.c_str());
+    std::cout << "status:" << status << '\n';
+    text = Trokam::FileOps::read("/tmp/trokam_text");
 
     std::cout << "page title:" << title << '\n';        
     std::cout << "page content:" << text.substr(0, 300) << '\n';

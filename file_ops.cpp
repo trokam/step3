@@ -30,6 +30,22 @@
 // Trokam
 #include "file_ops.h"
 
+std::string Trokam::FileOps::read(
+    const std::string &filename)
+{
+    std::string content;
+    std::ifstream inputFile(filename.c_str(), std::ios::in | std::ios::binary);
+    if(inputFile)
+    {
+        inputFile.seekg(0, std::ios::end);
+        content.resize(inputFile.tellg());
+        inputFile.seekg(0, std::ios::beg);
+        inputFile.read(&content[0], content.size());
+        inputFile.close();
+    }
+    return content;
+}
+
 void Trokam::FileOps::readNoComment(
     const std::string &filename,
     std::vector<std::string> &content)
@@ -50,4 +66,13 @@ void Trokam::FileOps::readNoComment(
             content.push_back(line);
         }
     }
+}
+
+void Trokam::FileOps::save(
+    const std::string &filename,
+    const std::string &content)
+{
+    std::ofstream out(filename.c_str());
+    out << content;
+    out.close();
 }

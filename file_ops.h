@@ -36,6 +36,9 @@ namespace Trokam
     {
         public:
 
+            static std::string read(
+                const std::string &filename);
+
             /**
              * Put every line of file in content.
              * It skips blank lines and commented lines.
@@ -44,5 +47,9 @@ namespace Trokam
             static void readNoComment(
                 const std::string &filename,
                 std::vector<std::string> &content);
+
+            static void save(
+                const std::string &filename,
+                const std::string &content);
     };
 }

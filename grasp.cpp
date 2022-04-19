@@ -28,16 +28,17 @@
 
 // Trokam
 #include "grasp.h"
+#include "file_ops.h"
 
 Trokam::Grasp::Grasp()
 {
-    std::string dbpath;
+    // std::string dbpath;
 
     if(const char* env_home = std::getenv("HOME"))
     {
         // std::cout << "Your PATH is: " << env_p << '\n';
-        dbpath  = env_home;
-        dbpath += "/grasp";
+        db_path  = env_home;
+        db_path += "/grasp";
     }
     else
     {
@@ -47,7 +48,7 @@ Trokam::Grasp::Grasp()
 
     db.reset(
         new Xapian::WritableDatabase(
-            dbpath, Xapian::DB_CREATE_OR_OPEN));
+            db_path, Xapian::DB_CREATE_OR_OPEN));
 }
 
 void Trokam::Grasp::insert(
@@ -68,7 +69,8 @@ void Trokam::Grasp::insert(
     std::string id_term = "Q" + std::to_string(id);
     std::cout  << "indexing page with id:" << id_term << "\n";
 
-    doc.set_data(title);
+    // doc.set_data(title);
+    doc.set_data(std::to_string(id) + " -- " + title);
     doc.add_boolean_term(id_term);
     db->replace_document(id_term, doc);
 }
@@ -98,9 +100,15 @@ void Trokam::Grasp::search(
         Xapian::docid did = *m;
         std::cout << "rank:" << m.get_rank() << "\n";
         std::cout << "weight:" << m.get_weight () << "\n";
-        std::cout << "docId:" << std::setfill('0') << std::setw(3) << did << '\n';
+        // std::cout << "docId:" << std::setfill('0') << std::setw(3) << did << '\n';
+        std::cout << "docId:" << did << '\n';
         const std::string &data = m.get_document().get_data();
         std::cout << "data:" << data << "\n\n";
     }
     std::cout << '\n';
+}
+
+void Trokam::Grasp::clean()
+{
+    Trokam::FileOps::rmDir(db_path);
 }

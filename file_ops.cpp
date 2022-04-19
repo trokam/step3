@@ -23,6 +23,7 @@
 
 // C++
 #include <fstream>
+#include <iostream>
 
 // Boost
 #include <boost/algorithm/string.hpp>
@@ -75,4 +76,15 @@ void Trokam::FileOps::save(
     std::ofstream out(filename.c_str());
     out << content;
     out.close();
+}
+
+void Trokam::FileOps::rmDir(
+    const std::string &dirname)
+{
+    std::string command= "rm -rf " +  dirname;
+    const int status= system(command.c_str());
+    if(status != 0)
+    {
+        std::cerr << "failure on deleting directory: " << dirname << "\n";
+    }
 }

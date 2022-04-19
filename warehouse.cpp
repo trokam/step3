@@ -218,3 +218,29 @@ void Trokam::Warehouse::setIndexed(
 
     m_db->execSeveral(multiple_sql_update);
 }
+
+std::string Trokam::Warehouse::getUrl(
+    const int &doc_id)
+{
+    std::string sql_select;
+    sql_select=  "SELECT link ";
+    sql_select+= "FROM pages ";
+    sql_select+= "WHERE doc_id=" + std::to_string(doc_id);
+
+    pqxx::result answer;
+    m_db->execAnswer(sql_select, answer);
+
+    pqxx::result::iterator row= answer.begin();
+    if(row != answer.end())
+    {
+        std::string result = row[0].as(std::string());
+        return result;
+    }
+    else
+    {
+        // No answer.
+        // std::cerr << "Error, no answer.\n";
+    }
+
+    return "";    
+}

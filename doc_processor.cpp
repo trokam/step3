@@ -62,7 +62,7 @@ void Trokam::DocProcessor::show(
     std::cout << "page title:" << title << '\n';        
     std::cout << "page lang:" << lang << '\n';            
     std::cout << "convert status:" << status << '\n';
-    std::cout << "page content:" << text.substr(0, 300) << '\n';   
+    // std::cout << "page content:" << text.substr(0, 1200) << '\n';   
 
     grasp.insert(doc->id, title, text);
 }

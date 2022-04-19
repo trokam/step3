@@ -30,6 +30,9 @@
 // Xapian
 #include <xapian.h>
 
+// Trokam
+#include "warehouse.h"
+
 namespace Trokam
 {
     class Grasp
@@ -48,10 +51,16 @@ namespace Trokam
                 Xapian::doccount offset = 0,
                 Xapian::doccount pagesize = 10);
 
+            void clean();
+
         private:
 
             std::unique_ptr<Xapian::WritableDatabase> db;
 
             Xapian::TermGenerator term_generator;
+
+            Warehouse house;            
+
+            std::string db_path;
     };
 }

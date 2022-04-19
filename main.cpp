@@ -40,6 +40,9 @@ int main(int argc, char *argv[])
         std::cout << "Clearing crawler database ...\n";
         Trokam::Crawler crawler;
         crawler.clean();
+
+        Trokam::Grasp grasp;
+        grasp.clean();
     }
     else if(action == "init")
     {

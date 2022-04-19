@@ -51,5 +51,8 @@ namespace Trokam
             static void save(
                 const std::string &filename,
                 const std::string &content);
+
+            static void rmDir(
+                const std::string &dirname);
     };
 }

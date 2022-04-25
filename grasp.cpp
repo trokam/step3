@@ -53,11 +53,13 @@ Trokam::Grasp::Grasp()
 
 void Trokam::Grasp::insert(
     const int &id,
+    const std::string &url,
     const std::string &title,
     const std::string &text)
 {
     // We make a document and tell the term generator to use this.
     Xapian::Document doc;
+    Xapian::TermGenerator term_generator;    
     term_generator.set_document(doc);
 
     // Index fields without prefixes for general search.
@@ -70,7 +72,10 @@ void Trokam::Grasp::insert(
     std::cout  << "indexing page with id:" << id_term << "\n";
 
     // doc.set_data(title);
-    doc.set_data(std::to_string(id) + " -- " + title);
+    // doc.set_data(std::to_string(id) + " -- " + title);
+    doc.set_data(text);
+    doc.add_value(SLOT_URL, url);
+    doc.add_value(SLOT_TITLE, title);
     doc.add_boolean_term(id_term);
     db->replace_document(id_term, doc);
 }
@@ -101,9 +106,14 @@ void Trokam::Grasp::search(
         std::cout << "rank:" << m.get_rank() << "\n";
         std::cout << "weight:" << m.get_weight () << "\n";
         // std::cout << "docId:" << std::setfill('0') << std::setw(3) << did << '\n';
-        std::cout << "docId:" << did << '\n';
+        std::cout << "docId:" << m.get_document().get_docid() << '\n';
+        std::cout << "docId:" << did << '\n';        
         const std::string &data = m.get_document().get_data();
-        std::cout << "data:" << data << "\n\n";
+        // std::cout << "data:" << data << "\n\n";
+        // std::cout << "description:" << m.get_description() << "\n\n";
+        std::cout << "title:" << m.get_document().get_value(SLOT_TITLE) << '\n';
+        std::cout << "url:" << m.get_document().get_value(SLOT_URL) << '\n';
+        std::cout << '\n';
     }
     std::cout << '\n';
 }

@@ -45,7 +45,8 @@ void Trokam::DocProcessor::show(
     std::string command =
         "lynx -dump -force_html -nolist /tmp/trokam_raw > /tmp/trokam_text";
     int status = system(command.c_str());
-    text = Trokam::FileOps::read("/tmp/trokam_text");
+    // text = Trokam::FileOps::read("/tmp/trokam_text");
+    text = Trokam::FileOps::readLines(5000, "/tmp/trokam_text");
 
     Trokam::LanguageDetection ld;
     lang = ld.detectLanguage(text);
@@ -64,5 +65,5 @@ void Trokam::DocProcessor::show(
     std::cout << "convert status:" << status << '\n';
     // std::cout << "page content:" << text.substr(0, 1200) << '\n';   
 
-    grasp.insert(doc->id, title, text);
+    grasp.insert(doc->id, doc->url, title, text);
 }

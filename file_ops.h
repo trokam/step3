@@ -39,6 +39,10 @@ namespace Trokam
             static std::string read(
                 const std::string &filename);
 
+            static std::string readLines(
+                const size_t SIZE_LIMIT,
+                const std::string &filename);
+
             /**
              * Put every line of file in content.
              * It skips blank lines and commented lines.

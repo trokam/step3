@@ -35,28 +35,53 @@ std::string Trokam::FileOps::read(
     const std::string &filename)
 {
     std::string content;
-    std::ifstream inputFile(filename.c_str(), std::ios::in | std::ios::binary);
-    if(inputFile)
+    std::ifstream input_file(filename.c_str(), std::ios::in | std::ios::binary);
+    if(input_file)
     {
-        inputFile.seekg(0, std::ios::end);
-        content.resize(inputFile.tellg());
-        inputFile.seekg(0, std::ios::beg);
-        inputFile.read(&content[0], content.size());
-        inputFile.close();
+        input_file.seekg(0, std::ios::end);
+        content.resize(input_file.tellg());
+        input_file.seekg(0, std::ios::beg);
+        input_file.read(&content[0], content.size());
+        input_file.close();
     }
     return content;
+}
+
+std::string Trokam::FileOps::readLines(
+    const size_t SIZE_LIMIT,
+    const std::string &filename)
+{
+    std::string result;
+    std::ifstream input_file(filename);
+    if (!input_file.is_open())
+    {
+        std::cerr << "fail: could not open file:'" << filename << "'\n";
+        return "";
+    }
+
+    std::string line;
+    while(
+        (std::getline(input_file, line)) &&
+        (result.size() < SIZE_LIMIT))
+    {
+        boost::algorithm::trim_if(
+            line, boost::algorithm::is_any_of(" \t\n\r\""));
+        result += line + ' ';
+    }
+
+    return result;
 }
 
 void Trokam::FileOps::readNoComment(
     const std::string &filename,
     std::vector<std::string> &content)
 {
-    std::ifstream inputFile(
+    std::ifstream input_file(
         filename.c_str(),
         std::ios::in | std::ios::binary);
 
     std::string line;
-    while(std::getline(inputFile, line))
+    while(std::getline(input_file, line))
     {
         boost::algorithm::trim_if(
             line,

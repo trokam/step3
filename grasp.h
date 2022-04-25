@@ -43,6 +43,7 @@ namespace Trokam
 
             void insert(
                 const int &id,
+                const std::string &url,
                 const std::string &title,
                 const std::string &text);
 
@@ -55,9 +56,12 @@ namespace Trokam
 
         private:
 
+            const int SLOT_URL   = 0;
+            const int SLOT_TITLE = 1;
+
             std::unique_ptr<Xapian::WritableDatabase> db;
 
-            Xapian::TermGenerator term_generator;
+            // Xapian::TermGenerator term_generator;
 
             Warehouse house;            
 

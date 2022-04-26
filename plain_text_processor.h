@@ -61,5 +61,12 @@ namespace Trokam
                 const size_t &limit,
                 const std::string &raw,
                 std::string &text);
+
+            /**
+             * Suitable only for small strings, since this
+             * method makes a copy of the incomming text.
+             */
+            static std::vector<std::string> tokenize(
+                std::string text);
     };
 }

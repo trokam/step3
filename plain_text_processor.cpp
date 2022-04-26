@@ -225,7 +225,8 @@ std::string Trokam::PlainTextProcessor::getTitle(
         std::cerr << "error:" << e.what() << '\n';
     }
 
-    boost::algorithm::trim_if(title, boost::algorithm::is_any_of("\n\r\t\\\""));
+    boost::algorithm::trim_if(
+        title, boost::algorithm::is_any_of(" \n\r\t\\\""));
 
     return title;
 }
@@ -307,4 +308,27 @@ void Trokam::PlainTextProcessor::extractPlainText(
         std::cerr << __PRETTY_FUNCTION__;
         std::cerr << "error:" << e.what() << '\n';
     }
+}
+
+std::vector<std::string> Trokam::PlainTextProcessor::tokenize(
+    std::string text)
+{
+    std::vector<std::string> result{};
+    const char delimiter = ' ';
+    size_t ini = 0;
+    size_t pos = 0;
+
+    text += delimiter;
+    while((pos = text.find(delimiter, pos+1)) != std::string::npos)
+    {
+        std::string part = text.substr(ini, pos-ini);
+        boost::algorithm::trim_if(
+            part, boost::algorithm::is_any_of(" \n\r\t\\\""));
+        if(!part.empty())
+        {
+            result.push_back(part);
+        }
+        ini = pos;
+    }
+    return result;
 }

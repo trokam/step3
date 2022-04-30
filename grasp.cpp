@@ -29,6 +29,7 @@
 // Trokam
 #include "grasp.h"
 #include "file_ops.h"
+#include "plain_text_processor.h"
 
 Trokam::Grasp::Grasp()
 {
@@ -102,17 +103,16 @@ void Trokam::Grasp::search(
 
     for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
     {
-        Xapian::docid did = *m;
-        std::cout << "rank:" << m.get_rank() << "\n";
-        std::cout << "weight:" << m.get_weight () << "\n";
-        // std::cout << "docId:" << std::setfill('0') << std::setw(3) << did << '\n';
-        std::cout << "docId:" << m.get_document().get_docid() << '\n';
-        std::cout << "docId:" << did << '\n';        
-        const std::string &data = m.get_document().get_data();
-        // std::cout << "data:" << data << "\n\n";
         // std::cout << "description:" << m.get_description() << "\n\n";
-        std::cout << "title:" << m.get_document().get_value(SLOT_TITLE) << '\n';
-        std::cout << "url:" << m.get_document().get_value(SLOT_URL) << '\n';
+        std::cout << m.get_document().get_value(SLOT_TITLE) << '\n';
+        std::cout << "rank:" << m.get_rank() << " -- weight:" << m.get_weight () << "\n";
+        std::cout << m.get_document().get_value(SLOT_URL) << '\n';
+
+        const std::string &data = m.get_document().get_data();
+        const std::string snippet =
+            Trokam::PlainTextProcessor::snippet(data, querystring, 250);
+        std::cout << snippet << "\n\n";
+
         std::cout << '\n';
     }
     std::cout << '\n';

@@ -68,5 +68,14 @@ namespace Trokam
              */
             static std::vector<std::string> tokenize(
                 std::string text);
+
+            static std::string snippet(
+                const std::string &block_text,
+                const std::string &search_text,
+                const size_t &snippet_length);
+
+            static size_t case_insensitive_find(
+                const std::string &text_block,
+                std::string text_piece);
     };
 }

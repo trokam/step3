@@ -67,9 +67,9 @@ Trokam::Postgresql::Postgresql(
     try
     {
         m_connection.reset(new pqxx::connection(conn_param));
-        std::cout << "connected to database \n";
-        std::cout << "backend version: " << m_connection->server_version() << "\n";
-        std::cout << "protocol version: " << m_connection->protocol_version() << std::endl;
+        std::cout << "connected to database\n";
+        std::cout << "backend version: " << m_connection->server_version() << '\n';
+        std::cout << "protocol version: " << m_connection->protocol_version() << "\n\n";
     }
     catch(const std::exception &e)
     {

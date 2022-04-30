@@ -24,6 +24,9 @@
 // C++
 #include "iostream"
 
+// Boost
+#include <boost/algorithm/string.hpp>
+
 // Trokam
 #include "doc_processor.h"
 #include "file_ops.h"
@@ -45,8 +48,9 @@ void Trokam::DocProcessor::show(
     std::string command =
         "lynx -dump -force_html -nolist /tmp/trokam_raw > /tmp/trokam_text";
     int status = system(command.c_str());
-    // text = Trokam::FileOps::read("/tmp/trokam_text");
     text = Trokam::FileOps::readLines(5000, "/tmp/trokam_text");
+    boost::replace_all(text, "____________________", "");
+    boost::replace_all(text, "(BUTTON)", "");
 
     Trokam::LanguageDetection ld;
     lang = ld.detectLanguage(text);

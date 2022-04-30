@@ -313,7 +313,7 @@ void Trokam::PlainTextProcessor::extractPlainText(
 std::vector<std::string> Trokam::PlainTextProcessor::tokenize(
     std::string text)
 {
-    std::vector<std::string> result{};
+    std::vector<std::string> result;
     const char delimiter = ' ';
     size_t ini = 0;
     size_t pos = 0;
@@ -331,4 +331,81 @@ std::vector<std::string> Trokam::PlainTextProcessor::tokenize(
         ini = pos;
     }
     return result;
+}
+
+std::string Trokam::PlainTextProcessor::snippet(
+    const std::string &block_text,
+    const std::string &search_text,
+    const size_t &snippet_length)
+{
+    const std::vector<std::string> search_tokens =
+        Trokam::PlainTextProcessor::tokenize(search_text);
+
+    if(search_tokens.size() > 0)
+    {
+        // size_t loc = block_text.find(search_tokens[0]);
+        size_t loc = case_insensitive_find(block_text, search_tokens[0]);
+        if(loc == std::string::npos)
+        {
+            std::cout << "<not found>\n";
+            if(snippet_length < block_text.length())
+            {
+                std::string result = block_text.substr(0, snippet_length);
+                return result;            
+            }
+            else
+            {
+                return block_text;
+            }
+        }
+        else
+        {
+            int begin = loc - snippet_length/2;
+            // std::cout << "begin:" << begin << "\n";
+            if(begin < 0)
+            {
+                begin = 0;
+            }
+
+            int end = loc + snippet_length/2;
+            // std::cout << "end:" << end << "\n";            
+            if(size_t(end) > block_text.length())
+            {
+                end = block_text.length();
+            }
+
+            std::string result = block_text.substr(begin, end-begin);
+            return result;            
+        }
+    }
+    else
+    {
+        std::string result = block_text.substr(0, snippet_length);
+        return result;
+    }
+}
+
+size_t Trokam::PlainTextProcessor::case_insensitive_find(
+    const std::string &text_block,
+    std::string text_piece)
+{
+    std::transform(
+        text_piece.begin(),
+        text_piece.end(),
+        text_piece.begin(),
+        ::toupper);
+  
+    std::string::const_iterator it =
+        search(
+            text_block.begin(),
+            text_block.end(), 
+            text_piece.begin(),
+            text_piece.end(), 
+            [](char a, char b){return toupper(a) == b;});
+
+    if(it == text_block.end())
+    {
+        return std::string::npos;
+    }
+    return it - text_block.begin();
 }

@@ -50,7 +50,7 @@ namespace Trokam
             void search(
                 const std::string &querystring,
                 Xapian::doccount offset = 0,
-                Xapian::doccount pagesize = 10);
+                Xapian::doccount pagesize = 30);
 
             void clean();
 

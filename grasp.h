@@ -35,6 +35,12 @@
 
 namespace Trokam
 {
+    struct DocData
+    {
+        Xapian::MSetIterator it;
+        float relevance = 1.0;
+    };
+
     class Grasp
     {
         public:
@@ -58,12 +64,13 @@ namespace Trokam
 
             const int SLOT_URL   = 0;
             const int SLOT_TITLE = 1;
+            const int SLOT_RELEVANCE = 2;
 
             std::unique_ptr<Xapian::WritableDatabase> db;
 
             // Xapian::TermGenerator term_generator;
 
-            Warehouse house;            
+            // Warehouse house;            
 
             std::string db_path;
     };

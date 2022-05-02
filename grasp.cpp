@@ -98,23 +98,54 @@ void Trokam::Grasp::search(
     Xapian::Enquire enquire(*db);
     enquire.set_query(query);
 
-    // And print out something about each match.
     Xapian::MSet mset = enquire.get_mset(offset, pagesize);
+
+    std::vector<Trokam::DocData> search_results;
 
     for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
     {
-        // std::cout << "description:" << m.get_description() << "\n\n";
-        std::cout << m.get_document().get_value(SLOT_TITLE) << '\n';
-        std::cout << "rank:" << m.get_rank() << " -- weight:" << m.get_weight () << "\n";
-        std::cout << m.get_document().get_value(SLOT_URL) << '\n';
+        std::string title = m.get_document().get_value(SLOT_TITLE);
+        std::string url = m.get_document().get_value(SLOT_URL);
 
-        const std::string &data = m.get_document().get_data();
+        float title_weight =
+            Trokam::PlainTextProcessor::how_much_of(title, querystring) + 1.0;
+
+        float url_weight =
+            Trokam::PlainTextProcessor::how_much_of(url, querystring) + 1.0;
+
+        float relevance = m.get_weight() * title_weight * url_weight;
+        // m.get_document().add_value(SLOT_RELEVANCE, std::to_string(relevance));
+
+        Trokam::DocData doc;
+        doc.it = m;
+        doc.relevance = relevance;
+        search_results.push_back(doc);
+    }
+   
+    std::sort(
+        search_results.begin(), 
+        search_results.end(), 
+        [](Trokam::DocData a, Trokam::DocData b) {return a.relevance > b.relevance;});
+
+    // for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
+    for(auto it= search_results.begin(); it!=search_results.end(); ++it)
+    {
+        std::string title = it->it.get_document().get_value(SLOT_TITLE);
+        std::string url = it->it.get_document().get_value(SLOT_URL);
+
+        std::cout << title << '\n';
+        std::cout << " -- relevance:" << it->relevance << "\n";
+        std::cout << url << '\n';
+
+        const std::string &data = it->it.get_document().get_data();
         const std::string snippet =
             Trokam::PlainTextProcessor::snippet(data, querystring, 250);
         std::cout << snippet << "\n\n";
 
         std::cout << '\n';
     }
+
+
     std::cout << '\n';
 }
 

@@ -409,3 +409,24 @@ size_t Trokam::PlainTextProcessor::case_insensitive_find(
     }
     return it - text_block.begin();
 }
+
+float Trokam::PlainTextProcessor::how_much_of(
+    std::string text_block,
+    std::string text_piece)
+{
+    float original_length = text_block.length();
+    std::vector<std::string> tokens = tokenize(text_piece);
+    for(const auto &element: tokens)
+    {
+        size_t pos = case_insensitive_find(text_block, element);
+        while(pos != std::string::npos)
+        {
+            text_block.erase(pos, element.length());
+            pos = case_insensitive_find(text_block, element);
+        }
+    }
+    boost::algorithm::trim_if(
+        text_block, boost::algorithm::is_any_of(" "));    
+    float remaining_length = text_block.length();
+    return (original_length-remaining_length)/original_length;
+}

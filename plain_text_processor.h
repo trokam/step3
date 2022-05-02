@@ -77,5 +77,9 @@ namespace Trokam
             static size_t case_insensitive_find(
                 const std::string &text_block,
                 std::string text_piece);
+
+            static float how_much_of(
+                std::string text_block,
+                std::string text_piece);
     };
 }

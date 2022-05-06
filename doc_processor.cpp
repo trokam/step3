@@ -40,7 +40,7 @@ void Trokam::DocProcessor::show(
 {
     title.clear();
     text.clear();
-    lang.clear();
+    // lang.clear();
 
     const std::string &raw = doc->raw;
 
@@ -53,7 +53,7 @@ void Trokam::DocProcessor::show(
     boost::replace_all(text, "(BUTTON)", "");
 
     Trokam::LanguageDetection ld;
-    lang = ld.detectLanguage(text);
+    const std::string language = ld.detectLanguage(text);
 
     title = Trokam::PlainTextProcessor::getTitle(raw);
 
@@ -65,9 +65,12 @@ void Trokam::DocProcessor::show(
     std::cout << "error code:" << retrieval_error << '\n';
     std::cout << "page length:" << doc->raw.length() << '\n';
     std::cout << "page title:" << title << '\n';        
-    std::cout << "page lang:" << lang << '\n';            
+    std::cout << "page lang:" << language << '\n';            
     std::cout << "convert status:" << status << '\n';
     // std::cout << "page content:" << text.substr(0, 1200) << '\n';   
 
-    grasp.insert(doc->id, doc->url, title, text);
+    if(language != "unknown")
+    {
+        grasp.insert(doc->id, doc->url, title, text, language);
+    }
 }

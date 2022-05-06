@@ -51,7 +51,8 @@ namespace Trokam
                 const int &id,
                 const std::string &url,
                 const std::string &title,
-                const std::string &text);
+                const std::string &text,
+                const std::string &language);
 
             void search(
                 const std::string &querystring,

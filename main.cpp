@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
         // Indexing the web.
         std::cout << "Indexind the web ...\n";
         Trokam::Crawler crawler;
-        for(int i=0; i<10; i++)
+        for(int i=0; i<2; i++)
         {
             crawler.run();
         }
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     else if(action == "search")
     {
         // Indexing the web.
-        std::cout << "Searching the database ...\n";
+        std::cout << "Searching the database ...\n\n";
         std::string terms = opt.terms();
         if(terms == "")
         {

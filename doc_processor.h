@@ -47,6 +47,6 @@ namespace Trokam
 
             std::string text;
             std::string title;
-            std::string lang;
+            // std::string lang;
     };
 }

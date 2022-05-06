@@ -56,7 +56,8 @@ void Trokam::Grasp::insert(
     const int &id,
     const std::string &url,
     const std::string &title,
-    const std::string &text)
+    const std::string &text,
+    const std::string &language)
 {
     // We make a document and tell the term generator to use this.
     Xapian::Document doc;
@@ -69,8 +70,10 @@ void Trokam::Grasp::insert(
     // We use the identifier to ensure each object ends up in the
     // database only once no matter how many times we run the
     // indexer.
-    std::string id_term = "Q" + std::to_string(id);
+    const std::string id_term = "Q" + std::to_string(id);
     std::cout  << "indexing page with id:" << id_term << "\n";
+
+    const std::string lang_term = "L" + language;
 
     // doc.set_data(title);
     // doc.set_data(std::to_string(id) + " -- " + title);
@@ -78,6 +81,7 @@ void Trokam::Grasp::insert(
     doc.add_value(SLOT_URL, url);
     doc.add_value(SLOT_TITLE, title);
     doc.add_boolean_term(id_term);
+    doc.add_boolean_term(lang_term);    
     db->replace_document(id_term, doc);
 }
 
@@ -93,6 +97,36 @@ void Trokam::Grasp::search(
 
     // And parse the query.
     Xapian::Query query = queryparser.parse_query(querystring);
+
+    // --------------------------------------------------
+
+    std::vector<std::string> lang_enquiry;
+    // lang_enquiry.push_back("english");
+    lang_enquiry.push_back("german");
+
+        // Build a query for each material value
+        std::vector<Xapian::Query> lang_queries;
+        for(const auto &lang: lang_enquiry)
+        {
+            std::string lang_term = "L";
+            lang_term += lang;
+            // material += Xapian::Unicode::tolower(lang);
+            lang_queries.push_back(Xapian::Query(lang_term));
+        }
+
+        // Combine these queries with an OR operator
+        Xapian::Query language_query(
+            Xapian::Query::OP_OR,
+            lang_queries.begin(),
+            lang_queries.end());
+
+        // Use the material query to filter the main query
+        query = Xapian::Query(
+            Xapian::Query::OP_FILTER,
+            query,
+            language_query);
+
+    // --------------------------------------------------
 
     // Use an Enquire object on the database to run the query.
     Xapian::Enquire enquire(*db);
@@ -113,7 +147,7 @@ void Trokam::Grasp::search(
         float url_weight =
             Trokam::PlainTextProcessor::how_much_of(url, querystring) + 1.0;
 
-        float relevance = m.get_weight() * title_weight * url_weight;
+        float relevance = m.get_weight() * title_weight * title_weight * url_weight * url_weight;
         // m.get_document().add_value(SLOT_RELEVANCE, std::to_string(relevance));
 
         Trokam::DocData doc;
@@ -128,13 +162,15 @@ void Trokam::Grasp::search(
         [](Trokam::DocData a, Trokam::DocData b) {return a.relevance > b.relevance;});
 
     // for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
+    const int limit_show = 5;
+    int count = 0;    
     for(auto it= search_results.begin(); it!=search_results.end(); ++it)
     {
         std::string title = it->it.get_document().get_value(SLOT_TITLE);
         std::string url = it->it.get_document().get_value(SLOT_URL);
 
         std::cout << title << '\n';
-        std::cout << " -- relevance:" << it->relevance << "\n";
+        std::cout << "relevance:" << it->relevance << "\n";
         std::cout << url << '\n';
 
         const std::string &data = it->it.get_document().get_data();
@@ -143,8 +179,13 @@ void Trokam::Grasp::search(
         std::cout << snippet << "\n\n";
 
         std::cout << '\n';
-    }
 
+        count++;
+        if(count > limit_show)
+        {
+            break;
+        }
+    }
 
     std::cout << '\n';
 }

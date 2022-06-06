@@ -101,8 +101,8 @@ void Trokam::Grasp::search(
     // --------------------------------------------------
 
     std::vector<std::string> lang_enquiry;
-    // lang_enquiry.push_back("english");
-    lang_enquiry.push_back("german");
+    lang_enquiry.push_back("english");
+    // lang_enquiry.push_back("german");
 
         // Build a query for each material value
         std::vector<Xapian::Query> lang_queries;
@@ -142,10 +142,10 @@ void Trokam::Grasp::search(
         std::string url = m.get_document().get_value(SLOT_URL);
 
         float title_weight =
-            Trokam::PlainTextProcessor::how_much_of(title, querystring) + 1.0;
+            Trokam::PlainTextProcessor::howMuchOf(title, querystring) + 1.0;
 
         float url_weight =
-            Trokam::PlainTextProcessor::how_much_of(url, querystring) + 1.0;
+            Trokam::PlainTextProcessor::howMuchOf(url, querystring) + 1.0;
 
         float relevance = m.get_weight() * title_weight * title_weight * url_weight * url_weight;
         // m.get_document().add_value(SLOT_RELEVANCE, std::to_string(relevance));
@@ -174,10 +174,12 @@ void Trokam::Grasp::search(
         std::cout << url << '\n';
 
         const std::string &data = it->it.get_document().get_data();
-        const std::string snippet =
+        std::string snippet =
             Trokam::PlainTextProcessor::snippet(data, querystring, 250);
-        std::cout << snippet << "\n\n";
+        boost::replace_all(snippet, "   ", " ");
+        boost::replace_all(snippet, "  ", " ");
 
+        std::cout << snippet << "\n\n";
         std::cout << '\n';
 
         count++;

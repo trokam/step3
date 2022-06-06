@@ -56,7 +56,7 @@ namespace Trokam
             const size_t MAX_PARALLEL  = 7;    
 
             // number of URL processed per run 
-            const int    TOTAL_PER_RUN = 100;  
+            const int    TOTAL_PER_RUN = 1000;  
 
             // max number to URLs extracted from a web page
             const int    MAX_URL_EXTRACTED = 300;

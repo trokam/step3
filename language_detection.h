@@ -61,7 +61,7 @@ namespace Trokam
                         content.length());
 
                 std::string result = language;
-                if(result == "HORT")
+                if((result == "SHORT") || (result == "UNKNOWN"))
                 {
                     return "unknown";
                 }

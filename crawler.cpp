@@ -133,17 +133,24 @@ void Trokam::Crawler::run()
                     doc->content_type = ct;
                 }
 
-                // Get the error message of this individual transfer.
-                const std::string retrieval_error =
-                    curl_easy_strerror(transfer_info->data.result);
-
-                // Extract and save information from the document.
-                processor.show(doc, retrieval_error, downloaded);
-
                 // If the document is of text type, extract the URLs.
                 if(std::string::npos != doc->content_type.find("text"))
                 {
+                    // Get the error message of this individual transfer.
+                    const std::string retrieval_error =
+                        curl_easy_strerror(transfer_info->data.result);
+
+                    // Extract and save information from the document.
+                    processor.insert(doc, retrieval_error, downloaded);
                     extractSaveUrl(doc);
+                }
+                else
+                {
+                    std::cout
+                        << "\n\n============================= skipping "
+                        << "=============================\n";
+                    std::cout << "Document is not of text type.\n";
+                    std::cout << "URL:" << doc->url << '\n';                    
                 }
 
                 // Remove the handle of this transfer.
@@ -230,7 +237,7 @@ void Trokam::Crawler::extractSaveUrl(
     std::vector<std::string> external;
 
     // Extract the URL from document.
-    Trokam::PlainTextProcessor::extract_url(
+    Trokam::PlainTextProcessor::extractUrl(
         MAX_URL_EXTRACTED, doc, internal, external);
 
     // Randomly select some of the internal URLs.

@@ -28,7 +28,7 @@
 // Trokam
 #include "plain_text_processor.h"
 
-std::string Trokam::PlainTextProcessor::get_url_prefix(
+std::string Trokam::PlainTextProcessor::getUrlPrefix(
     const std::string &url)
 {   std::string result;
 
@@ -63,7 +63,7 @@ std::string Trokam::PlainTextProcessor::get_url_prefix(
     return result;
 }
 
-void Trokam::PlainTextProcessor::extract_url(
+void Trokam::PlainTextProcessor::extractUrl(
     const int &max_url_extracted,
     const web_doc *doc,
     std::vector<std::string> &internal,
@@ -74,13 +74,13 @@ void Trokam::PlainTextProcessor::extract_url(
         boost::regex::normal | boost::regbase::icase);
 
     int count= 0;
-    std::string url_prefix = PlainTextProcessor::get_url_prefix(doc->url);
+    std::string url_prefix = PlainTextProcessor::getUrlPrefix(doc->url);
     boost::sregex_token_iterator i(doc->raw.begin(), doc->raw.end(), e, 1);
     boost::sregex_token_iterator j;
     while((i != j) && (count<max_url_extracted))
     {
         std::string url= *i;    
-        url = format_url(url_prefix, url);
+        url = formatUrl(url_prefix, url);
 
         if(!url.empty())
         {
@@ -98,7 +98,7 @@ void Trokam::PlainTextProcessor::extract_url(
     }
 }
 
-std::string Trokam::PlainTextProcessor::format_url(
+std::string Trokam::PlainTextProcessor::formatUrl(
     const std::string &url_prefix,
     std::string &url)
 {
@@ -194,122 +194,6 @@ std::string Trokam::PlainTextProcessor::format_url(
     return url;
 }
 
-std::string Trokam::PlainTextProcessor::getTitle(
-    const std::string &raw)
-{
-    std::string title = "(empty)";
-    try
-    {
-        std::string::size_type ini= raw.find("<title") + 6;
-        if (ini != std::string::npos)
-        {
-            ini = raw.find(">", ini) + 1;
-        }
-
-        std::string::size_type end= raw.find("</title>", ini);
-        if((ini != std::string::npos) && (end != std::string::npos))
-        {
-            if((end-ini) < 200)
-            {
-                title= raw.substr(ini, end-ini);
-            }
-            else
-            {
-                title= raw.substr(ini, 200);
-            }
-        }
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << __PRETTY_FUNCTION__;
-        std::cerr << "error:" << e.what() << '\n';
-    }
-
-    boost::algorithm::trim_if(
-        title, boost::algorithm::is_any_of(" \n\r\t\\\""));
-
-    return title;
-}
-
-void Trokam::PlainTextProcessor::extractPlainText(
-    const size_t &limit,
-    const std::string &raw,
-    std::string &text)
-{
-    text.reserve(20000);
-
-    // If the page do not have a 'body', there is nothing to parse.
-    std::string::size_type curr_loc = 0;
-    curr_loc = raw.find("<body", curr_loc);
-    if(curr_loc == std::string::npos)
-    {
-        return;
-    }
-
-    curr_loc += 4;
-
-    try
-    {
-        while(
-            (curr_loc < raw.size()) &&
-            (curr_loc < 1000000) &&
-            (text.length() < limit))
-        {
-            while(raw.at(curr_loc) != '>')
-            {
-                curr_loc++;
-            }
-
-            text+= ' ';
-
-            // We know that the character is '>', them we move
-            // one position forward.
-            curr_loc++;
-
-            while(raw.at(curr_loc) != '<')
-            {
-                text += raw.at(curr_loc);
-                curr_loc++;
-            }
-
-            // We know that the current character is '<'.
-            // We pay attention to the tag, because in
-            // in some cases we discard its content.
-            if(raw.substr(curr_loc, 6) == "<style")
-            {
-                std::string::size_type loc= raw.find("</style>", curr_loc);
-                if(loc == std::string::npos)
-                {
-                    break;
-                }
-                curr_loc= loc + 8;
-            }
-            else if(raw.substr(curr_loc, 7) == "<script")
-            {
-                std::string::size_type loc= raw.find("</script>", curr_loc);
-                if(loc == std::string::npos)
-                {
-                    break;
-                }
-                curr_loc= loc + 9;
-            }
-            else if(raw.substr(curr_loc, 6) == "</body")
-            {
-                break;
-            }
-            else if(raw.substr(curr_loc, 6) == "</html")
-            {
-                break;
-            }
-        }
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << __PRETTY_FUNCTION__;
-        std::cerr << "error:" << e.what() << '\n';
-    }
-}
-
 std::vector<std::string> Trokam::PlainTextProcessor::tokenize(
     std::string text)
 {
@@ -344,7 +228,7 @@ std::string Trokam::PlainTextProcessor::snippet(
     if(search_tokens.size() > 0)
     {
         // size_t loc = block_text.find(search_tokens[0]);
-        size_t loc = case_insensitive_find(block_text, search_tokens[0]);
+        size_t loc = caseInsensitiveFind(block_text, search_tokens[0]);
         if(loc == std::string::npos)
         {
             std::cout << "<not found>\n";
@@ -385,7 +269,7 @@ std::string Trokam::PlainTextProcessor::snippet(
     }
 }
 
-size_t Trokam::PlainTextProcessor::case_insensitive_find(
+size_t Trokam::PlainTextProcessor::caseInsensitiveFind(
     const std::string &text_block,
     std::string text_piece)
 {
@@ -410,7 +294,7 @@ size_t Trokam::PlainTextProcessor::case_insensitive_find(
     return it - text_block.begin();
 }
 
-float Trokam::PlainTextProcessor::how_much_of(
+float Trokam::PlainTextProcessor::howMuchOf(
     std::string text_block,
     std::string text_piece)
 {
@@ -418,11 +302,11 @@ float Trokam::PlainTextProcessor::how_much_of(
     std::vector<std::string> tokens = tokenize(text_piece);
     for(const auto &element: tokens)
     {
-        size_t pos = case_insensitive_find(text_block, element);
+        size_t pos = caseInsensitiveFind(text_block, element);
         while(pos != std::string::npos)
         {
             text_block.erase(pos, element.length());
-            pos = case_insensitive_find(text_block, element);
+            pos = caseInsensitiveFind(text_block, element);
         }
     }
     boost::algorithm::trim_if(

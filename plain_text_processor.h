@@ -41,26 +41,18 @@ namespace Trokam
     {
         public:
 
-            static std::string get_url_prefix(
+            static std::string getUrlPrefix(
                 const std::string &url);
 
-            static void extract_url(
+            static void extractUrl(
                 const int &max_url_extracted,
                 const web_doc *doc,
                 std::vector<std::string> &internal,
                 std::vector<std::string> &external);
 
-            static std::string format_url(
+            static std::string formatUrl(
                 const std::string &url_prefix,
                 std::string &url);
-
-            static std::string getTitle(
-                    const std::string &raw);
-
-            static void extractPlainText(
-                const size_t &limit,
-                const std::string &raw,
-                std::string &text);
 
             /**
              * Suitable only for small strings, since this
@@ -74,11 +66,11 @@ namespace Trokam
                 const std::string &search_text,
                 const size_t &snippet_length);
 
-            static size_t case_insensitive_find(
+            static size_t caseInsensitiveFind(
                 const std::string &text_block,
                 std::string text_piece);
 
-            static float how_much_of(
+            static float howMuchOf(
                 std::string text_block,
                 std::string text_piece);
     };

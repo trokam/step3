@@ -62,9 +62,13 @@ int main(int argc, char *argv[])
     {
         // Indexing the web.
         std::cout << "Indexind the web ...\n";
+        const int TOTAL_RUNS = 1;
         Trokam::Crawler crawler;
-        for(int i=0; i<1; i++)
+        for(int i=0; i<TOTAL_RUNS; i++)
         {
+            std::cout
+                << "---------- run start:"
+                << i << " ----------\n";
             crawler.run();
         }
     }

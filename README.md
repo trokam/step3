@@ -1,5 +1,3 @@
-#Trokam
-
 ## What is Trokam?
 
 Trokam is a search engine. Is build on open source software.

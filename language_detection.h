@@ -23,7 +23,8 @@
 
 #pragma once
 
-extern "C" {
+extern "C"
+{
 #include "textcat/textcat.h"
 }
 

@@ -20,3 +20,6 @@ add_executable(
 find_package(Boost 1.67 COMPONENTS filesystem regex program_options) 
 
 target_link_libraries(trokam curl pqxx xapian Boost::regex Boost::program_options textcat)
+
+install(TARGETS trokam DESTINATION /usr/local/bin)
+install(DIRECTORY etc/trokam DESTINATION /usr/local/etc)

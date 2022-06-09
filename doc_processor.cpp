@@ -50,6 +50,7 @@ void Trokam::DocProcessor::insert(
     // Identifythe language of the text.
     const std::string language = ld.detectLanguage(text);
 
+    // Display data of the document.
     show(doc, set_for_download, status, retrieval_error, title, language);
 
     // Insert a new document into word's database only if it's 
@@ -78,7 +79,7 @@ int Trokam::DocProcessor::extractPlainText()
     // Clean the text.
     // lynx generates a text representation for user input fields
     // and submit buttons. Useful for interaction with a user.
-    // This is not such the case.
+    // This is not such case.
     text = Trokam::FileOps::readLines(5000, "/tmp/trokam_content");
     boost::replace_all(text, "____________________", " ");
     boost::replace_all(text, "_______________", " ");
@@ -116,7 +117,7 @@ void Trokam::DocProcessor::show(
     std::cout << "indexed URL:" << doc->url << '\n';
     std::cout << "doc_id:" << doc->id << '\n';
     std::cout << "content_type:" << doc->content_type << '\n';
-    // std::cout << "error code:" << retrieval_error << '\n';
+    std::cout << "error code:" << retrieval_error << '\n';
     std::cout << "page length:" << doc->raw.length() << '\n';
     std::cout << "page title:" << title << '\n';        
     std::cout << "page lang:" << language << '\n';            

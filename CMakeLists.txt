@@ -22,4 +22,6 @@ find_package(Boost 1.67 COMPONENTS filesystem regex program_options)
 target_link_libraries(trokam curl pqxx xapian Boost::regex Boost::program_options textcat)
 
 install(TARGETS trokam DESTINATION /usr/local/bin)
-install(DIRECTORY etc/trokam DESTINATION /usr/local/etc)
+#install(DIRECTORY etc/trokam DESTINATION /usr/local/etc)
+install(FILES etc/language.conf DESTINATION /usr/local/etc/trokam)
+install(DIRECTORY etc/signature DESTINATION /usr/local/etc/trokam)

@@ -21,42 +21,58 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-#pragma once    
+#pragma once
 
-/// C++
+// C++
+#include <memory>
 #include <string>
-#include <vector>
 
-/**
- * File Operations.
- */
+// Xapian
+#include <xapian.h>
+
+// Trokam
+#include "warehouse.h"
+
 namespace Trokam
 {
-    class FileOps
+    struct DocData
+    {
+        Xapian::MSetIterator it;
+        float relevance = 1.0;
+    };
+
+    class Grasp
     {
         public:
 
-            static std::string read(
-                const std::string &filename);
+            Grasp();
 
-            static std::string readLines(
-                const size_t SIZE_LIMIT,
-                const std::string &filename);
+            void insert(
+                const int &id,
+                const std::string &url,
+                const std::string &title,
+                const std::string &text,
+                const std::string &language);
 
-            /**
-             * Put every line of file in content.
-             * It skips blank lines and commented lines.
-             * Commented lines start with '#'.
-             */
-            static void readNoComment(
-                const std::string &filename,
-                std::vector<std::string> &content);
+            void search(
+                const std::string &querystring,
+                Xapian::doccount offset = 0,
+                Xapian::doccount pagesize = 30);
 
-            static void save(
-                const std::string &filename,
-                const std::string &content);
+            void clean();
 
-            static void rmDir(
-                const std::string &dirname);
+        private:
+
+            const int SLOT_URL   = 0;
+            const int SLOT_TITLE = 1;
+            const int SLOT_RELEVANCE = 2;
+
+            std::unique_ptr<Xapian::WritableDatabase> db;
+
+            // Xapian::TermGenerator term_generator;
+
+            // Warehouse house;            
+
+            std::string db_path;
     };
 }

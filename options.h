@@ -33,18 +33,14 @@ namespace Trokam
         public:
 
             Options(int argc, char* argv[]);
-            // bool clear() const;
-            // bool init() const;
-            // bool index() const;
             std::string action() const;
             std::string seedsFile() const;
+            std::string terms() const;
 
         private:
 
-            // bool opt_clear = false;
-            // bool opt_init  = false;
-            // bool opt_index = false;
             std::string opt_action;
             std::string opt_seeds_file;
+            std::string opt_terms;
     };
 }

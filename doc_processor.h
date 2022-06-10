@@ -26,6 +26,8 @@
 
 // Trokam
 #include "common.h"
+#include "grasp.h"
+#include "language_detection.h"
 
 namespace Trokam
 {
@@ -33,12 +35,31 @@ namespace Trokam
     {
         public:
 
-            void show(
+            void insert(
                 const web_doc *doc,
                 const std::string &retrieval_error,
                 const int &set_for_download);
 
+            void show(
+                const web_doc *doc,
+                const int &correlative,
+                const int &status,
+                const std::string &retrieval_error,
+                const std::string &title,
+                const std::string &language);
+
         private:
 
+            const size_t TEXT_LENGTH_LIMIT = 15000;
+
+            std::string text;
+            std::string title;
+
+            Trokam::Grasp grasp;
+            Trokam::LanguageDetection ld;            
+
+            int extractPlainText();
+
+            void extractTitle();
     };
 }

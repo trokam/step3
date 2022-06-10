@@ -26,6 +26,7 @@
 
 // Trokam
 #include "crawler.h"
+#include "grasp.h"
 #include "options.h"
 
 int main(int argc, char *argv[])
@@ -39,6 +40,9 @@ int main(int argc, char *argv[])
         std::cout << "Clearing crawler database ...\n";
         Trokam::Crawler crawler;
         crawler.clean();
+
+        Trokam::Grasp grasp;
+        grasp.clean();
     }
     else if(action == "init")
     {
@@ -58,8 +62,28 @@ int main(int argc, char *argv[])
     {
         // Indexing the web.
         std::cout << "Indexind the web ...\n";
+        const int TOTAL_RUNS = 1;
         Trokam::Crawler crawler;
-        crawler.run();
+        for(int i=0; i<TOTAL_RUNS; i++)
+        {
+            std::cout
+                << "---------- run start:"
+                << i << " ----------\n";
+            crawler.run();
+        }
+    }
+    else if(action == "search")
+    {
+        // Indexing the web.
+        std::cout << "Searching the database ...\n\n";
+        std::string terms = opt.terms();
+        if(terms == "")
+        {
+            std::cerr << "Provide a seeds file using --seeds-file\n";
+            exit(1);
+        }
+        Trokam::Grasp grasp;
+        grasp.search(terms);
     }
     else
     {

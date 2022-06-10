@@ -133,23 +133,40 @@ void Trokam::Crawler::run()
                     doc->content_type = ct;
                 }
 
-                // Get the error message of this individual transfer.
-                const std::string retrieval_error =
-                    curl_easy_strerror(transfer_info->data.result);
-
-                // Extract and save information from the document.
-                processor.show(doc, retrieval_error, downloaded);
-
                 // If the document is of text type, extract the URLs.
                 if(std::string::npos != doc->content_type.find("text"))
                 {
+                    // Get the error message of this individual transfer.
+                    const std::string retrieval_error =
+                        curl_easy_strerror(transfer_info->data.result);
+
+                    // Extract and save information from the document.
+                    processor.insert(doc, retrieval_error, downloaded);
                     extractSaveUrl(doc);
+                }
+                else
+                {
+                    std::cout
+                        << "\n\n============================= skipping "
+                        << "=============================\n";
+                    std::cout << "Document is not of text type.\n";
+                    std::cout << "URL:" << doc->url << '\n';                    
                 }
 
                 // Remove the handle of this transfer.
                 CURL *individual_handle = transfer_info->easy_handle;
                 curl_multi_remove_handle(curl_multi_handler, individual_handle);
                 curl_easy_cleanup(individual_handle);
+
+                // Deleting document.
+                if(doc!=nullptr)
+                {
+                    delete doc;
+                }
+                else
+                {
+                    std::cerr << "strange, pointer is null";
+                }
 
                 // Increment the number of URLs downloaded.
                 downloaded++;
@@ -220,7 +237,7 @@ void Trokam::Crawler::extractSaveUrl(
     std::vector<std::string> external;
 
     // Extract the URL from document.
-    PlainTextProcessor::extract_url(
+    Trokam::PlainTextProcessor::extractUrl(
         MAX_URL_EXTRACTED, doc, internal, external);
 
     // Randomly select some of the internal URLs.

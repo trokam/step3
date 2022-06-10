@@ -58,6 +58,8 @@ namespace Trokam
             void setIndexed(
                 std::vector<std::tuple<std::string, int>> &bundle);
 
+            std::string getUrl(const int &doc_id);
+
         private:
 
             const int MAX_LEVEL = 12;

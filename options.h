@@ -23,8 +23,8 @@
 
 #pragma once
 
-/// C++
-// #include <string>
+// C++
+#include <string>
 
 namespace Trokam
 {
@@ -36,11 +36,17 @@ namespace Trokam
             std::string action() const;
             std::string seedsFile() const;
             std::string terms() const;
+            std::string languages() const;
+            unsigned int offset() const;
+            unsigned int pagesize() const;
 
         private:
 
             std::string opt_action;
             std::string opt_seeds_file;
             std::string opt_terms;
+            std::string opt_languages;
+            unsigned int opt_offset = 1;
+            unsigned int opt_pagesize = 5;
     };
 }

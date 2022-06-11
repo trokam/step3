@@ -59,7 +59,8 @@ namespace Trokam
              * method makes a copy of the incomming text.
              */
             static std::vector<std::string> tokenize(
-                std::string text);
+                std::string text,
+                const char &delimiter = ' ');
 
             static std::string snippet(
                 const std::string &block_text,

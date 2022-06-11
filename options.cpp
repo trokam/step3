@@ -39,9 +39,12 @@ Trokam::Options::Options(int argc, char* argv[])
         boost::program_options::options_description desc("Allowed options");
         desc.add_options()
             ("help",       "Produce help message")
-            ("action",     boost::program_options::value<std::string>(), "Possible actions: empty, init, index and search.")
-            ("seeds-file", boost::program_options::value<std::string>(), "File with first URLs.")
-            ("terms",      boost::program_options::value<std::string>(), "Terms to search.");
+            ("action",     boost::program_options::value<std::string>(),  "Possible actions: empty, init, index and search.")
+            ("seeds-file", boost::program_options::value<std::string>(),  "File with first URLs.")
+            ("terms",      boost::program_options::value<std::string>(),  "Terms to search.")
+            ("languages",  boost::program_options::value<std::string>(),  "Languages to search. Comma separated.")
+            ("offset",     boost::program_options::value<unsigned int>(), "Results page.")
+            ("pagesize",   boost::program_options::value<unsigned int>(), "Results per page.");
         boost::program_options::variables_map vm;
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
@@ -67,6 +70,20 @@ Trokam::Options::Options(int argc, char* argv[])
             opt_terms = vm["terms"].as<std::string>();
         }
 
+        if(vm.count("languages"))
+        {
+            opt_languages = vm["languages"].as<std::string>();
+        }
+
+        if(vm.count("offset"))
+        {
+            opt_offset = vm["offset"].as<unsigned int>();
+        }
+
+        if(vm.count("pagesize"))
+        {
+            opt_pagesize = vm["pagesize"].as<unsigned int>();
+        }
     }
     catch(const std::exception& e)
     {
@@ -88,4 +105,19 @@ std::string Trokam::Options::seedsFile() const
 std::string Trokam::Options::terms() const
 {
     return opt_terms;
+}
+
+std::string Trokam::Options::languages() const
+{
+    return opt_languages;
+}
+
+unsigned int Trokam::Options::offset() const
+{
+    return opt_offset;
+}
+
+unsigned int Trokam::Options::pagesize() const
+{
+    return opt_pagesize;
 }

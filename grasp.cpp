@@ -87,6 +87,7 @@ void Trokam::Grasp::insert(
 
 void Trokam::Grasp::search(
     const std::string &querystring,
+    const std::string &languages,
     Xapian::doccount offset,
     Xapian::doccount pagesize)
 {
@@ -100,9 +101,26 @@ void Trokam::Grasp::search(
 
     // --------------------------------------------------
 
-    std::vector<std::string> lang_enquiry;
-    lang_enquiry.push_back("english");
-    // lang_enquiry.push_back("german");
+        // For debugging
+        std::cout << "languages:'" <<languages << "'\n";
+
+        std::vector<std::string> lang_enquiry;
+        if(languages.empty())
+        {
+            lang_enquiry.push_back("english");
+        }
+        else
+        {
+            lang_enquiry =
+                Trokam::PlainTextProcessor::tokenize(languages, ',');
+        }
+
+        // For debugging
+        for(const std::string &e: lang_enquiry)
+        {
+            std::cout << "lang:'" << e << "'\n";
+        }
+        std::cout << '\n';
 
         // Build a query for each material value
         std::vector<Xapian::Query> lang_queries;
@@ -147,7 +165,8 @@ void Trokam::Grasp::search(
         float url_weight =
             Trokam::PlainTextProcessor::howMuchOf(url, querystring) + 1.0;
 
-        float relevance = m.get_weight() * title_weight * title_weight * url_weight * url_weight;
+        float relevance =
+            m.get_weight() * title_weight * title_weight * url_weight * url_weight;
         // m.get_document().add_value(SLOT_RELEVANCE, std::to_string(relevance));
 
         Trokam::DocData doc;

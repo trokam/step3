@@ -74,16 +74,19 @@ int main(int argc, char *argv[])
     }
     else if(action == "search")
     {
-        // Indexing the web.
+        // Searching the document database.
         std::cout << "Searching the database ...\n\n";
         std::string terms = opt.terms();
         if(terms == "")
         {
-            std::cerr << "Provide a seeds file using --seeds-file\n";
+            std::cerr << "Provide terms to search using --terms\n";
             exit(1);
         }
+        std::string languages = opt.languages();
+        unsigned int offset = opt.offset();
+        unsigned int pagesize = opt.pagesize();
         Trokam::Grasp grasp;
-        grasp.search(terms);
+        grasp.search(terms, languages, offset, pagesize);
     }
     else
     {

@@ -195,10 +195,11 @@ std::string Trokam::PlainTextProcessor::formatUrl(
 }
 
 std::vector<std::string> Trokam::PlainTextProcessor::tokenize(
-    std::string text)
+    std::string text,
+    const char &delimiter)
 {
     std::vector<std::string> result;
-    const char delimiter = ' ';
+    // const char delimiter = ' ';
     size_t ini = 0;
     size_t pos = 0;
 
@@ -212,7 +213,7 @@ std::vector<std::string> Trokam::PlainTextProcessor::tokenize(
         {
             result.push_back(part);
         }
-        ini = pos;
+        ini = pos+1;
     }
     return result;
 }

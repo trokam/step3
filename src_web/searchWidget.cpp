@@ -21,14 +21,14 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-/// C++
+// C++
 #include <memory>
 
-/// Boost
+// Boost
 #include <boost/algorithm/string.hpp>
 #include <boost/thread.hpp>
 
-/// Wt
+// Wt
 #include <Wt/WDialog.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WMenu.h>
@@ -41,7 +41,7 @@
 #include <Wt/WVBoxLayout.h>
 #include <Wt/WTemplate.h>
 
-/// Trokam
+// Trokam
 #include "deferredWidget.h"
 #include "searchWidget.h"
 
@@ -49,12 +49,12 @@
 #include "bundle.h"
 #include "common.h"
 #include "file_ops.h"
-// #include "infoStore.h"
+
 
 Trokam::SearchWidget::SearchWidget(
     boost::shared_ptr<Trokam::SharedResources> &sr,
     Wt::WApplication* app):
-        PageWidget(sr, app)
+        PageWidget(sr, app), shared_resources(sr)
 {
     phraseOnFocus= -1;
 
@@ -112,7 +112,6 @@ Trokam::SearchWidget::SearchWidget(
     auto brief =
         std::make_unique<Wt::WTemplate>(
             Wt::WString::tr("brief-intro"));
-
     vbox->addWidget(std::move(brief));
 
     /**
@@ -444,10 +443,16 @@ void Trokam::SearchWidget::setDbTimeOut(const int &timeOutSeconds)
 
 void Trokam::SearchWidget::search(const std::string &terms)
 {
-    setDbTimeOut(4);
+    // setDbTimeOut(4);
 
     std::string lowCaseTerms= terms;
     boost::algorithm::to_lower(lowCaseTerms);
+
+    std::string languages = "english";
+    unsigned int offset = 1;
+    unsigned int page_size = 5;
+
+    shared_resources->grasp.search(lowCaseTerms, languages, offset, page_size);
 
     /**
     const std::string likeClause= Trokam::TextProcessing::generateLikeClause(lowCaseTerms);

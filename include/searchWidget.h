@@ -57,6 +57,8 @@ namespace Trokam
 
         private:
 
+            boost::shared_ptr<Trokam::SharedResources> shared_resources;
+
             int phraseOnFocus;
 
             std::unique_ptr<Wt::WPopupMenu> phrasesPopup;

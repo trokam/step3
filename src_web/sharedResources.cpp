@@ -29,7 +29,9 @@
 #include "file_ops.h"
 #include "sharedResources.h"
 
-Trokam::SharedResources::SharedResources(Trokam::Options &value): settings(value)
+Trokam::SharedResources::SharedResources(
+    Trokam::Options &value):
+        settings(value)
 {
     /**
     std::vector<std::vector<std::string>> clusterSettings;
@@ -53,12 +55,16 @@ Trokam::SharedResources::SharedResources(Trokam::Options &value): settings(value
 
     Wt::log("info") << "database cluster size: " << dbCluster.size();
     **/
+
+
 }
 
 Trokam::SharedResources::~SharedResources()
 {
+    /*
     for(size_t i=0; i<dbCluster.size(); i++)
     {
         delete dbCluster[i];
     }
+    */
 }

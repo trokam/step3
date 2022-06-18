@@ -35,6 +35,7 @@ Trokam::Grasp::Grasp()
 {
     // std::string dbpath;
 
+    /**
     if(const char* env_home = std::getenv("HOME"))
     {
         // std::cout << "Your PATH is: " << env_p << '\n';
@@ -46,6 +47,9 @@ Trokam::Grasp::Grasp()
         std::cerr << "fail: could not create grasp database.";
         exit(1);
     }
+    **/
+
+    db_path = "/usr/local/data/trokam/grasp";
 
     db.reset(
         new Xapian::WritableDatabase(
@@ -61,7 +65,7 @@ void Trokam::Grasp::insert(
 {
     // We make a document and tell the term generator to use this.
     Xapian::Document doc;
-    Xapian::TermGenerator term_generator;    
+    Xapian::TermGenerator term_generator;
     term_generator.set_document(doc);
 
     // Index fields without prefixes for general search.
@@ -81,7 +85,7 @@ void Trokam::Grasp::insert(
     doc.add_value(SLOT_URL, url);
     doc.add_value(SLOT_TITLE, title);
     doc.add_boolean_term(id_term);
-    doc.add_boolean_term(lang_term);    
+    doc.add_boolean_term(lang_term);
     db->replace_document(id_term, doc);
 }
 
@@ -174,15 +178,15 @@ void Trokam::Grasp::search(
         doc.relevance = relevance;
         search_results.push_back(doc);
     }
-   
+
     std::sort(
-        search_results.begin(), 
-        search_results.end(), 
+        search_results.begin(),
+        search_results.end(),
         [](Trokam::DocData a, Trokam::DocData b) {return a.relevance > b.relevance;});
 
     // for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
     const int limit_show = 5;
-    int count = 0;    
+    int count = 0;
     for(auto it= search_results.begin(); it!=search_results.end(); ++it)
     {
         std::string title = it->it.get_document().get_value(SLOT_TITLE);

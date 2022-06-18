@@ -24,11 +24,12 @@
 #ifndef TROKAM_SHARED_RESOURCES_H
 #define TROKAM_SHARED_RESOURCES_H
 
-/// C++
+// C++
 #include <vector>
 
-/// Trokam
+// Trokam
 #include "options.h"
+#include "grasp.h"
 #include "postgresql.h"
 
 namespace Trokam
@@ -38,12 +39,12 @@ namespace Trokam
         public:
 
             SharedResources(Trokam::Options &value);
-
             ~SharedResources();
 
-            Trokam::Options settings;
+            Trokam::Options settings;  // ???
+            // std::vector<Trokam::Postgresql*> dbCluster;
 
-            std::vector<Trokam::Postgresql*> dbCluster;
+            Trokam::Grasp grasp;
     };
 }
 

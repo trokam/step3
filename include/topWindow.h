@@ -49,7 +49,11 @@ namespace Trokam
     {
         public:
 
-            TopWindow(boost::shared_ptr<Trokam::SharedResources> &sr, Wt::WApplication* app);
+            TopWindow(
+                boost::shared_ptr<Trokam::SharedResources> &sr,
+                Wt::WApplication* app);
+
+            // TopWindow(Wt::WApplication* app);
 
         private:
 
@@ -59,13 +63,15 @@ namespace Trokam
 
             Wt::WStackedWidget *contentsStack_;
 
-            Wt::WMenuItem *addToMenu(Wt::WMenu *menu,
-                                     const Wt::WString& name,
-                                     std::unique_ptr<Trokam::PageWidget> topic);
+            Wt::WMenuItem *addToMenu(
+                Wt::WMenu *menu,
+                const Wt::WString& name,
+                std::unique_ptr<Trokam::PageWidget> topic);
 
-            Wt::WMenuItem *addFrontPageToMenu(Wt::WMenu *menu,
-					                          const Wt::WString& name,
-					                          std::unique_ptr<Trokam::PageWidget> topic);
+            Wt::WMenuItem *addFrontPageToMenu(
+                Wt::WMenu *menu,
+				const Wt::WString& name,
+				std::unique_ptr<Trokam::PageWidget> topic);
     };
 }
 

@@ -48,4 +48,6 @@ namespace Trokam
     };
 }
 
+// std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env);
+
 #endif /// TROKAM_APP_GENERATOR_H

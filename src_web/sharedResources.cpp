@@ -50,7 +50,7 @@ Trokam::SharedResources::SharedResources(Trokam::Options &value): settings(value
         dbCluster.push_back(db);
     }
 
-     Wt::log("info") << "database cluster size: " << dbCluster.size();
+    Wt::log("info") << "database cluster size: " << dbCluster.size();
 
 }
 

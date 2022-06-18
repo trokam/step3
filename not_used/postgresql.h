@@ -2,7 +2,7 @@
  *                            T R O K A M
  *                       Internet Search Engine
  *
- * Copyright (C) 2022, Nicolas Slusarenko
+ * Copyright (C) 2018, Nicolas Slusarenko
  *                     nicolas.slusarenko@trokam.com
  *
  * This file is part of Trokam.
@@ -21,46 +21,59 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-#pragma once
+#ifndef TROKAM_POSTGRESQL_H
+#define TROKAM_POSTGRESQL_H
 
-// C++
+/// C++
 #include <string>
 #include <vector>
 
-// Postgresql
+/// Boost
+#include <boost/scoped_ptr.hpp>
+
+/// Postgresql
 #include <pqxx/pqxx>
 
+/// Trokam
+#include "options.h"
+
 /**
- * Keep the connection with and perform the SQL sentences
- * in the PostgreSQL database.
- */
+ *
+ **/
 namespace Trokam
 {
     class Postgresql
     {
         public:
 
-            Postgresql();
+            Postgresql(const Trokam::Options &value,
+                       const int &id);
 
-            Postgresql(
-                const std::string &host = "",
-                const std::string &port = "",
-                const std::string &name = "",
-                const std::string &user = "",
-                const std::string &pass = "");
+            Postgresql(const std::string &host,
+                       const std::string &port,
+                       const std::string &name,
+                       const std::string &user,
+                       const std::string &pass);
 
-            void execNoAnswer(
-                const std::string &sentence);
+            ~Postgresql();
 
-            void execAnswer(
-                const std::string &sentence,
-                pqxx::result &answer);
+            void execSql(const std::string &sentence);
 
-            void execSeveral(
-                std::vector<std::string> &bundle);
+            void execSql(const std::string &sentence,
+                               pqxx::result &answer);
+
+            void execSql(std::vector<std::string> &bundle);
+
+            static void extract(const pqxx::result &answer,
+                                int &value);
+
+            static void extract(const pqxx::result &answer,
+                                bool &value);
 
         private:
 
-            std::unique_ptr<pqxx::connection> m_connection;
+            pqxx::connection *dbConnection;
     };
 }
+
+#endif /// TROKAM_POSTGRESQL_H

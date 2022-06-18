@@ -43,9 +43,17 @@
 #include "topWindow.h"
 #include "sharedResources.h"
 
-Trokam::TopWindow::TopWindow(boost::shared_ptr<Trokam::SharedResources> &sr,
-                             Wt::WApplication* app): Wt::WContainerWidget(),
-                                                     application(app)
+Trokam::TopWindow::TopWindow(
+    boost::shared_ptr<Trokam::SharedResources> &sr,
+    Wt::WApplication* app):
+        Wt::WContainerWidget(),
+        application(app)
+
+/*
+Trokam::TopWindow::TopWindow(Wt::WApplication* app):
+    Wt::WContainerWidget(), application(app)
+*/
+
 {
     setOverflow(Wt::Overflow::Hidden);
 
@@ -76,14 +84,28 @@ Trokam::TopWindow::TopWindow(boost::shared_ptr<Trokam::SharedResources> &sr,
      * The search function is implemented with a simple layout,
      * and is inserted into the menu as the front page.
      **/
-    addFrontPageToMenu(menu.get(), Wt::WString::tr("search"), std::make_unique<Trokam::SearchWidget>(sr, application));
+    addFrontPageToMenu(
+        menu.get(),
+        Wt::WString::tr("search"),
+        std::make_unique<Trokam::SearchWidget>(sr, application));
 
     /**
      * Widgets meant to display information have complex layout.
      **/
-    addToMenu(menu.get(), Wt::WString::tr("about"),            std::make_unique<Trokam::AboutWidget>(sr, application));
-    addToMenu(menu.get(), Wt::WString::tr("acknowledgements"), std::make_unique<Trokam::AckWidget>(sr, application));
-    addToMenu(menu.get(), Wt::WString::tr("donate"),           std::make_unique<Trokam::DonWidget>(sr, application));
+    addToMenu(
+        menu.get(),
+        Wt::WString::tr("about"),
+        std::make_unique<Trokam::AboutWidget>(sr, application));
+
+    addToMenu(
+        menu.get(),
+        Wt::WString::tr("acknowledgements"),
+        std::make_unique<Trokam::AckWidget>(sr, application));
+
+    addToMenu(
+        menu.get(),
+        Wt::WString::tr("donate"),
+        std::make_unique<Trokam::DonWidget>(sr, application));
 
     navigation_->addMenu(std::move(menu));
 
@@ -97,9 +119,10 @@ Trokam::TopWindow::TopWindow(boost::shared_ptr<Trokam::SharedResources> &sr,
     layout->setContentsMargins(0, 0, 0, 0);
 }
 
-Wt::WMenuItem *Trokam::TopWindow::addToMenu(Wt::WMenu *menu,
-					                        const Wt::WString& name,
-					                        std::unique_ptr<Trokam::PageWidget> topic)
+Wt::WMenuItem *Trokam::TopWindow::addToMenu(
+    Wt::WMenu *menu,
+	const Wt::WString& name,
+	std::unique_ptr<Trokam::PageWidget> topic)
 {
     auto topic_ = topic.get();
     auto result = std::make_unique<Wt::WContainerWidget>();
@@ -124,9 +147,10 @@ Wt::WMenuItem *Trokam::TopWindow::addToMenu(Wt::WMenu *menu,
     subStack->addStyleClass("contents");
     subStack->setOverflow(Wt::Overflow::Auto);
 
-    Wt::WAnimation animation(Wt::AnimationEffect::Fade,
-                             Wt::TimingFunction::Linear,
-                             100);
+    Wt::WAnimation animation(
+        Wt::AnimationEffect::Fade,
+        Wt::TimingFunction::Linear,
+        100);
     subStack->setTransitionAnimation(animation, true);
 
     auto subMenu = std::make_unique<Wt::WMenu>(subStack.get());
@@ -145,9 +169,10 @@ Wt::WMenuItem *Trokam::TopWindow::addToMenu(Wt::WMenu *menu,
     return item_;
 }
 
-Wt::WMenuItem *Trokam::TopWindow::addFrontPageToMenu(Wt::WMenu *menu,
-					                                 const Wt::WString& name,
-					                                 std::unique_ptr<Trokam::PageWidget> topic)
+Wt::WMenuItem *Trokam::TopWindow::addFrontPageToMenu(
+    Wt::WMenu *menu,
+	const Wt::WString& name,
+	std::unique_ptr<Trokam::PageWidget> topic)
 {
     auto item = std::make_unique<Wt::WMenuItem>(name, std::move(topic));
     item->setPathComponent(name.key());

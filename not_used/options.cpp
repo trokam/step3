@@ -45,14 +45,14 @@ Trokam::Options::Options()
     optLevel= 0;
     optCruncherType= VOID;
 
-    createWorkingDirectory();
+    // createWorkingDirectory();
 }
 
 Trokam::Options::Options(int argc, const char* argv[])
 {
     optPagesLimit= 0;
     optLevel= 0;
-    createWorkingDirectory();
+    // createWorkingDirectory();
 
     /**
      * Program Options.

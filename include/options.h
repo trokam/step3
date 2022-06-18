@@ -2,7 +2,7 @@
  *                            T R O K A M
  *                       Internet Search Engine
  *
- * Copyright (C) 2018, Nicolas Slusarenko
+ * Copyright (C) 2022, Nicolas Slusarenko
  *                     nicolas.slusarenko@trokam.com
  *
  * This file is part of Trokam.
@@ -21,10 +21,9 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-#ifndef TROKAM_OPTIONS_H
-#define TROKAM_OPTIONS_H
+#pragma once
 
-/// C++
+// C++
 #include <string>
 
 namespace Trokam
@@ -32,74 +31,22 @@ namespace Trokam
     class Options
     {
         public:
-            Options();
-            Options(int argc, const char* argv[]);
-            Options(const Options &opt);
-            Options& operator= (const Options &opt);
 
-            /**
-             * Read the settings from file.
-             */
-            void readSettings(const std::string &filename);
-
-            std::string cruncherType() const;
-
-            std::string dbHost() const;
-            std::string dbName() const;
-            std::string dbUser() const;
-            std::string dbPass() const;
-
-            std::string controlHost() const;
-            std::string controlName() const;
-            std::string controlUser() const;
-            std::string controlPass() const;
-
-            std::string depotHost() const;
-            std::string depotName() const;
-            std::string depotUser() const;
-            std::string depotPass() const;
-
-            std::string workingDir() const;
-            std::string domainToIndexFile() const;
+            Options(int argc, char* argv[]);
+            std::string action() const;
             std::string seedsFile() const;
-            std::string pagesToIndexFile() const;
-
-            std::string contentDir() const;
-            int pagesLimit() const;
-            int level() const;
-
-            void deleteWorkingDirectory();
+            std::string terms() const;
+            std::string languages() const;
+            unsigned int offset() const;
+            unsigned int pagesize() const;
 
         private:
 
-            std::string optCruncherType;
-
-            std::string optDbHost;
-            std::string optDbName;
-            std::string optDbUser;
-            std::string optDbPass;
-
-            std::string optControlHost;
-            std::string optControlName;
-            std::string optControlUser;
-            std::string optControlPass;
-
-            std::string optDepotHost;
-            std::string optDepotName;
-            std::string optDepotUser;
-            std::string optDepotPass;
-
-            std::string optWorkingDir;
-            std::string optDomainToIndexFile;
-            std::string optSeedsFile;
-            std::string optPagesToIndexFile;
-
-            std::string optContentDir;
-            int optPagesLimit;
-            int optLevel;
-
-            void createWorkingDirectory();
+            std::string opt_action;
+            std::string opt_seeds_file;
+            std::string opt_terms;
+            std::string opt_languages;
+            unsigned int opt_offset = 1;
+            unsigned int opt_pagesize = 5;
     };
 }
-
-#endif /// TROKAM_OPTIONS_H

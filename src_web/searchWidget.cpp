@@ -51,8 +51,10 @@
 #include "fileOps.h"
 // #include "infoStore.h"
 
-Trokam::SearchWidget::SearchWidget(boost::shared_ptr<Trokam::SharedResources> &sr,
-                                   Wt::WApplication* app): PageWidget(sr, app)
+Trokam::SearchWidget::SearchWidget(
+    boost::shared_ptr<Trokam::SharedResources> &sr,
+    Wt::WApplication* app):
+        PageWidget(sr, app)
 {
     phraseOnFocus= -1;
 
@@ -63,45 +65,62 @@ Trokam::SearchWidget::SearchWidget(boost::shared_ptr<Trokam::SharedResources> &s
     /**
      * Main AboutWidget
      **/
-    std::unique_ptr<Wt::WVBoxLayout> vbox = std::make_unique<Wt::WVBoxLayout>();
-    vbox->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
+    std::unique_ptr<Wt::WVBoxLayout> vbox =
+        std::make_unique<Wt::WVBoxLayout>();
+    vbox->setPreferredImplementation(
+        Wt::LayoutImplementation::JavaScript);
 
     /**
      * Information
      **/
-    vbox->addWidget(std::make_unique<Wt::WTemplate>(Wt::WString::tr("general-info")));
-
+    vbox->addWidget(
+        std::make_unique<Wt::WTemplate>(
+            Wt::WString::tr("general-info")));
 
     /**
      * Small logo, show after the first search.
      **/
-    vbox->addWidget(std::make_unique<Wt::WTemplate>(Wt::WString::tr("small-logo")));
+    vbox->addWidget(
+        std::make_unique<Wt::WTemplate>(
+            Wt::WString::tr("small-logo")));
 
     /**
      * Big logo, shown on starting page.
      **/
-    vbox->addWidget(std::make_unique<Wt::WTemplate>(Wt::WString::tr("big-logo")));
+    vbox->addWidget(
+        std::make_unique<Wt::WTemplate>(
+            Wt::WString::tr("big-logo")));
 
     /**
-     * The box on which the user input what is searching.
+     * The box where the user enters searching terms.
      **/
-    auto entrance = std::make_unique<Wt::WTemplate>(Wt::WString::tr("search-box"));
-    userInput = entrance->bindWidget("input-entrance", std::make_unique<Wt::WLineEdit>());
+    auto entrance =
+        std::make_unique<Wt::WTemplate>(Wt::WString::tr("search-box"));
+    userInput =
+        entrance->bindWidget(
+            "input-entrance", std::make_unique<Wt::WLineEdit>());
     userInput->setPlaceholderText("Search for ...");
-    userInput->keyWentDown().connect(this, &Trokam::SearchWidget::keyPressedEntrance);
-    userInput->textInput().connect(this, &Trokam::SearchWidget::textInput);
+    userInput->keyWentDown().connect(
+        this, &Trokam::SearchWidget::keyPressedEntrance);
+    userInput->textInput().connect(
+        this, &Trokam::SearchWidget::textInput);
     vbox->addWidget(std::move(entrance));
 
     /**
      * Brief introduction.
      **/
-    auto brief = std::make_unique<Wt::WTemplate>(Wt::WString::tr("brief-intro"));
+    auto brief =
+        std::make_unique<Wt::WTemplate>(
+            Wt::WString::tr("brief-intro"));
+
     vbox->addWidget(std::move(brief));
 
     /**
      * Information about the results.
      **/
-    auto infoResults = std::make_unique<Wt::WTemplate>(Wt::WString::tr("info-results"));
+    auto infoResults =
+        std::make_unique<Wt::WTemplate>(
+            Wt::WString::tr("info-results"));
     vbox->addWidget(std::move(infoResults));
 
     /**
@@ -111,8 +130,12 @@ Trokam::SearchWidget::SearchWidget(boost::shared_ptr<Trokam::SharedResources> &s
     subStack->addStyleClass("contents");
     subStack->setOverflow(Wt::Overflow::Auto);
 
-    auto findingsBox = std::make_unique<Wt::WTemplate>(Wt::WString::tr("findings-box"));
-    userFindings = findingsBox->bindWidget("user-findings", std::make_unique<Wt::WTable>());
+    auto findingsBox =
+        std::make_unique<Wt::WTemplate>(
+            Wt::WString::tr("findings-box"));
+    userFindings =
+        findingsBox->bindWidget(
+            "user-findings", std::make_unique<Wt::WTable>());
     subStack->addWidget(std::move(findingsBox));
     vbox->addWidget(std::move(subStack), 1);
 

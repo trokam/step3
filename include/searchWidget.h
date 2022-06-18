@@ -83,9 +83,13 @@ namespace Trokam
             void insertSequence(const Trokam::Sequence &seq);
             void setDbTimeOut(const int &timeOutSeconds);
             void search(const std::string &terms);
+
+            /**
             void getFindings(const std::string &sentence,
                              const int &dbId,
                              const int &lenSearch);
+            **/
+
             bool urlShown(const std::string &url);
 
             void showAnalysis(const std::string &url,

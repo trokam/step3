@@ -32,6 +32,7 @@ namespace Trokam
     {
         public:
 
+            Options();
             Options(int argc, char* argv[]);
             std::string action() const;
             std::string seedsFile() const;

@@ -31,6 +31,9 @@
 // Trokam
 #include "options.h"
 
+Trokam::Options::Options()
+{}
+
 Trokam::Options::Options(int argc, char* argv[])
 {
     // Program Options.

@@ -48,7 +48,7 @@
 /// Trokam
 #include "bundle.h"
 #include "common.h"
-#include "fileOps.h"
+#include "file_ops.h"
 // #include "infoStore.h"
 
 Trokam::SearchWidget::SearchWidget(
@@ -359,6 +359,8 @@ void Trokam::SearchWidget::searchForPhrases()
 void Trokam::SearchWidget::getPhrases(const std::string &sentence,
                                       const int &dbId)
 {
+    /**
+
     Wt::log("info") << "getPhrases -- dbId: " << dbId;
 
     try
@@ -380,6 +382,8 @@ void Trokam::SearchWidget::getPhrases(const std::string &sentence,
     {
         Wt::log("info") << "error: " << e.what();
     }
+
+    **/
 }
 
 void Trokam::SearchWidget::insertSequence(const Trokam::Sequence &seq)
@@ -388,6 +392,8 @@ void Trokam::SearchWidget::insertSequence(const Trokam::Sequence &seq)
      * Compare the text in the argument to each one of the texts
      * already stored. If a match is found then it is not included.
      **/
+
+    /**
     for(std::vector<Trokam::Sequence>::iterator it= sequenceCollection.begin(); it!=sequenceCollection.end(); ++it)
     {
         if (it->value==seq.value)
@@ -403,16 +409,19 @@ void Trokam::SearchWidget::insertSequence(const Trokam::Sequence &seq)
             }
         }
     }
+    **/
 
     /**
      * Reaching here means that the text was not found in
      * the collection. A new one is inserted.
      **/
-    sequenceCollection.push_back(seq);
+    /** sequenceCollection.push_back(seq); **/
 }
 
 void Trokam::SearchWidget::setDbTimeOut(const int &timeOutSeconds)
 {
+    /**
+
     Wt::log("info") << __PRETTY_FUNCTION__;
 
     std::string statement;
@@ -429,6 +438,8 @@ void Trokam::SearchWidget::setDbTimeOut(const int &timeOutSeconds)
             Wt::log("info") << "error: " << e.what();
         }
     }
+
+    **/
 }
 
 void Trokam::SearchWidget::search(const std::string &terms)
@@ -542,6 +553,7 @@ void Trokam::SearchWidget::search(const std::string &terms)
     **/
 }
 
+/**
 void Trokam::SearchWidget::getFindings(const std::string &sentence,
                                        const int &dbId,
                                        const int &lenSearch)
@@ -583,6 +595,7 @@ void Trokam::SearchWidget::getFindings(const std::string &sentence,
         Wt::log("info") << "error: " << e.what();
     }
 }
+**/
 
 bool Trokam::SearchWidget::urlShown(const std::string &url)
 {
@@ -628,6 +641,8 @@ void Trokam::SearchWidget::showAnalysis(const std::string &url,
                                         const int &dbId,
                                         const std::string &urlIndex)
 {
+    /**
+
     Wt::log("info") << __PRETTY_FUNCTION__;
     Wt::log("info") << "url: " << url << " dbId: " << dbId << " urlIndex: " << urlIndex;
 
@@ -719,9 +734,7 @@ void Trokam::SearchWidget::showAnalysis(const std::string &url,
                                             removeChild(analysisBox);
                                        });
 
-    /**
-     * Process the dialog result.
-     **/
+    // Process the dialog result.
     analysisBox->finished().connect([=] {
                                             removeChild(analysisBox);
                                         });
@@ -732,4 +745,6 @@ void Trokam::SearchWidget::showAnalysis(const std::string &url,
     analysisBox->rejectWhenEscapePressed();
     analysisBox->setModal(false);
     analysisBox->show();
+
+    **/
 }

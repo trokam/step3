@@ -80,9 +80,4 @@ int main(int argc, char **argv)
     {
         // Trokam::Reporting::showGeneralError(e);
     }
-
-    /**
-     * Cleaning up.
-     **/
-    opt.deleteWorkingDirectory();
 }

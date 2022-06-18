@@ -26,11 +26,12 @@
 
 /// Trokam::
 #include "common.h"
-#include "fileOps.h"
+#include "file_ops.h"
 #include "sharedResources.h"
 
 Trokam::SharedResources::SharedResources(Trokam::Options &value): settings(value)
 {
+    /**
     std::vector<std::vector<std::string>> clusterSettings;
     Trokam::FileOps::read(CLUSTER_FILE, clusterSettings);
 
@@ -51,7 +52,7 @@ Trokam::SharedResources::SharedResources(Trokam::Options &value): settings(value
     }
 
     Wt::log("info") << "database cluster size: " << dbCluster.size();
-
+    **/
 }
 
 Trokam::SharedResources::~SharedResources()

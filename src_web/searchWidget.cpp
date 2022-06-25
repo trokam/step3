@@ -452,7 +452,7 @@ void Trokam::SearchWidget::search(const std::string &terms)
     unsigned int offset = 1;
     unsigned int page_size = 5;
 
-    shared_resources->grasp.search(lowCaseTerms, languages, offset, page_size);
+    shared_resources->readable_content_db.search(lowCaseTerms, languages, offset, page_size);
 
     /**
     const std::string likeClause= Trokam::TextProcessing::generateLikeClause(lowCaseTerms);

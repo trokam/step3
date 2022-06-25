@@ -21,10 +21,13 @@
  * along with Trokam::. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-/// Wt
+// Xapian
+#include <xapian.h>
+
+// Wt
 #include <Wt/WLogger.h>
 
-/// Trokam::
+// Trokam
 #include "common.h"
 #include "file_ops.h"
 #include "sharedResources.h"
@@ -56,7 +59,15 @@ Trokam::SharedResources::SharedResources(
     Wt::log("info") << "database cluster size: " << dbCluster.size();
     **/
 
+    /**
+    Wt::log("info") << "before database test.";
 
+    std::string db_path = "/usr/local/data/trokam/WritableContentDB";
+    std::unique_ptr<Xapian::Database> db;
+    db.reset(new Xapian::Database(db_path));
+
+    Wt::log("info") << "after database test.";
+    **/
 }
 
 Trokam::SharedResources::~SharedResources()

@@ -21,45 +21,46 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
+#pragma once
+
 // C++
+#include <memory>
 #include <string>
 
+// Xapian
+#include <xapian.h>
+
 // Trokam
-#include "common.h"
-#include "writable_content_db.h"
-#include "language_detection.h"
+#include "warehouse.h"
 
 namespace Trokam
 {
-    class DocProcessor
+    struct DocData
+    {
+        Xapian::MSetIterator it;
+        float relevance = 1.0;
+    };
+
+    class ReadableContentDB
     {
         public:
 
-            void insert(
-                const web_doc *doc,
-                const std::string &retrieval_error,
-                const int &set_for_download);
+            ReadableContentDB();
 
-            void show(
-                const web_doc *doc,
-                const int &correlative,
-                const int &status,
-                const std::string &retrieval_error,
-                const std::string &title,
-                const std::string &language);
+            void search(
+                const std::string &querystring,
+                const std::string &languages,
+                Xapian::doccount offset = 0,
+                Xapian::doccount pagesize = 30);
 
         private:
 
-            const size_t TEXT_LENGTH_LIMIT = 15000;
+            const int SLOT_URL   = 0;
+            const int SLOT_TITLE = 1;
+            const int SLOT_RELEVANCE = 2;
 
-            std::string text;
-            std::string title;
+            std::unique_ptr<Xapian::Database> db;
 
-            Trokam::WritableContentDB writable_content_db;
-            Trokam::LanguageDetection ld;
-
-            int extractPlainText();
-
-            void extractTitle();
+            std::string db_path;
     };
 }

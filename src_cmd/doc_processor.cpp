@@ -53,11 +53,11 @@ void Trokam::DocProcessor::insert(
     // Display data of the document.
     show(doc, set_for_download, status, retrieval_error, title, language);
 
-    // Insert a new document into word's database only if it's 
+    // Insert a new document into word's database only if it's
     // language is well identified.
     if(language != "unknown")
     {
-        grasp.insert(doc->id, doc->url, title, text, language);
+        writable_content_db.insert(doc->id, doc->url, title, text, language);
     }
 }
 
@@ -83,7 +83,7 @@ int Trokam::DocProcessor::extractPlainText()
     text = Trokam::FileOps::readLines(5000, "/tmp/trokam_content");
     boost::replace_all(text, "____________________", " ");
     boost::replace_all(text, "_______________", " ");
-    boost::replace_all(text, "____", " ");    
+    boost::replace_all(text, "____", " ");
     boost::replace_all(text, "(BUTTON)", "");
 
     return result;
@@ -91,7 +91,7 @@ int Trokam::DocProcessor::extractPlainText()
 
 void Trokam::DocProcessor::extractTitle()
 {
-    // This assumes that the HTML to plain text was 
+    // This assumes that the HTML to plain text was
     // executed using the modified version of lynx.
     // lynx_mod saves the title in the file '/tmp/trokam_title'
     title = Trokam::FileOps::readLines(1, "/tmp/trokam_title");
@@ -119,7 +119,7 @@ void Trokam::DocProcessor::show(
     std::cout << "content_type:" << doc->content_type << '\n';
     std::cout << "error code:" << retrieval_error << '\n';
     std::cout << "page length:" << doc->raw.length() << '\n';
-    std::cout << "page title:" << title << '\n';        
-    std::cout << "page lang:" << language << '\n';            
+    std::cout << "page title:" << title << '\n';
+    std::cout << "page lang:" << language << '\n';
     std::cout << "convert status:" << status << '\n';
 }

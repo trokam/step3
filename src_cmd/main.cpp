@@ -26,7 +26,8 @@
 
 // Trokam
 #include "crawler.h"
-#include "grasp.h"
+#include "readable_content_db.h"
+#include "writable_content_db.h"
 #include "options.h"
 
 int main(int argc, char *argv[])
@@ -41,8 +42,8 @@ int main(int argc, char *argv[])
         Trokam::Crawler crawler;
         crawler.clean();
 
-        Trokam::Grasp grasp;
-        grasp.clean();
+        Trokam::WritableContentDB writable_content_db;
+        writable_content_db.clean();
     }
     else if(action == "init")
     {
@@ -85,14 +86,14 @@ int main(int argc, char *argv[])
         std::string languages = opt.languages();
         unsigned int offset = opt.offset();
         unsigned int pagesize = opt.pagesize();
-        Trokam::Grasp grasp;
-        grasp.search(terms, languages, offset, pagesize);
+        Trokam::ReadableContentDB readable_content_db;
+        readable_content_db.search(terms, languages, offset, pagesize);
     }
     else
     {
         std::cerr << "Action '" << action << "' is not valid.\n";
     }
 
-    std::cout << "\n---------- Bye! ----------\n";        
+    std::cout << "\n---------- Bye! ----------\n";
     return EXIT_SUCCESS;
 }

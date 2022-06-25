@@ -29,7 +29,7 @@
 
 // Trokam
 #include "options.h"
-#include "grasp.h"
+#include "readable_content_db.h"
 #include "postgresql.h"
 
 namespace Trokam
@@ -44,7 +44,7 @@ namespace Trokam
             Trokam::Options settings;  // ???
             // std::vector<Trokam::Postgresql*> dbCluster;
 
-            Trokam::Grasp grasp;
+            Trokam::ReadableContentDB readable_content_db;
     };
 }
 

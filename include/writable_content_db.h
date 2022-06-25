@@ -35,17 +35,11 @@
 
 namespace Trokam
 {
-    struct DocData
-    {
-        Xapian::MSetIterator it;
-        float relevance = 1.0;
-    };
-
-    class Grasp
+    class WritableContentDB
     {
         public:
 
-            Grasp();
+            WritableContentDB();
 
             void insert(
                 const int &id,
@@ -53,12 +47,6 @@ namespace Trokam
                 const std::string &title,
                 const std::string &text,
                 const std::string &language);
-
-            void search(
-                const std::string &querystring,
-                const std::string &languages,
-                Xapian::doccount offset = 0,
-                Xapian::doccount pagesize = 30);
 
             void clean();
 
@@ -69,10 +57,6 @@ namespace Trokam
             const int SLOT_RELEVANCE = 2;
 
             std::unique_ptr<Xapian::WritableDatabase> db;
-
-            // Xapian::TermGenerator term_generator;
-
-            // Warehouse house;            
 
             std::string db_path;
     };

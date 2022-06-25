@@ -27,11 +27,11 @@
 #include <iostream>
 
 // Trokam
-#include "grasp.h"
+#include "readable_content_db.h"
 #include "file_ops.h"
 #include "plain_text_processor.h"
 
-Trokam::Grasp::Grasp()
+Trokam::ReadableContentDB::ReadableContentDB()
 {
     // std::string dbpath;
 
@@ -40,11 +40,11 @@ Trokam::Grasp::Grasp()
     {
         // std::cout << "Your PATH is: " << env_p << '\n';
         db_path  = env_home;
-        db_path += "/grasp";
+        db_path += "/ReadableContentDB";
     }
     else
     {
-        std::cerr << "fail: could not create grasp database.";
+        std::cerr << "fail: could not create ReadableContentDB database.";
         exit(1);
     }
     **/
@@ -52,44 +52,10 @@ Trokam::Grasp::Grasp()
     db_path = "/usr/local/data/trokam/grasp";
 
     db.reset(
-        new Xapian::WritableDatabase(
-            db_path, Xapian::DB_CREATE_OR_OPEN));
+        new Xapian::Database(db_path));
 }
 
-void Trokam::Grasp::insert(
-    const int &id,
-    const std::string &url,
-    const std::string &title,
-    const std::string &text,
-    const std::string &language)
-{
-    // We make a document and tell the term generator to use this.
-    Xapian::Document doc;
-    Xapian::TermGenerator term_generator;
-    term_generator.set_document(doc);
-
-    // Index fields without prefixes for general search.
-    term_generator.index_text(text);
-
-    // We use the identifier to ensure each object ends up in the
-    // database only once no matter how many times we run the
-    // indexer.
-    const std::string id_term = "Q" + std::to_string(id);
-    std::cout  << "indexing page with id:" << id_term << "\n";
-
-    const std::string lang_term = "L" + language;
-
-    // doc.set_data(title);
-    // doc.set_data(std::to_string(id) + " -- " + title);
-    doc.set_data(text);
-    doc.add_value(SLOT_URL, url);
-    doc.add_value(SLOT_TITLE, title);
-    doc.add_boolean_term(id_term);
-    doc.add_boolean_term(lang_term);
-    db->replace_document(id_term, doc);
-}
-
-void Trokam::Grasp::search(
+void Trokam::ReadableContentDB::search(
     const std::string &querystring,
     const std::string &languages,
     Xapian::doccount offset,
@@ -213,9 +179,4 @@ void Trokam::Grasp::search(
     }
 
     std::cout << '\n';
-}
-
-void Trokam::Grasp::clean()
-{
-    Trokam::FileOps::rmDir(db_path);
 }

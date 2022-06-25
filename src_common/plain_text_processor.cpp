@@ -79,7 +79,7 @@ void Trokam::PlainTextProcessor::extractUrl(
     boost::sregex_token_iterator j;
     while((i != j) && (count<max_url_extracted))
     {
-        std::string url= *i;    
+        std::string url= *i;
         url = formatUrl(url_prefix, url);
 
         if(!url.empty())
@@ -218,6 +218,7 @@ std::vector<std::string> Trokam::PlainTextProcessor::tokenize(
     return result;
 }
 
+/**
 std::string Trokam::PlainTextProcessor::snippet(
     const std::string &block_text,
     const std::string &search_text,
@@ -228,7 +229,6 @@ std::string Trokam::PlainTextProcessor::snippet(
 
     if(search_tokens.size() > 0)
     {
-        // size_t loc = block_text.find(search_tokens[0]);
         size_t loc = caseInsensitiveFind(block_text, search_tokens[0]);
         if(loc == std::string::npos)
         {
@@ -236,7 +236,7 @@ std::string Trokam::PlainTextProcessor::snippet(
             if(snippet_length < block_text.length())
             {
                 std::string result = block_text.substr(0, snippet_length);
-                return result;            
+                return result;
             }
             else
             {
@@ -246,21 +246,19 @@ std::string Trokam::PlainTextProcessor::snippet(
         else
         {
             int begin = loc - snippet_length/2;
-            // std::cout << "begin:" << begin << "\n";
             if(begin < 0)
             {
                 begin = 0;
             }
 
             int end = loc + snippet_length/2;
-            // std::cout << "end:" << end << "\n";            
             if(size_t(end) > block_text.length())
             {
                 end = block_text.length();
             }
 
             std::string result = block_text.substr(begin, end-begin);
-            return result;            
+            return result;
         }
     }
     else
@@ -268,6 +266,81 @@ std::string Trokam::PlainTextProcessor::snippet(
         std::string result = block_text.substr(0, snippet_length);
         return result;
     }
+}
+**/
+
+/**
+ * @brief It returns a contiguous part of block_text of snippet_length
+ *        lentgth where at least the first term of search_text appears.
+ *
+ * @param block_text Usually a large piece of text.
+ * @param search_text The terms to search within block_text.
+ * @param snippet_length The lenght of the snippet returned.
+ * @return std::string A part of the block_text.
+ */
+std::string Trokam::PlainTextProcessor::snippet(
+    const std::string &block_text,
+    const std::string &search_text,
+    const size_t &snippet_length)
+{
+    std::string result;
+
+    // The search_text is split in individuals words.
+    // The words are kept in a vector.
+    const std::vector<std::string> search_tokens =
+        Trokam::PlainTextProcessor::tokenize(search_text);
+
+    if(search_tokens.size() > 0)
+    {
+        // Find the words in block_text.
+        // loc is the location of the first occurrence.
+        size_t loc = caseInsensitiveFind(block_text, search_tokens[0]);
+
+        if(loc == std::string::npos)
+        {
+            // No one of the words was found.
+            // The snippet is a portion of block_text
+            // or block_text entirely.
+
+            result = block_text.substr(0, snippet_length);
+
+            /*
+            if(snippet_length < block_text.length())
+            {
+                result = block_text.substr(0, snippet_length);
+            }
+            else
+            {
+                result = block_text;
+            }
+            */
+        }
+        else
+        {
+            int begin = loc - snippet_length/2;
+            if(begin < 0)
+            {
+                begin = 0;
+            }
+
+            int end = loc + snippet_length/2;
+            if(size_t(end) > block_text.length())
+            {
+                end = block_text.length();
+            }
+
+            result = block_text.substr(begin, end-begin);
+        }
+    }
+    else
+    {
+        result = block_text.substr(0, snippet_length);
+    }
+
+    boost::replace_all(result, "   ", " ");
+    boost::replace_all(result, "  ", " ");
+
+    return result;
 }
 
 size_t Trokam::PlainTextProcessor::caseInsensitiveFind(
@@ -279,13 +352,13 @@ size_t Trokam::PlainTextProcessor::caseInsensitiveFind(
         text_piece.end(),
         text_piece.begin(),
         ::toupper);
-  
+
     std::string::const_iterator it =
         search(
             text_block.begin(),
-            text_block.end(), 
+            text_block.end(),
             text_piece.begin(),
-            text_piece.end(), 
+            text_piece.end(),
             [](char a, char b){return toupper(a) == b;});
 
     if(it == text_block.end())
@@ -311,7 +384,7 @@ float Trokam::PlainTextProcessor::howMuchOf(
         }
     }
     boost::algorithm::trim_if(
-        text_block, boost::algorithm::is_any_of(" "));    
+        text_block, boost::algorithm::is_any_of(" "));
     float remaining_length = text_block.length();
     return (original_length-remaining_length)/original_length;
 }

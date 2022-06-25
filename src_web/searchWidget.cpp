@@ -450,9 +450,39 @@ void Trokam::SearchWidget::search(const std::string &terms)
 
     std::string languages = "english";
     unsigned int offset = 1;
-    unsigned int page_size = 5;
+    unsigned int page_size = 15;
 
-    shared_resources->readable_content_db.search(lowCaseTerms, languages, offset, page_size);
+    std::vector<Trokam::Finding> items_found =
+        shared_resources->
+            readable_content_db.search(
+                lowCaseTerms,
+                languages,
+                offset,
+                page_size);
+
+
+    if(items_found.size() != 0)
+    {
+        for(size_t i= 0; i<items_found.size(); i++)
+        {
+            std::string out;
+            out+= "<p>";
+            out+= "<span style=\"font-size:x-large;\">" + items_found[i].title + "</span><br/>";
+            out+= "<strong><a href=\"" + items_found[i].url + "\" target=\"_blank\">" + items_found[i].url + "</a></strong><br/>";
+            out+= items_found[i].snippet + "<br/>";
+            out+= "</p>";
+            out+= "&nbsp;<br/>";
+
+            // auto oneRow = std::make_unique<Wt::WTemplate>(out);
+            auto oneRow = std::make_unique<Wt::WTemplate>();
+            oneRow->setTemplateText(out, Wt::TextFormat::UnsafeXHTML);
+            userFindings->elementAt(i, 0)->addWidget(std::move(oneRow));
+        }
+    }
+    else
+    {
+        layout()->itemAt(SEARCH_STATE)->widget()->setHidden(false);
+    }
 
     /**
     const std::string likeClause= Trokam::TextProcessing::generateLikeClause(lowCaseTerms);

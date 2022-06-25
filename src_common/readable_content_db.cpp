@@ -55,11 +55,12 @@ Trokam::ReadableContentDB::ReadableContentDB()
         new Xapian::Database(db_path));
 }
 
-void Trokam::ReadableContentDB::search(
-    const std::string &querystring,
-    const std::string &languages,
-    Xapian::doccount offset,
-    Xapian::doccount pagesize)
+std::vector<Trokam::Finding>
+    Trokam::ReadableContentDB::search(
+        const std::string &querystring,
+        const std::string &languages,
+        Xapian::doccount offset,
+        Xapian::doccount pagesize)
 {
     // Set up a QueryParser with a stemmer and suitable prefixes.
     Xapian::QueryParser queryparser;
@@ -150,33 +151,21 @@ void Trokam::ReadableContentDB::search(
         search_results.end(),
         [](Trokam::DocData a, Trokam::DocData b) {return a.relevance > b.relevance;});
 
-    // for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
-    const int limit_show = 5;
-    int count = 0;
+    std::vector<Trokam::Finding> result;
     for(auto it= search_results.begin(); it!=search_results.end(); ++it)
     {
-        std::string title = it->it.get_document().get_value(SLOT_TITLE);
-        std::string url = it->it.get_document().get_value(SLOT_URL);
+        Trokam::Finding finding;
 
-        std::cout << title << '\n';
-        std::cout << "relevance:" << it->relevance << "\n";
-        std::cout << url << '\n';
+        finding.title     = it->it.get_document().get_value(SLOT_TITLE);
+        finding.url       = it->it.get_document().get_value(SLOT_URL);
+        finding.relevance = it->relevance;
 
         const std::string &data = it->it.get_document().get_data();
-        std::string snippet =
+        finding.snippet =
             Trokam::PlainTextProcessor::snippet(data, querystring, 250);
-        boost::replace_all(snippet, "   ", " ");
-        boost::replace_all(snippet, "  ", " ");
 
-        std::cout << snippet << "\n\n";
-        std::cout << '\n';
-
-        count++;
-        if(count > limit_show)
-        {
-            break;
-        }
+        result.push_back(finding);
     }
 
-    std::cout << '\n';
+    return result;
 }

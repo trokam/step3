@@ -41,17 +41,26 @@ namespace Trokam
         float relevance = 1.0;
     };
 
+    struct Finding
+    {
+        std::string title;
+        std::string url;
+        std::string snippet;
+        float relevance = 1.0;
+    };
+
     class ReadableContentDB
     {
         public:
 
             ReadableContentDB();
 
-            void search(
-                const std::string &querystring,
-                const std::string &languages,
-                Xapian::doccount offset = 0,
-                Xapian::doccount pagesize = 30);
+            std::vector<Finding>
+                search(
+                    const std::string &querystring,
+                    const std::string &languages,
+                    Xapian::doccount offset = 0,
+                    Xapian::doccount pagesize = 30);
 
         private:
 
@@ -60,7 +69,6 @@ namespace Trokam
             const int SLOT_RELEVANCE = 2;
 
             std::unique_ptr<Xapian::Database> db;
-
             std::string db_path;
     };
 }

@@ -25,6 +25,8 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <vector>
+#include <utility>
 
 // Trokam
 #include "readable_content_db.h"
@@ -149,7 +151,10 @@ std::vector<Trokam::Finding>
     std::sort(
         search_results.begin(),
         search_results.end(),
-        [](Trokam::DocData a, Trokam::DocData b) {return a.relevance > b.relevance;});
+        [](Trokam::DocData a, Trokam::DocData b)
+        {
+            return a.relevance > b.relevance;
+        });
 
     std::vector<Trokam::Finding> result;
     for(auto it= search_results.begin(); it!=search_results.end(); ++it)
@@ -161,11 +166,50 @@ std::vector<Trokam::Finding>
         finding.relevance = it->relevance;
 
         const std::string &data = it->it.get_document().get_data();
+        // finding.snippet =
+        //    Trokam::PlainTextProcessor::snippet(data, querystring, 250);
+
+        // it works! // finding.snippet = mset.snippet(data, 250);
+
         finding.snippet =
-            Trokam::PlainTextProcessor::snippet(data, querystring, 250);
+            mset.snippet(
+                data,
+                500,
+                Xapian::Stem(),
+                Xapian::MSet::SNIPPET_BACKGROUND_MODEL | Xapian::MSet::SNIPPET_EXHAUSTIVE,
+                std::string("<strong>"),
+                std::string("</strong>"),
+                std::string("..."));
 
         result.push_back(finding);
     }
+
+    return result;
+}
+
+std::vector<std::pair<std::string, Xapian::doccount>>
+    Trokam::ReadableContentDB::lookUp(
+        const std::string &partial_term)
+{
+    std::vector<std::pair<std::string, Xapian::doccount>> result;
+    Xapian::TermIterator it = db->allterms_begin(partial_term);
+    Xapian::TermIterator end = db->allterms_end(partial_term);
+
+    while(it != end)
+    {
+        auto strike = std::make_pair(*it, it.get_termfreq());
+        result.push_back(strike);
+        it++;
+    }
+
+    std::sort(
+        result.begin(),
+        result.end(),
+        [](auto a, auto b)
+            {
+                return std::get<Xapian::doccount>(a) > std::get<Xapian::doccount>(b);
+            }
+        );
 
     return result;
 }

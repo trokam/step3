@@ -62,6 +62,10 @@ namespace Trokam
                     Xapian::doccount offset = 0,
                     Xapian::doccount pagesize = 30);
 
+            std::vector<std::pair<std::string, Xapian::doccount>>
+                lookUp(
+                    const std::string &prefix);
+
         private:
 
             const int SLOT_URL   = 0;

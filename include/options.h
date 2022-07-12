@@ -23,6 +23,9 @@
 
 #pragma once
 
+// C
+#include <limits.h>
+
 // C++
 #include <string>
 
@@ -39,7 +42,8 @@ namespace Trokam
             std::string terms() const;
             std::string languages() const;
             unsigned int offset() const;
-            unsigned int pagesize() const;
+            unsigned int pageSize() const;
+            unsigned maxResults() const;
 
         private:
 
@@ -48,6 +52,7 @@ namespace Trokam
             std::string opt_terms;
             std::string opt_languages;
             unsigned int opt_offset = 1;
-            unsigned int opt_pagesize = 5;
+            unsigned int opt_page_size = 5;
+            unsigned int opt_max_results = UINT_MAX;
     };
 }

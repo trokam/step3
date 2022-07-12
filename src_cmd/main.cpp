@@ -73,9 +73,32 @@ int main(int argc, char *argv[])
             crawler.run();
         }
     }
+    else if(action == "look-up")
+    {
+        // Looking up terms with a prefix.
+        std::cout << "Searching terms with a prefix ...\n\n";
+        std::string prefix = opt.terms();
+        if(prefix == "")
+        {
+            std::cerr << "Provide a prefix term to look-up using --prefix\n";
+            exit(1);
+        }
+        Trokam::ReadableContentDB readable_content_db;
+        auto data = readable_content_db.lookUp(prefix);
+
+        unsigned int max_results = opt.maxResults();
+        unsigned int i=0;
+        while((i<data.size()) && (i<max_results))
+        {
+            std::cout
+                << "term:" << std::get<0>(data[i]) << '\t'
+                << "occurrences:" << std::get<1>(data[i]) << '\n';
+            i++;
+        }
+    }
     else if(action == "search")
     {
-        // Searching the document database.
+        // Searching documents.
         std::cout << "Searching the database ...\n\n";
         std::string terms = opt.terms();
         if(terms == "")
@@ -85,9 +108,18 @@ int main(int argc, char *argv[])
         }
         std::string languages = opt.languages();
         unsigned int offset = opt.offset();
-        unsigned int pagesize = opt.pagesize();
+        unsigned int pagesize = opt.pageSize();
         Trokam::ReadableContentDB readable_content_db;
-        readable_content_db.search(terms, languages, offset, pagesize);
+        auto data =
+            readable_content_db.search(terms, languages, offset, pagesize);
+
+        for(const auto &element: data)
+        {
+            std::cout
+                << "title:\t\t" << element.title << '\n'
+                << "url:\t\t" << element.url << '\n'
+                << "snippet:\t" << element.snippet << "\n\n";
+        }
     }
     else
     {

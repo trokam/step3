@@ -41,13 +41,14 @@ Trokam::Options::Options(int argc, char* argv[])
     {
         boost::program_options::options_description desc("Allowed options");
         desc.add_options()
-            ("help",       "Produce help message")
-            ("action",     boost::program_options::value<std::string>(),  "Possible actions: empty, init, index and search.")
-            ("seeds-file", boost::program_options::value<std::string>(),  "File with first URLs.")
-            ("terms",      boost::program_options::value<std::string>(),  "Terms to search.")
-            ("languages",  boost::program_options::value<std::string>(),  "Languages to search. Comma separated.")
-            ("offset",     boost::program_options::value<unsigned int>(), "Results page.")
-            ("pagesize",   boost::program_options::value<unsigned int>(), "Results per page.");
+            ("help",         "Produce help message")
+            ("action",       boost::program_options::value<std::string>(),  "Possible actions: empty, init, index, look-up and search.")
+            ("seeds-file",   boost::program_options::value<std::string>(),  "File with first URLs.")
+            ("terms",        boost::program_options::value<std::string>(),  "Terms to search.")
+            ("languages",    boost::program_options::value<std::string>(),  "Languages to search. Comma separated.")
+            ("offset",       boost::program_options::value<unsigned int>(), "Results page.")
+            ("pagesize",     boost::program_options::value<unsigned int>(), "Results per page.")
+            ("max-results",  boost::program_options::value<unsigned int>(), "Maximum number of results.");
         boost::program_options::variables_map vm;
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
@@ -85,7 +86,12 @@ Trokam::Options::Options(int argc, char* argv[])
 
         if(vm.count("pagesize"))
         {
-            opt_pagesize = vm["pagesize"].as<unsigned int>();
+            opt_page_size = vm["pagesize"].as<unsigned int>();
+        }
+
+        if(vm.count("max-results"))
+        {
+            opt_max_results = vm["max-results"].as<unsigned int>();
         }
     }
     catch(const std::exception& e)
@@ -120,7 +126,12 @@ unsigned int Trokam::Options::offset() const
     return opt_offset;
 }
 
-unsigned int Trokam::Options::pagesize() const
+unsigned int Trokam::Options::pageSize() const
 {
-    return opt_pagesize;
+    return opt_page_size;
+}
+
+unsigned int Trokam::Options::maxResults() const
+{
+    return opt_max_results;
 }

@@ -23,12 +23,17 @@
 
 // C++
 #include <memory>
+#include <cstdlib>
+#include <utility>
 
 // Boost
 #include <boost/algorithm/string.hpp>
 #include <boost/thread.hpp>
 
 // Wt
+#include <Wt/WCheckBox.h>
+#include <Wt/WComboBox.h>
+#include <Wt/WContainerWidget.h>
 #include <Wt/WDialog.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WMenu.h>
@@ -40,16 +45,16 @@
 #include <Wt/WStackedWidget.h>
 #include <Wt/WVBoxLayout.h>
 #include <Wt/WTemplate.h>
+#include <Wt/WText.h>
 
 // Trokam
-#include "deferredWidget.h"
-#include "searchWidget.h"
-
-/// Trokam
 #include "bundle.h"
 #include "common.h"
+#include "deferredWidget.h"
 #include "file_ops.h"
-
+#include "searchWidget.h"
+#include "plain_text_processor.h"
+#include "preferences.h"
 
 Trokam::SearchWidget::SearchWidget(
     boost::shared_ptr<Trokam::SharedResources> &sr,
@@ -115,6 +120,59 @@ Trokam::SearchWidget::SearchWidget(
     vbox->addWidget(std::move(brief));
 
     /**
+     * Languages searched.
+     **/
+    auto lang_container =
+        std::make_unique<Wt::WContainerWidget>();
+    lang_container->setStyleClass("yellow-box");
+
+    auto hbox =
+        lang_container->
+            setLayout(std::make_unique<Wt::WHBoxLayout>());
+
+    auto item = std::make_unique<Wt::WText>("Item 1");
+    item->setStyleClass("green-box");
+    hbox->addWidget(std::move(item), 1);
+
+    /*
+    item = std::make_unique<Wt::WText>("Item 2");
+    item->setStyleClass("blue-box");
+    hbox->addWidget(std::move(item));
+    */
+
+    auto bt_lang_sel = std::make_unique<Wt::WPushButton>("language");
+    // bt_lang_sel->setStyleClass("btn-success");
+    bt_lang_sel->setStyleClass("btn-primary");
+    // bt_lang_sel->setStyleClass("btn-outline-primary");
+    bt_lang_sel.get()->
+        // clicked().connect(bt_lang_sel.get(), &Wt::WPushButton::disable);
+        clicked().connect(this, &Trokam::SearchWidget::showLanguageOptions);
+
+    hbox->addWidget(std::move(bt_lang_sel));
+
+    /*
+    auto cb = std::make_unique<Wt::WComboBox>();
+    cb->addItem("Heavy");
+    cb->addItem("Medium");
+    cb->addItem("Light");
+    cb->setCurrentIndex(1); // Show 'Medium' initially.
+    cb->setMargin(10, Wt::Side::Right);
+    hbox->addWidget(std::move(cb));
+    */
+
+    vbox->addWidget(std::move(lang_container));
+
+    /*
+    auto cb = lang_container->addNew<Wt::WComboBox>();
+    cb->addItem("Heavy");
+    cb->addItem("Medium");
+    cb->addItem("Light");
+    cb->setCurrentIndex(1); // Show 'Medium' initially.
+    cb->setMargin(10, Wt::Side::Right);
+    vbox->addWidget(std::move(lang_container));
+    */
+
+    /**
      * Information about the results.
      **/
     auto infoResults =
@@ -138,17 +196,115 @@ Trokam::SearchWidget::SearchWidget(
     subStack->addWidget(std::move(findingsBox));
     vbox->addWidget(std::move(subStack), 1);
 
+/*
     vbox->itemAt(GENERAL_INFO)->widget()->setHidden(false);
     vbox->itemAt(SMALL_LOGO)->widget()->setHidden(true);
     vbox->itemAt(BIG_LOGO)->widget()->setHidden(false);
     vbox->itemAt(BRIEF_INTRO)->widget()->setHidden(false);
+    vbox->itemAt(LANG_SEARCHED)->widget()->setHidden(false);
     vbox->itemAt(SEARCH_STATE)->widget()->setHidden(true);
+*/
+
+    vbox->itemAt(GENERAL_INFO)->widget()->setHidden(false);
+    vbox->itemAt(SMALL_LOGO)->widget()->setHidden(false);
+    vbox->itemAt(BIG_LOGO)->widget()->setHidden(false);
+    vbox->itemAt(BRIEF_INTRO)->widget()->setHidden(false);
+    vbox->itemAt(LANG_SEARCHED)->widget()->setHidden(false);
+    vbox->itemAt(SEARCH_STATE)->widget()->setHidden(false);
 
     setLayout(std::move(vbox));
 
     timer = app->root()->addChild(std::make_unique<Wt::WTimer>());
     timer->setInterval(std::chrono::milliseconds(750));
     timer->timeout().connect(this, &Trokam::SearchWidget::timeout);
+
+    /**
+     * Initialize searched languages.
+     **/
+    for(unsigned int i=0; i<LANGUAGES_TOTAL; i++)
+    {
+        auto language_item = std::make_pair(i, false);
+        language_options.push_back(language_item);
+    }
+
+    const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
+
+    std::string languages_selected= *env.getCookie("languages");
+    Wt::log("info") << "cookie language=" << languages_selected;
+
+    if(!languages_selected.empty())
+    {
+        std::vector<std::string> languages_slices =
+            Trokam::PlainTextProcessor::tokenize(languages_selected, ',');
+
+        for(const std::string &element: languages_slices)
+        {
+            unsigned int language_id = std::atoi(element.c_str());
+            std::get<bool>(language_options[language_id]) = true;
+        }
+    }
+
+    // Checks if at least one language is selected.
+    bool is_language_selected = false;
+    for(const auto &element: language_options)
+    {
+        is_language_selected |= std::get<bool>(element);
+    }
+
+    // TODO: If there is not cookie this set the default value to English
+    //       But, setting the default language to the same one of the
+    //       browser is better.
+    if(!is_language_selected)
+    {
+        std::get<bool>(language_options[Trokam::Language::ENGLISH])= true;
+    }
+
+    /*
+    auto language_item = std::make_pair("english", true);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("russian", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("chinese", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("german", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("spanish", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("french", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("japanese", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("polish", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("portuguese", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("italian", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("ukrainian", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("arabic", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("dutch", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("korean", false);
+    language_options.push_back(language_item);
+
+    language_item = std::make_pair("swedish", false);
+    language_options.push_back(language_item);
+    */
 
     /**
      * Set the focus on the user input box.
@@ -169,7 +325,7 @@ void Trokam::SearchWidget::populateSubMenu(Wt::WMenu *menu)
 
 void Trokam::SearchWidget::keyPressedEntrance(const Wt::WKeyEvent &kEvent)
 {
-    Wt::log("info") << __PRETTY_FUNCTION__;
+    // Wt::log("info") << __PRETTY_FUNCTION__;
 
     if(kEvent.key() == Wt::Key::Enter)
     {
@@ -201,7 +357,8 @@ void Trokam::SearchWidget::keyPressedEntrance(const Wt::WKeyEvent &kEvent)
     }
 }
 
-void Trokam::SearchWidget::phrasesPopupKeyPressed(const Wt::WKeyEvent &kEvent)
+void Trokam::SearchWidget::phrasesPopupKeyPressed(
+    const Wt::WKeyEvent &kEvent)
 {
     Wt::log("info") << __PRETTY_FUNCTION__;
 
@@ -248,7 +405,7 @@ void Trokam::SearchWidget::phrasesPopupKeyPressed(const Wt::WKeyEvent &kEvent)
 void Trokam::SearchWidget::timeout()
 {
     timer->stop();
-    // searchForPhrases();
+    searchForPhrases();
 }
 
 void Trokam::SearchWidget::textInput()
@@ -257,63 +414,33 @@ void Trokam::SearchWidget::textInput()
     timer->start();
 }
 
-/**
 void Trokam::SearchWidget::searchForPhrases()
 {
     Wt::log("info") << __PRETTY_FUNCTION__;
 
-    std::string text= userInput->text().toUTF8();
-    boost::algorithm::to_lower(text);
+    std::string prefix= userInput->text().toUTF8();
+    boost::algorithm::to_lower(prefix);
 
-    setDbTimeOut(1);
+    // setDbTimeOut(1);
 
-    if(text.length() >= 2)
+    if(prefix.length() >= 2)
     {
-        sequenceCollection.clear();
+        auto data =
+            shared_resources->
+                readable_content_db.lookUp(prefix);
 
-        const std::string likeClause= Trokam::TextProcessing::generateLikeClause(text);
+        unsigned int max_results = 12; // opt.maxResults();
 
-        if (likeClause == "")
+        /*
+        unsigned int i=0;
+        while((i<data.size()) && (i<max_results))
         {
-            return;
+            std::cout
+                << "term:" << std::get<0>(data[i]) << '\t'
+                << "occurrences:" << std::get<1>(data[i]) << '\n';
+            i++;
         }
-
-        std::string sentence;
-        sentence=  "SELECT index, value, count ";
-        sentence+= "FROM words ";
-        sentence+= "WHERE count>0 ";
-        sentence+= likeClause;
-        sentence+= "ORDER BY count DESC ";
-        sentence+= "LIMIT 10 ";
-
-        Wt::log("info") << "sql sentence: '" << sentence << "'";
-
-
-        // Database queries are executed in parallel, each one in a thread.
-        // boost::thread_group takes ownership of thread pointers and
-        // takes care to delete each one in its destructor.
-
-        boost::thread_group tg;
-        for(size_t i=0; i<resources->dbCluster.size(); i++)
-        {
-            boost::thread *t= new boost::thread(boost::bind(&Trokam::SearchWidget::getPhrases, this, sentence, i));
-            tg.add_thread(t);
-        }
-        tg.join_all();
-
-        Trokam::Sequence seq;
-        while(bagPhrases.pop(seq))
-        {
-            insertSequence(seq);
-        }
-
-        std::sort(sequenceCollection.begin(),
-                  sequenceCollection.end(),
-                  [](Trokam::Sequence a, Trokam::Sequence b)
-                    {
-                        return (a.occurrences > b.occurrences);
-                    }
-                );
+        */
 
         if(phrasesPopup)
         {
@@ -321,23 +448,29 @@ void Trokam::SearchWidget::searchForPhrases()
         }
 
         phrasesPopup = std::make_unique<Wt::WPopupMenu>();
-        phrasesPopup->itemSelected().connect(this, &Trokam::SearchWidget::phrasesPopupSelect);
+        phrasesPopup->
+            itemSelected().connect(
+                this,
+                &Trokam::SearchWidget::phrasesPopupSelect);
 
-        for(size_t i= 0; ((i<sequenceCollection.size()) && (i<15)); i++)
+        for(size_t i= 0; ((i<data.size()) && (i<max_results)); i++)
         {
-            phrasesPopup->addItem(sequenceCollection[i].value);
+            phrasesPopup->addItem(std::get<0>(data[i]));
         }
 
         std::vector<Wt::WMenuItem*> alternatives= phrasesPopup->items();
         for(unsigned int i=0; i<alternatives.size(); i++)
         {
             alternatives[i]->setCanReceiveFocus(true);
-            alternatives[i]->keyWentDown().connect(this, &SearchWidget::phrasesPopupKeyPressed);
+            alternatives[i]->
+                keyWentDown().connect(
+                    this,
+                    &SearchWidget::phrasesPopupKeyPressed);
         }
 
         phrasesPopup->popup(userInput);
 
-        if(sequenceCollection.size() > 0)
+        if(data.size() > 0)
         {
             phrasesPopup->setHidden(false);
         }
@@ -353,7 +486,6 @@ void Trokam::SearchWidget::searchForPhrases()
         layout()->itemAt(SEARCH_STATE)->widget()->setHidden(true);
     }
 }
-**/
 
 void Trokam::SearchWidget::getPhrases(const std::string &sentence,
                                       const int &dbId)
@@ -448,30 +580,44 @@ void Trokam::SearchWidget::search(const std::string &terms)
     std::string lowCaseTerms= terms;
     boost::algorithm::to_lower(lowCaseTerms);
 
-    std::string languages = "english";
+    // std::string languages = "english";
     unsigned int offset = 1;
     unsigned int page_size = 15;
+
+    std::vector<std::string> language_selected;
+    for(unsigned int i=0; i<language_options.size(); i++)
+    {
+        if(std::get<bool>(language_options[i]))
+        {
+            const std::string language_name =
+                Trokam::Preferences::languageName(i);
+
+            language_selected.push_back(language_name);
+        }
+    }
 
     std::vector<Trokam::Finding> items_found =
         shared_resources->
             readable_content_db.search(
                 lowCaseTerms,
-                languages,
+                language_selected,
                 offset,
                 page_size);
 
-
+    userFindings->clear();
     if(items_found.size() != 0)
     {
         for(size_t i= 0; i<items_found.size(); i++)
         {
             std::string out;
-            out+= "<p>";
-            out+= "<span style=\"font-size:x-large;\">" + items_found[i].title + "</span><br/>";
+            out+= "<p>&nbsp;<br/>";
+            // out+= "<span style=\"font-size:x-large;\">" + items_found[i].title + "</span><br/>";
+            // out+= "<a href=\"" + items_found[i].url + "\" target=\"_blank\">" + "<span style=\"font-size:x-large;\">" + items_found[i].title + "</span>" + "</a><br/>";
+            out+= "<a href=\"" + items_found[i].url + "\" target=\"_blank\"><span style=\"font-size:x-large;\">" + items_found[i].title + "</span></a><br/>";
             out+= "<strong><a href=\"" + items_found[i].url + "\" target=\"_blank\">" + items_found[i].url + "</a></strong><br/>";
             out+= items_found[i].snippet + "<br/>";
             out+= "</p>";
-            out+= "&nbsp;<br/>";
+            // out+= "&nbsp;<br/>";
 
             // auto oneRow = std::make_unique<Wt::WTemplate>(out);
             auto oneRow = std::make_unique<Wt::WTemplate>();
@@ -761,25 +907,94 @@ void Trokam::SearchWidget::showAnalysis(const std::string &url,
 
     auto header = std::make_unique<Wt::WText>(Wt::WString("URL: ") + url + Wt::WString("<br/>Title: ") + title);
 
-    auto analysisBox = addChild(std::make_unique<Wt::WDialog>("Most relevant phrases"));
+    auto language_box = addChild(std::make_unique<Wt::WDialog>("Most relevant phrases"));
 
     auto closeButton = std::make_unique<Wt::WPushButton>("Close");
     closeButton->addStyleClass("btn btn-primary");
     closeButton->clicked().connect([=] {
-                                            removeChild(analysisBox);
+                                            removeChild(language_box);
                                        });
 
     // Process the dialog result.
-    analysisBox->finished().connect([=] {
-                                            removeChild(analysisBox);
+    language_box->finished().connect([=] {
+                                            removeChild(language_box);
                                         });
 
-    analysisBox->titleBar()->addWidget(std::move(header));
-    analysisBox->contents()->addWidget(std::move(pageInfo));
-    analysisBox->footer()->addWidget(std::move(closeButton));
-    analysisBox->rejectWhenEscapePressed();
-    analysisBox->setModal(false);
-    analysisBox->show();
+    language_box->titleBar()->addWidget(std::move(header));
+    language_box->contents()->addWidget(std::move(pageInfo));
+    language_box->footer()->addWidget(std::move(closeButton));
+    language_box->rejectWhenEscapePressed();
+    language_box->setModal(false);
+    language_box->show();
 
     **/
+}
+
+void Trokam::SearchWidget::showLanguageOptions()
+{
+    auto header = std::make_unique<Wt::WText>(Wt::WString("Choose language"));
+    auto language_box = addChild(std::make_unique<Wt::WDialog>("Choose language"));
+    auto pageInfo = std::make_unique<Wt::WTable>();
+
+    const int max_per_column = 8;
+
+    for(unsigned int i=0; i<language_options.size(); i++)
+    {
+        std::string language_name = Trokam::Preferences::languageName(i);
+        bool language_selected = std::get<bool>(language_options[i]);
+
+        int col = i / max_per_column;
+        int row = i % max_per_column;
+
+        // int col = 0;
+        // int row = i;
+
+        Wt::WCheckBox *cb =
+            pageInfo->elementAt(row, col)->addNew<Wt::WCheckBox>(language_name);
+        cb->setInline(false);
+        cb->setChecked(language_selected);
+
+        cb->checked().connect(  [=] { std::get<bool>(language_options[i])= true; });
+        cb->unChecked().connect([=] { std::get<bool>(language_options[i])= false; });
+    }
+
+    auto closeButton = std::make_unique<Wt::WPushButton>("Close");
+    closeButton->addStyleClass("btn btn-primary");
+    closeButton->clicked().connect([=] {
+                                            if(savePreferences())
+                                            {
+                                                removeChild(language_box);
+                                            }
+                                       });
+
+    // Process the dialog result.
+    language_box->finished().connect([=] {
+                                            if(savePreferences())
+                                            {
+                                                removeChild(language_box);
+                                            }
+                                        });
+
+    language_box->titleBar()->addWidget(std::move(header));
+    language_box->contents()->addWidget(std::move(pageInfo));
+    language_box->footer()->addWidget(std::move(closeButton));
+    language_box->rejectWhenEscapePressed();
+    language_box->setModal(false);
+    language_box->show();
+}
+
+bool Trokam::SearchWidget::savePreferences()
+{
+    std::string language_selected;
+    for(unsigned int i=0; i<language_options.size(); i++)
+    {
+        if(std::get<bool>(language_options[i]))
+        {
+            language_selected += std::to_string(i) + ",";
+        }
+    }
+
+    application->setCookie("languages", language_selected, 10000000);
+
+    return true;
 }

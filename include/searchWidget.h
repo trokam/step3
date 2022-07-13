@@ -24,14 +24,15 @@
 #ifndef TROKAM_SEARCH_WIDGET_H
 #define TROKAM_SEARCH_WIDGET_H
 
-/// C++
+// C++
 #include <memory>
+#include <vector>
 
-/// Boost
+// Boost
 #include <boost/lockfree/stack.hpp>
 #include <boost/shared_ptr.hpp>
 
-/// Wt
+// Wt
 #include <Wt/WEvent.h>
 #include <Wt/WLineEdit.h>
 #include <Wt/WPopupMenu.h>
@@ -39,7 +40,7 @@
 #include <Wt/WText.h>
 #include <Wt/WTimer.h>
 
-/// Trokam
+// Trokam
 #include "pageWidget.h"
 #include "bundle.h"
 #include "data.h"
@@ -68,6 +69,10 @@ namespace Trokam
             Wt::WTable    *userFindings;
             Wt::WTimer    *timer;
 
+            // std::vector<std::string> language_available;
+            // std::vector<std::pair<std::string, bool>> language_options;
+            std::vector<std::pair<int, bool>> language_options;
+
             std::vector<Trokam::Sequence> sequenceCollection;
             boost::lockfree::stack<Trokam::Sequence> bagPhrases{100};
             boost::lockfree::stack<Trokam::Findings> bagFindings{100};
@@ -79,7 +84,7 @@ namespace Trokam
 
             void timeout();
             void textInput();
-            // void searchForPhrases();
+            void searchForPhrases();
             void getPhrases(const std::string &sentence,
                             const int &dbId);
             void insertSequence(const Trokam::Sequence &seq);
@@ -98,6 +103,10 @@ namespace Trokam
                               const std::string &title,
                               const int &dbId,
                               const std::string &urlIndex);
+
+            void showLanguageOptions();
+
+            bool savePreferences();
     };
 }
 

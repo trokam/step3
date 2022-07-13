@@ -37,9 +37,7 @@
 
 Trokam::AppGenerator::AppGenerator(Trokam::Options &opt)
     :commonResources(new Trokam::SharedResources(opt))
-{
-    Wt::log("info") << "X1\n";
-}
+{}
 
 std::unique_ptr<Wt::WApplication>
     Trokam::AppGenerator::createApplication(
@@ -52,18 +50,12 @@ std::unique_ptr<Wt::WApplication>
 {
 **/
 
-    Wt::log("info") << "A0\n";
-    std::cout << "A0\n";
-
     /**
      * Instantiate the application. object.
      **/
     auto app = std::make_unique<Wt::WApplication>(env);
 
-
     Wt::log("info") << "appRoot: '" << app->appRoot() << "'";
-
-    Wt::log("info") << "A1\n";
 
     /**
      * Verifying approot directory.
@@ -72,7 +64,6 @@ std::unique_ptr<Wt::WApplication>
     {
         Wt::log("error") << WARNING_APPROOT_EMPTY;
     }
-
 
     /**
      * Using Bootstrap CSS version 3.
@@ -83,8 +74,6 @@ std::unique_ptr<Wt::WApplication>
     app->setTheme(bootstrapTheme);
     app->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
 
-    std::cout << "A2\n";
-
     /**
      * Customized Bootstrap 3 CCS.
      **/
@@ -93,15 +82,11 @@ std::unique_ptr<Wt::WApplication>
     app->useStyleSheet("/style/custom-bootstrap-theme.css");
     app->useStyleSheet("/style/custom-bootstrap-theme.min.css");
 
-    std::cout << "A3\n";
-
     /**
      * Additional stylesheet.
      **/
     app->useStyleSheet("/style/trokam.css");
     app->useStyleSheet("/style/layout.css");
-
-    std::cout << "A4\n";
 
     /**
      * Load text bundles.
@@ -109,8 +94,6 @@ std::unique_ptr<Wt::WApplication>
     // app->messageResourceBundle().use(app->appRoot() + "report");
     app->messageResourceBundle().use(app->appRoot() + "text");
     // app->messageResourceBundle().use(app->appRoot() + "src");
-
-    std::cout << "A5\n";
 
     /**
      * Add the only one widget in the application layout.
@@ -121,15 +104,10 @@ std::unique_ptr<Wt::WApplication>
     layout->addWidget(std::make_unique<Trokam::TopWindow>(commonResources, app.get()));
     // layout->addWidget(std::make_unique<Trokam::TopWindow>(app.get()));
 
-    std::cout << "A6\n";
-
     /**
      * Set web site title.
      **/
     app->setTitle("Trokam Search Engine");
 
-    std::cout << "A7\n";
-
     return app;
-    // return std::move(app);
 }

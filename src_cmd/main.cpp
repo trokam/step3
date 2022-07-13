@@ -29,6 +29,7 @@
 #include "readable_content_db.h"
 #include "writable_content_db.h"
 #include "options.h"
+#include "plain_text_processor.h"
 
 int main(int argc, char *argv[])
 {
@@ -106,7 +107,9 @@ int main(int argc, char *argv[])
             std::cerr << "Provide terms to search using --terms\n";
             exit(1);
         }
-        std::string languages = opt.languages();
+        // std::string languages = opt.languages();
+        std::vector<std::string> languages =
+            Trokam::PlainTextProcessor::tokenize(opt.languages(), ',');
         unsigned int offset = opt.offset();
         unsigned int pagesize = opt.pageSize();
         Trokam::ReadableContentDB readable_content_db;

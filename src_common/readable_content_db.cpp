@@ -60,7 +60,8 @@ Trokam::ReadableContentDB::ReadableContentDB()
 std::vector<Trokam::Finding>
     Trokam::ReadableContentDB::search(
         const std::string &querystring,
-        const std::string &languages,
+        // const std::string &languages,
+        const std::vector<std::string> &languages,
         Xapian::doccount offset,
         Xapian::doccount pagesize)
 {
@@ -75,6 +76,7 @@ std::vector<Trokam::Finding>
     // --------------------------------------------------
 
         // For debugging
+        /**
         std::cout << "languages:'" <<languages << "'\n";
 
         std::vector<std::string> lang_enquiry;
@@ -95,12 +97,23 @@ std::vector<Trokam::Finding>
         }
         std::cout << '\n';
 
-        // Build a query for each material value
+        // Build a query
         std::vector<Xapian::Query> lang_queries;
         for(const auto &lang: lang_enquiry)
         {
             std::string lang_term = "L";
             lang_term += lang;
+            // material += Xapian::Unicode::tolower(lang);
+            lang_queries.push_back(Xapian::Query(lang_term));
+        }
+        **/
+
+        // Build a query
+        std::vector<Xapian::Query> lang_queries;
+        for(const auto &element: languages)
+        {
+            std::string lang_term = "L";
+            lang_term += element;
             // material += Xapian::Unicode::tolower(lang);
             lang_queries.push_back(Xapian::Query(lang_term));
         }
@@ -139,8 +152,9 @@ std::vector<Trokam::Finding>
             Trokam::PlainTextProcessor::howMuchOf(url, querystring) + 1.0;
 
         float relevance =
-            m.get_weight() * title_weight * title_weight * url_weight * url_weight;
-        // m.get_document().add_value(SLOT_RELEVANCE, std::to_string(relevance));
+            m.get_weight() + 100.0 * title_weight + 100 * url_weight;
+            // m.get_weight() * title_weight * title_weight * url_weight * url_weight;
+            // m.get_document().add_value(SLOT_RELEVANCE, std::to_string(relevance));
 
         Trokam::DocData doc;
         doc.it = m;

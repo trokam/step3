@@ -2,9 +2,6 @@
  *                            T R O K A M
  *                       Internet Search Engine
  *
- * Copyright (C) 2022, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
- *
  * This file is part of Trokam.
  *
  * Trokam is free software: you can redistribute it and/or modify
@@ -26,38 +23,44 @@
 // C++
 #include <string>
 
-struct web_doc
-{
-    int id;
-    std::string url;
-    std::string raw;
-    std::string content_type;
-};
-
-/*
-struct PageData
-{
-    int  id = -1;
-    std::string text;
-    std::string title;
-    std::string lang;
-    std::string url;
-};
-*/
-
 /**
- * Warnings
+ * Language numbering loosely correlates
+ * language frequency of Internet pages.
  **/
 
-const std::string WARNING_APPROOT_EMPTY = "warning: the approot is empty, it looks suspect.";
+namespace Trokam
+{
+    const unsigned int LANGUAGES_TOTAL = 21;
 
-/**
- * Object reference.
- **/
+    enum Language: unsigned int
+    {
+        ENGLISH    =  0,
+        RUSSIAN    =  1,
+        SPANISH    =  2,
+        TURKISH    =  3,
+        GERMAN     =  4,
+        FRENCH     =  5,
+        PERSIAN    =  6,
+        JAPANESE   =  7,
+        VIETNAMESE =  8,
+        CHINESE    =  9,
+        ITALIAN    = 10,
+        DUTCH      = 11,
+        ARABIC     = 12,
+        POLISH     = 13,
+        PORTUGUESE = 14,
+        INDONESIAN = 15,
+        KOREAN     = 16,
+        UKRAINIAN  = 17,
+        THAI       = 18,
+        HEBREW     = 19,
+        SWEDISH    = 20
+    };
 
-const int GENERAL_INFO =    0;
-const int SMALL_LOGO =      1;
-const int BIG_LOGO =        2;
-const int BRIEF_INTRO =     4;
-const int LANG_SEARCHED =   5;
-const int SEARCH_STATE =    6;
+    class Preferences
+    {
+        public:
+            static std::string languageName(
+                const unsigned int language_id);
+    };
+}

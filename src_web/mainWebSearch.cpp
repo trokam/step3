@@ -53,8 +53,6 @@ int main(int argc, char **argv)
 
         Trokam::AppGenerator ag(opt);
 
-        Wt::log("info") << "X0 -- pop goes the world\n";
-
         /**
          * This line block the execution, upon its return
          * the program exits.
@@ -73,8 +71,6 @@ int main(int argc, char **argv)
                 std::placeholders::_1));
 
         // return Wt::WRun(argc, argv, &createApplication);
-
-        Wt::log("info") << "X2\n";
     }
     catch(const int &e)
     {

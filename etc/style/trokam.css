@@ -18,11 +18,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Trokam. If not, see <http://www.gnu.org/licenses/>. 
+ * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
 /*
- 
+
 div.navbar-header {
     background-color: #2b679b;
 }
@@ -113,3 +113,24 @@ a.pagebase:link { color: white; text-decoration:none; font-weight:normal; }
 a.pagebase:visited { color:white; text-decoration:none; font-weight:normal; }
 a.pagebase:hover { color: white; text-decoration:underline; font-weight:normal; }
 a.pagebase:active { color: white; text-decoration:none; font-weight:normal; }
+
+.yellow-box {
+    background-color: #ffffb4;
+    border: 1px solid black;
+    margin-top: 1ex;
+    margin-bottom: 1ex;
+}
+
+.green-box {
+    background-color: #c4ffb4;
+    min-height: 30px;
+    text-align: center;
+    padding: 3px;
+}
+
+.blue-box {
+    background-color: #65dae8;
+    min-height: 30px;
+    text-align: center;
+    padding: 3px;
+}

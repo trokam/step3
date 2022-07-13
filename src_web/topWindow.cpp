@@ -55,6 +55,8 @@ Trokam::TopWindow::TopWindow(Wt::WApplication* app):
 */
 
 {
+    Wt::log("info") << "TopWindow constructor";
+
     setOverflow(Wt::Overflow::Hidden);
 
     auto navigation = std::make_unique<Wt::WNavigationBar>();
@@ -124,6 +126,8 @@ Wt::WMenuItem *Trokam::TopWindow::addToMenu(
 	const Wt::WString& name,
 	std::unique_ptr<Trokam::PageWidget> topic)
 {
+    Wt::log("info") << "addToMenu(..)";
+
     auto topic_ = topic.get();
     auto result = std::make_unique<Wt::WContainerWidget>();
 

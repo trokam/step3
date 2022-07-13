@@ -58,7 +58,8 @@ namespace Trokam
             std::vector<Finding>
                 search(
                     const std::string &querystring,
-                    const std::string &languages,
+                    // const std::string &languages,
+                    const std::vector<std::string> &languages,
                     Xapian::doccount offset = 0,
                     Xapian::doccount pagesize = 30);
 

@@ -46,7 +46,10 @@ namespace Trokam
         std::string title;
         std::string url;
         std::string snippet;
-        float relevance = 1.0;
+        float relevance_body  = 0.0;
+        float relevance_url   = 0.0;
+        float relevance_title = 0.0;
+        float relevance_total = 0.0;
     };
 
     class ReadableContentDB

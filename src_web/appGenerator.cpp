@@ -86,7 +86,7 @@ std::unique_ptr<Wt::WApplication>
      * Additional stylesheet.
      **/
     app->useStyleSheet("/style/trokam.css");
-    app->useStyleSheet("/style/layout.css");
+    app->useStyleSheet("/style/w3.css");
 
     /**
      * Load text bundles.

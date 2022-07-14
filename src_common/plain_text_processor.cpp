@@ -372,19 +372,31 @@ float Trokam::PlainTextProcessor::howMuchOf(
     std::string text_block,
     std::string text_piece)
 {
+    boost::algorithm::trim_if(
+        text_block, boost::algorithm::is_any_of(" "));
+
     float original_length = text_block.length();
     std::vector<std::string> tokens = tokenize(text_piece);
     for(const auto &element: tokens)
     {
         size_t pos = caseInsensitiveFind(text_block, element);
+
+        /**
         while(pos != std::string::npos)
         {
             text_block.erase(pos, element.length());
             pos = caseInsensitiveFind(text_block, element);
         }
+        **/
+
+        if(pos != std::string::npos)
+        {
+            text_block.erase(pos, element.length());
+        }
     }
     boost::algorithm::trim_if(
         text_block, boost::algorithm::is_any_of(" "));
     float remaining_length = text_block.length();
-    return (original_length-remaining_length)/original_length;
+
+    return 100.0 * (original_length-remaining_length)/original_length;
 }

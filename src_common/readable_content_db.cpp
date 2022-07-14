@@ -136,8 +136,45 @@ std::vector<Trokam::Finding>
     Xapian::Enquire enquire(*db);
     enquire.set_query(query);
 
-    Xapian::MSet mset = enquire.get_mset(offset, pagesize);
+    std::vector<Trokam::Finding> result;
 
+    Xapian::MSet mset = enquire.get_mset(offset, pagesize);
+    for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
+    {
+        Trokam::Finding finding;
+
+        const std::string &title = m.get_document().get_value(SLOT_TITLE);
+        const std::string &url   = m.get_document().get_value(SLOT_URL);
+        const std::string &data = m.get_document().get_data();
+
+        finding.title           = title;
+        finding.url             = url;
+        finding.relevance_body  = m.get_weight();
+        finding.relevance_url   = Trokam::PlainTextProcessor::howMuchOf(url, querystring);
+        finding.relevance_title = Trokam::PlainTextProcessor::howMuchOf(title, querystring);
+        finding.relevance_total =
+            finding.relevance_body +
+            finding.relevance_url * 18.5 +
+            finding.relevance_title * 3.5;
+        finding.snippet =
+            mset.snippet(
+                data,
+                300,
+                Xapian::Stem(),
+                Xapian::MSet::SNIPPET_BACKGROUND_MODEL | Xapian::MSet::SNIPPET_EXHAUSTIVE,
+                std::string("<strong>"),
+                std::string("</strong>"),
+                std::string("..."));
+
+        result.push_back(finding);
+    }
+
+    std::sort(
+        result.begin(),
+        result.end(),
+        [](auto a, auto b) { return a.relevance_total > b.relevance_total; });
+
+/**
     std::vector<Trokam::DocData> search_results;
 
     for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
@@ -152,7 +189,7 @@ std::vector<Trokam::Finding>
             Trokam::PlainTextProcessor::howMuchOf(url, querystring) + 1.0;
 
         float relevance =
-            m.get_weight() + 100.0 * title_weight + 100 * url_weight;
+            m.get_weight() + 100.0 * title_weight + 100.0 * url_weight;
             // m.get_weight() * title_weight * title_weight * url_weight * url_weight;
             // m.get_document().add_value(SLOT_RELEVANCE, std::to_string(relevance));
 
@@ -183,8 +220,6 @@ std::vector<Trokam::Finding>
         // finding.snippet =
         //    Trokam::PlainTextProcessor::snippet(data, querystring, 250);
 
-        // it works! // finding.snippet = mset.snippet(data, 250);
-
         finding.snippet =
             mset.snippet(
                 data,
@@ -197,6 +232,7 @@ std::vector<Trokam::Finding>
 
         result.push_back(finding);
     }
+    **/
 
     return result;
 }

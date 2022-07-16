@@ -23,14 +23,15 @@
 
 // C++
 #include <memory>
+#include <cmath>
 #include <cstdlib>
-#include <utility>
 
 // Boost
 #include <boost/algorithm/string.hpp>
 #include <boost/thread.hpp>
 
 // Wt
+#include <Wt/WAnchor.h>
 #include <Wt/WCheckBox.h>
 #include <Wt/WComboBox.h>
 #include <Wt/WContainerWidget.h>
@@ -48,6 +49,9 @@
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 #include <Wt/WTextArea.h>
+
+// Xapian
+#include <xapian.h>
 
 // Trokam
 #include "bundle.h"
@@ -183,9 +187,91 @@ Trokam::SearchWidget::SearchWidget(
     vbox->addWidget(std::move(infoResults));
 
     /**
+    std::string tpl_pagination =
+        "<nav aria-label=\"Page navigation\">"
+        "<ul class=\"pagination\">"
+        "    <li>"
+        "    <a href=\"#\" aria-label=\"Previous\">"
+        "        <span aria-hidden=\"true\"><span aria-hidden=\"true\">&larr;</span> previous</span>"
+        "    </a>"
+        "    </li>"
+        "    <li><a href=\"#\">1</a></li>"
+        "    <li><a href=\"#\">2</a></li>"
+        "    <li><a href=\"#\">3</a></li>"
+        "    <li><a href=\"#\">4</a></li>"
+        "    <li><a href=\"#\">5</a></li>"
+        "    <li>"
+        "    <a href=\"#\" aria-label=\"Next\">"
+        "        <span aria-hidden=\"true\">next <span aria-hidden=\"true\">&rarr;</span></span>"
+        "    </a>"
+        "    </li>"
+        "</ul>"
+        "</nav>";
+
+    auto wt_pagination =
+        std::make_unique<Wt::WTemplate>(tpl_pagination);
+    **/
+
+
+    /*
+    std::string tpl_pagination =
+        "<nav aria-label=\"Page navigation\">"
+        "<ul class=\"pagination\">"
+        "    <li>${link_previous}</li>"
+        "    <li><a href=\"#\">1</a></li>"
+        "    <li><a href=\"#\">2</a></li>"
+        "    <li><a href=\"#\">3</a></li>"
+        "    <li><a href=\"#\">4</a></li>"
+        "    <li><a href=\"#\">5</a></li>"
+        "    <li>${link_next}</li>"
+        "</ul>"
+        "</nav>";
+    */
+
+    /*
+    std::string tpl_pagination =
+        "<nav aria-label=\"Page navigation\">"
+        "<ul class=\"pagination\">"
+        "    <li>${link_previous}</li>"
+        "    <li>${link_group_1}</li>"
+        "    <li>${link_group_2}</li>"
+        "    <li><a href=\"#\">3</a></li>"
+        "    <li><a href=\"#\">4</a></li>"
+        "    <li><a href=\"#\">5</a></li>"
+        "    <li>${link_next}</li>"
+        "</ul>"
+        "</nav>";
+
+    Wt::WString inner_previous = "<span aria-hidden=\"true\"><span aria-hidden=\"true\">&larr;</span> previous</span>";
+    auto wt_previous = std::make_unique<Wt::WAnchor>(Wt::WLink("#"), inner_previous);
+    wt_previous->clicked().connect([=] { Wt::log("info") << "previous";});
+
+    Wt::WString inner_next = "<span aria-hidden=\"true\">next <span aria-hidden=\"true\">&rarr;</span></span>";
+    auto wt_next = std::make_unique<Wt::WAnchor>(Wt::WLink("#"), inner_next);
+    wt_next->clicked().connect([=] { Wt::log("info") << "next"; });
+
+    auto wt_group_1 = std::make_unique<Wt::WAnchor>(Wt::WLink("#"), "1");
+    wt_group_1->clicked().connect([=] { Wt::log("info") << "group_1";});
+
+    auto wt_group_2 = std::make_unique<Wt::WAnchor>(Wt::WLink("#"), "2");
+    wt_group_2->clicked().connect([=] { Wt::log("info") << "group_2";});
+
+    auto wt_pagination = std::make_unique<Wt::WTemplate>(tpl_pagination);
+
+    wt_pagination->bindWidget("link_previous", std::move(wt_previous));
+    wt_pagination->bindWidget("link_next", std::move(wt_next));
+    wt_pagination->bindWidget("link_group_1", std::move(wt_group_1));
+    wt_pagination->bindWidget("link_group_2", std::move(wt_group_2));
+    */
+
+//    int total_results = 26;
+//    int results_per_page = 8;
+
+
+    /**
      * The box on which the results are displayed.
      **/
-    auto subStack = std::make_unique<Wt::WStackedWidget>();
+    auto subStack = std::make_unique<Wt::WStackedWidget>();     // ??????????
     subStack->addStyleClass("contents");
     subStack->setOverflow(Wt::Overflow::Auto);
 
@@ -196,7 +282,23 @@ Trokam::SearchWidget::SearchWidget(
         findingsBox->bindWidget(
             "user-findings", std::make_unique<Wt::WTable>());
     subStack->addWidget(std::move(findingsBox));
+    // subStack->addWidget(std::move(wt_pagination));
     vbox->addWidget(std::move(subStack), 1);
+
+    // vbox->addWidget(std::move(wt_pagination));
+    // vbox->insertWidget(FOOTER, std::move(wt_pagination));
+
+    // auto wt_footer = std::make_unique<Wt::WContainerWidget>();
+    // wt_footer->addWidget(std::move(wt_pagination));
+    // vbox->addWidget(std::move(wt_footer));
+
+    // generateFooter();
+    auto wt_pagination = std::make_unique<Wt::WTemplate>("");
+    // ptr_pagination = vbox->insertWidget(FOOTER, std::move(wt_pagination));
+    ptr_pagination = vbox->addWidget(std::move(wt_pagination));
+
+    Wt::log("info") << "vbox count:" << vbox->count();
+    // vbox->itemAt(count-1)->addWidget(std::move(wt_footer));
 
 /*
     vbox->itemAt(GENERAL_INFO)->widget()->setHidden(false);
@@ -261,53 +363,6 @@ Trokam::SearchWidget::SearchWidget(
         std::get<bool>(language_options[Trokam::Language::ENGLISH])= true;
     }
 
-    /*
-    auto language_item = std::make_pair("english", true);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("russian", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("chinese", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("german", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("spanish", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("french", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("japanese", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("polish", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("portuguese", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("italian", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("ukrainian", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("arabic", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("dutch", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("korean", false);
-    language_options.push_back(language_item);
-
-    language_item = std::make_pair("swedish", false);
-    language_options.push_back(language_item);
-    */
-
     /**
      * Set the focus on the user input box.
      **/
@@ -327,7 +382,7 @@ void Trokam::SearchWidget::populateSubMenu(Wt::WMenu *menu)
 
 void Trokam::SearchWidget::keyPressedEntrance(const Wt::WKeyEvent &kEvent)
 {
-    // Wt::log("info") << __PRETTY_FUNCTION__;
+    Wt::log("info") << __PRETTY_FUNCTION__;
 
     if(kEvent.key() == Wt::Key::Enter)
     {
@@ -348,6 +403,8 @@ void Trokam::SearchWidget::keyPressedEntrance(const Wt::WKeyEvent &kEvent)
 
         const std::string choice= userInput->text().toUTF8();
         search(choice);
+        show_search_results();
+        generateFooter();
     }
 
     if ((kEvent.key() == Wt::Key::Down) && (phrasesPopup))
@@ -578,13 +635,13 @@ void Trokam::SearchWidget::setDbTimeOut(const int &timeOutSeconds)
 void Trokam::SearchWidget::search(const std::string &terms)
 {
     // setDbTimeOut(4);
+    Wt::log("info") << "+++++++ search(..)";
 
-    std::string lowCaseTerms= terms;
-    boost::algorithm::to_lower(lowCaseTerms);
+    std::string lowCaseTerms= Xapian::Unicode::tolower(terms);
+    // TODO: Use xapian method to lower case.
+    // boost::algorithm::to_lower(lowCaseTerms);
 
-    // std::string languages = "english";
-    unsigned int offset = 1;
-    unsigned int page_size = 150;
+    Xapian::doccount results_requested = 24;
 
     std::vector<std::string> language_selected;
     for(unsigned int i=0; i<language_options.size(); i++)
@@ -598,14 +655,19 @@ void Trokam::SearchWidget::search(const std::string &terms)
         }
     }
 
-    std::vector<Trokam::Finding> items_found =
+    items_found =
         shared_resources->
             readable_content_db.search(
                 lowCaseTerms,
                 language_selected,
-                offset,
-                page_size);
+                results_requested);
 
+    // TODO: perhaps the variable total_results is superfluous
+    // total_results = items_found.size();
+    current_page = 1;
+}
+
+    /**
     std::string explanation;
     explanation+= "<p><span class=\"text-success\">";
     explanation+= "total= &alpha;*rb + &beta;*ru + &gamma;*rt<br>";
@@ -614,26 +676,50 @@ void Trokam::SearchWidget::search(const std::string &terms)
     auto oneRow = std::make_unique<Wt::WTemplate>();
     oneRow->setTemplateText(explanation, Wt::TextFormat::UnsafeXHTML);
     userFindings->elementAt(0, 0)->addWidget(std::move(oneRow));
+    **/
 
+void Trokam::SearchWidget::show_search_results()
+{
+    Wt::log("info") << "+++++++ show_search_results()";
+
+    int total_results = items_found.size();
+    auto dv = std::div(total_results, results_per_page);
+    int total_pages = dv.quot;
+    if(dv.rem > 0)
+    {
+        total_pages++;
+    }
+
+    Wt::log("info") << "dv.quot:" << dv.quot;
+    Wt::log("info") << "dv.rem:" << dv.rem;
 
     userFindings->clear();
     if(items_found.size() != 0)
     {
-        for(size_t i= 0; i<items_found.size(); i++)
+        unsigned int ini = (current_page-1) * results_per_page;
+        unsigned int end = ini + results_per_page;
+        if((dv.rem > 0) && (current_page == total_pages))
+        {
+            end = ini + dv.rem;
+        }
+
+        for(unsigned int i=ini; i<end; i++)
         {
             std::string out;
             out+= "<p>&nbsp;<br/>";
             // out+= "<span style=\"font-size:x-large;\">" + items_found[i].title + "</span><br/>";
             // out+= "<a href=\"" + items_found[i].url + "\" target=\"_blank\">" + "<span style=\"font-size:x-large;\">" + items_found[i].title + "</span>" + "</a><br/>";
+            // out+= "<span class=\"text-success\">" + std::to_string((int)i) + "</span>";
             out+= "<a href=\"" + items_found[i].url + "\" target=\"_blank\"><span style=\"font-size:x-large;\">" + items_found[i].title + "</span></a><br/>";
             out+= "<strong><a href=\"" + items_found[i].url + "\" target=\"_blank\">" + items_found[i].url + "</a></strong><br/>";
             out+= items_found[i].snippet + "<br/>";
 
                 out+= "<span class=\"text-success\">";
-                out+= "</strong> relevance body (rb): <strong>" + std::to_string((int)items_found[i].relevance_body);
-                out+= "</strong> -- relevance URL (ru): <strong>" + std::to_string((int)items_found[i].relevance_url);
-                out+= "</strong> -- relevance title (rt): <strong>" + std::to_string((int)items_found[i].relevance_title);
-                out+= "</strong> -- total: <strong>" + std::to_string((int)items_found[i].relevance_total);
+                out+= "</strong>[" + std::to_string((int)i) + "]<strong>";
+                out+= "</strong> relevance body:<strong>" + std::to_string((int)items_found[i].relevance_body);
+                out+= "</strong> relevance URL:<strong>" + std::to_string((int)items_found[i].relevance_url);
+                out+= "</strong> relevance title:<strong>" + std::to_string((int)items_found[i].relevance_title);
+                out+= "</strong> total:<strong>" + std::to_string((int)items_found[i].relevance_total);
                 out+= "</strong></span><br/>";
 
             out+= "</p>";
@@ -642,14 +728,14 @@ void Trokam::SearchWidget::search(const std::string &terms)
             // auto oneRow = std::make_unique<Wt::WTemplate>(out);
             auto oneRow = std::make_unique<Wt::WTemplate>();
             oneRow->setTemplateText(out, Wt::TextFormat::UnsafeXHTML);
-            userFindings->elementAt(i+1, 0)->addWidget(std::move(oneRow));
+            userFindings->elementAt(i, 0)->addWidget(std::move(oneRow));
         }
     }
     else
     {
         layout()->itemAt(SEARCH_STATE)->widget()->setHidden(false);
     }
-
+}
     /**
     const std::string likeClause= Trokam::TextProcessing::generateLikeClause(lowCaseTerms);
 
@@ -739,7 +825,7 @@ void Trokam::SearchWidget::search(const std::string &terms)
                 auto fullInfo = oneRow->bindWidget("button", Wt::cpp14::make_unique<Wt::WPushButton>("page analysis"));
                 fullInfo->setStyleClass("btn btn-default btn-xs");
                 fullInfo->clicked().connect([=] {
-                                                    showAnalysis(url, title, dbId, index);
+                                    const std::string &terms               showAnalysis(url, title, dbId, index);
                                                 });
                 fullInfo->setHidden(false);
 
@@ -752,7 +838,7 @@ void Trokam::SearchWidget::search(const std::string &terms)
         layout()->itemAt(SEARCH_STATE)->widget()->setHidden(false);
     }
     **/
-}
+//}
 
 /**
 void Trokam::SearchWidget::getFindings(const std::string &sentence,
@@ -835,6 +921,8 @@ void Trokam::SearchWidget::phrasesPopupSelect(Wt::WMenuItem *item)
     application->processEvents();
 
     search(choice);
+    show_search_results();
+    generateFooter();
 }
 
 void Trokam::SearchWidget::showAnalysis(const std::string &url,
@@ -1048,4 +1136,136 @@ bool Trokam::SearchWidget::savePreferences()
     application->setCookie("languages", language_selected, 10000000);
 
     return true;
+}
+
+void Trokam::SearchWidget::generateFooter()
+{
+    Wt::log("info") << "+++++++ generateFooter() +++ 0";
+
+    if(!ptr_pagination)
+    {
+        Wt::log("info") << "ptr_pagination is null";
+        return;
+    }
+
+    int total_results = items_found.size();
+
+    Wt::log("info") << "+++++++ generateFooter() +++ 1";
+    Wt::log("info") << "total_results:" << total_results;
+    Wt::log("info") << "results_per_page:" << results_per_page;
+
+    ptr_pagination->clear();
+    ptr_pagination->setTemplateText("");
+
+    if(total_results==0)
+    {
+        Wt::log("info") << "+++++++ generateFooter() +++ 1.1";
+        return;
+    }
+
+    auto dv = std::div(total_results, results_per_page);
+
+    int total_pages = dv.quot;
+    if(dv.rem > 0)
+    {
+        total_pages++;
+    }
+
+    Wt::log("info") << "dv.quot:" << dv.quot;
+    Wt::log("info") << "dv.rem:" << dv.rem;
+
+    // Template for pagination of search results
+    std::string tpl_pagination =
+        "<nav aria-label=\"Page navigation\">\n"
+        "<ul class=\"pagination\">\n";
+
+    if(current_page == 1)
+    {
+        tpl_pagination+= "    <li class=\"disabled\">${link_previous}</li>\n";
+    }
+    else
+    {
+        tpl_pagination+= "    <li>${link_previous}</li>\n";
+    }
+
+    // The page numbering start from one.
+    for(int i=1; i<=total_pages; i++)
+    {
+        if(current_page == i)
+        {
+            tpl_pagination += "    <li class=\"active\">${link_group_" + std::to_string(i) + "}</li>\n";
+        }
+        else
+        {
+            tpl_pagination += "    <li>${link_group_" + std::to_string(i) + "}</li>\n";
+        }
+    }
+
+    if(current_page == total_pages)
+    {
+        tpl_pagination+= "    <li class=\"disabled\">${link_next}</li>\n";
+    }
+    else
+    {
+        tpl_pagination+= "    <li>${link_next}</li>\n";
+    }
+
+    tpl_pagination +=
+        "</ul>\n"
+        "</nav>\n";
+
+    Wt::log("info") << "tpl_pagination:\n" << tpl_pagination;
+
+    // auto wt_pagination = std::make_unique<Wt::WTemplate>(tpl_pagination);
+    ptr_pagination->setTemplateText(tpl_pagination, Wt::TextFormat::UnsafeXHTML);
+
+    Wt::log("info") << "+++++++ generateFooter() +++ 2";
+
+    Wt::WString inner_previous = "<span aria-hidden=\"true\"><span aria-hidden=\"true\">&larr;</span> previous</span>";
+    auto wt_previous = std::make_unique<Wt::WAnchor>(Wt::WLink("#"), inner_previous);
+    wt_previous->clicked().connect(
+        [=] {
+            Wt::log("info") << "previous";
+            if(current_page > 1)
+            {
+                current_page--;
+                show_search_results();
+                generateFooter();
+            }
+        });
+    ptr_pagination->bindWidget("link_previous", std::move(wt_previous));
+
+    Wt::WString inner_next = "<span aria-hidden=\"true\">next <span aria-hidden=\"true\">&rarr;</span></span>";
+    auto wt_next = std::make_unique<Wt::WAnchor>(Wt::WLink("#"), inner_next);
+    wt_next->clicked().connect(
+        [=] {
+            Wt::log("info") << "next";
+            if(current_page < total_pages)
+            {
+                current_page++;
+                show_search_results();
+                generateFooter();
+            }
+        });
+    ptr_pagination->bindWidget("link_next", std::move(wt_next));
+
+    for(int i=1; i<=total_pages; i++)
+    {
+        // The page numbering start from one.
+        auto wt_group = std::make_unique<Wt::WAnchor>(Wt::WLink("#"), std::to_string(i));
+        // wt_group->clicked().connect([=] { Wt::log("info") << "show page" << std::to_string(i+1); });
+        wt_group->clicked().connect(
+            [=] {
+                current_page = i;
+                show_search_results();
+                generateFooter();
+            });
+
+        std::string group_id = "link_group_" + std::to_string(i);
+        ptr_pagination->bindWidget(group_id, std::move(wt_group));
+    }
+
+    application->processEvents();
+
+    Wt::log("info") << "+++++++ generateFooter() +++ 3";
 }

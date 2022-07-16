@@ -110,11 +110,13 @@ int main(int argc, char *argv[])
         // std::string languages = opt.languages();
         std::vector<std::string> languages =
             Trokam::PlainTextProcessor::tokenize(opt.languages(), ',');
-        unsigned int offset = opt.offset();
-        unsigned int pagesize = opt.pageSize();
+        // unsigned int offset = opt.offset();
+        // unsigned int pagesize = opt.pageSize();
+        Xapian::doccount results_requested = 24;
         Trokam::ReadableContentDB readable_content_db;
         auto data =
-            readable_content_db.search(terms, languages, offset, pagesize);
+            // readable_content_db.search(terms, languages, offset, pagesize);
+            readable_content_db.search(terms, languages, results_requested);
 
         for(const auto &element: data)
         {

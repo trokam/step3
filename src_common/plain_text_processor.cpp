@@ -372,6 +372,11 @@ float Trokam::PlainTextProcessor::howMuchOf(
     std::string text_block,
     std::string text_piece)
 {
+    if(text_block.empty())
+    {
+        return 0.0;
+    }
+
     boost::algorithm::trim_if(
         text_block, boost::algorithm::is_any_of(" "));
 

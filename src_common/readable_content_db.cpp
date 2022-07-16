@@ -60,11 +60,17 @@ Trokam::ReadableContentDB::ReadableContentDB()
 std::vector<Trokam::Finding>
     Trokam::ReadableContentDB::search(
         const std::string &querystring,
-        // const std::string &languages,
         const std::vector<std::string> &languages,
-        Xapian::doccount offset,
-        Xapian::doccount pagesize)
+        Xapian::doccount results_requested)
 {
+    const Xapian::doccount max_requested = 50;
+    const Xapian::doccount pre_scan_size = 250;
+
+    if(results_requested > max_requested)
+    {
+        results_requested = max_requested;
+    }
+
     // Set up a QueryParser with a stemmer and suitable prefixes.
     Xapian::QueryParser queryparser;
     // -- queryparser.set_stemmer(Xapian::Stem("en"));
@@ -73,64 +79,26 @@ std::vector<Trokam::Finding>
     // And parse the query.
     Xapian::Query query = queryparser.parse_query(querystring);
 
-    // --------------------------------------------------
+    // Build a query for languages.
+    std::vector<Xapian::Query> lang_queries;
+    for(const auto &element: languages)
+    {
+        std::string lang_term = "L";
+        lang_term += element;
+        lang_queries.push_back(Xapian::Query(lang_term));
+    }
 
-        // For debugging
-        /**
-        std::cout << "languages:'" <<languages << "'\n";
+    // Combine these queries with an 'or' operator.
+    Xapian::Query language_query(
+        Xapian::Query::OP_OR,
+        lang_queries.begin(),
+        lang_queries.end());
 
-        std::vector<std::string> lang_enquiry;
-        if(languages.empty())
-        {
-            lang_enquiry.push_back("english");
-        }
-        else
-        {
-            lang_enquiry =
-                Trokam::PlainTextProcessor::tokenize(languages, ',');
-        }
-
-        // For debugging
-        for(const std::string &e: lang_enquiry)
-        {
-            std::cout << "lang:'" << e << "'\n";
-        }
-        std::cout << '\n';
-
-        // Build a query
-        std::vector<Xapian::Query> lang_queries;
-        for(const auto &lang: lang_enquiry)
-        {
-            std::string lang_term = "L";
-            lang_term += lang;
-            // material += Xapian::Unicode::tolower(lang);
-            lang_queries.push_back(Xapian::Query(lang_term));
-        }
-        **/
-
-        // Build a query
-        std::vector<Xapian::Query> lang_queries;
-        for(const auto &element: languages)
-        {
-            std::string lang_term = "L";
-            lang_term += element;
-            // material += Xapian::Unicode::tolower(lang);
-            lang_queries.push_back(Xapian::Query(lang_term));
-        }
-
-        // Combine these queries with an OR operator
-        Xapian::Query language_query(
-            Xapian::Query::OP_OR,
-            lang_queries.begin(),
-            lang_queries.end());
-
-        // Use the material query to filter the main query
-        query = Xapian::Query(
-            Xapian::Query::OP_FILTER,
-            query,
-            language_query);
-
-    // --------------------------------------------------
+    // Use the language query to filter the main query.
+    query = Xapian::Query(
+        Xapian::Query::OP_FILTER,
+        query,
+        language_query);
 
     // Use an Enquire object on the database to run the query.
     Xapian::Enquire enquire(*db);
@@ -138,7 +106,8 @@ std::vector<Trokam::Finding>
 
     std::vector<Trokam::Finding> result;
 
-    Xapian::MSet mset = enquire.get_mset(offset, pagesize);
+    const Xapian::doccount offset = 1;
+    Xapian::MSet mset = enquire.get_mset(offset, pre_scan_size);
     for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
     {
         Trokam::Finding finding;
@@ -173,6 +142,14 @@ std::vector<Trokam::Finding>
         result.begin(),
         result.end(),
         [](auto a, auto b) { return a.relevance_total > b.relevance_total; });
+
+    if(result.size() > results_requested)
+    {
+        result.resize(results_requested);
+    }
+
+    return result;
+
 
 /**
     std::vector<Trokam::DocData> search_results;
@@ -233,8 +210,6 @@ std::vector<Trokam::Finding>
         result.push_back(finding);
     }
     **/
-
-    return result;
 }
 
 std::vector<std::pair<std::string, Xapian::doccount>>

@@ -61,3 +61,4 @@ const int BIG_LOGO =        2;
 const int BRIEF_INTRO =     4;
 const int LANG_SEARCHED =   5;
 const int SEARCH_STATE =    6;
+const int FOOTER =          7;

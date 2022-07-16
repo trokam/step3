@@ -68,6 +68,15 @@ namespace Trokam
             Wt::WLineEdit *userInput;
             Wt::WTable    *userFindings;
             Wt::WTimer    *timer;
+            Wt::WTemplate *ptr_pagination = nullptr;
+
+            // int total_results = 26;
+            int results_per_page = 8;
+            int current_page = 1;
+
+            // std::unique_ptr<Wt::WVBoxLayout> vbox;
+
+            std::vector<Trokam::Finding> items_found;
 
             // std::vector<std::string> language_available;
             // std::vector<std::pair<std::string, bool>> language_options;
@@ -107,6 +116,10 @@ namespace Trokam
             void showLanguageOptions();
 
             bool savePreferences();
+
+            void show_search_results();
+
+            void generateFooter();
     };
 }
 

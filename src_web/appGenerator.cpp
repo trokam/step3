@@ -26,14 +26,16 @@
 #include <Wt/WBootstrapTheme.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WHBoxLayout.h>
-#include <Wt/WBootstrapTheme.h>
+// #include <Wt/WBootstrapTheme.h>
+#include <Wt/WBootstrap5Theme.h>
 #include <Wt/WCssTheme.h>
 #include <Wt/WLink.h>
 
 /// Trokam
 #include "common.h"
 #include "appGenerator.h"
-#include "topWindow.h"
+// #include "topWindow.h"
+#include "searchPage.h"
 
 Trokam::AppGenerator::AppGenerator(Trokam::Options &opt)
     :commonResources(new Trokam::SharedResources(opt))
@@ -43,6 +45,24 @@ std::unique_ptr<Wt::WApplication>
     Trokam::AppGenerator::createApplication(
         const Wt::WEnvironment& env)
 {
+    Wt::log("info") << "WApplication -- constructor";
+    std::string page_style = "light";
+
+    // const Wt::WEnvironment& envx = app->environment();
+    // std::string page_style= *(envx.getCookie("page_style"));
+
+    // Wt::log("info") << "cookie -- page_style" << *(env.getCookie("languages"));
+    // Wt::log("info") << "cookie -- page_style" << page_style;
+    if(env.getCookie("page_style"))
+    {
+        page_style= *(env.getCookie("page_style"));
+        Wt::log("info") << "cookie -- page_style:" << page_style;
+    }
+    else
+    {
+        Wt::log("info") << "cookie -- page_style = NULL";
+    }
+
 
 /**
 std::unique_ptr<Wt::WApplication>
@@ -68,24 +88,48 @@ std::unique_ptr<Wt::WApplication>
     /**
      * Using Bootstrap CSS version 3.
      **/
-    auto bootstrapTheme = std::make_shared<Wt::WBootstrapTheme>();
-    bootstrapTheme->setVersion(Wt::BootstrapVersion::v3);
-    bootstrapTheme->setResponsive(true);
-    app->setTheme(bootstrapTheme);
-    app->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
+    // auto bootstrapTheme = std::make_shared<Wt::WBootstrapTheme>();
+    // bootstrapTheme->setVersion(Wt::BootstrapVersion::v3);
+    // bootstrapTheme->setResponsive(true);
+    // app->setTheme(bootstrapTheme);
+    // app->useStyleSheet("resources/themes/bootstrap/3/bootstrap-theme.min.css");
 
     /**
      * Customized Bootstrap 3 CCS.
      **/
-    app->useStyleSheet("/style/custom-bootstrap.css");
-    app->useStyleSheet("/style/custom-bootstrap.min.css");
-    app->useStyleSheet("/style/custom-bootstrap-theme.css");
-    app->useStyleSheet("/style/custom-bootstrap-theme.min.css");
+    // app->useStyleSheet("/style/custom-bootstrap.css");
+    // app->useStyleSheet("/style/custom-bootstrap.min.css");
+    // app->useStyleSheet("/style/custom-bootstrap-theme.css");
+    // app->useStyleSheet("/style/custom-bootstrap-theme.min.css");
+
+    // Using Bootstrap CSS version 5.
+    Wt::log("info") << "bootstrap 5";
+    auto bootstrapTheme = std::make_shared<Wt::WBootstrap5Theme>();
+    app->setTheme(bootstrapTheme);
+
+    // app->useStyleSheet("/resources/themes/bootstrap/5/css/bootstrap.css");
+    // app->useStyleSheet("/resources/themes/bootstrap/5/css/bootstrap.min.css");
+
+    // Sets style classes to the <body> element.
+    // Wt::log("info") << "set body class";
+    // app->setBodyClass("d-flex h-100 text-bg-dark");
+    // app->setBodyClass("d-flex");
+    // app->setHtmlClass("d-flex h-100 text-bg-dark");
+
 
     /**
      * Additional stylesheet.
      **/
-    app->useStyleSheet("/style/trokam.css");
+    app->useStyleSheet("/style/trokam_common.css");
+
+    if(page_style == "light")
+    {
+        app->useStyleSheet("/style/trokam_light.css");
+    }
+    else
+    {
+        app->useStyleSheet("/style/trokam_dark.css");
+    }
     // app->useStyleSheet("/style/w3.css");
 
     /**
@@ -98,16 +142,18 @@ std::unique_ptr<Wt::WApplication>
     /**
      * Add the only one widget in the application layout.
      **/
-    auto layout = app->root()->setLayout(std::make_unique<Wt::WHBoxLayout>());
-    layout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(std::make_unique<Trokam::TopWindow>(commonResources, app.get()));
-    // layout->addWidget(std::make_unique<Trokam::TopWindow>(app.get()));
+    // auto layout = app->root()->setLayout(std::make_unique<Wt::WHBoxLayout>());
+    // layout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
+    // layout->setContentsMargins(0, 0, 0, 0);
+    // // layout->addWidget(std::make_unique<Trokam::TopWindow>(commonResources, app.get()));
+    // layout->addWidget(std::make_unique<Trokam::SearchPage>(commonResources, app.get()));
+
+    app->root()->addWidget(std::make_unique<Trokam::SearchPage>(commonResources, app.get()));
 
     /**
      * Set web site title.
      **/
-    app->setTitle("Trokam Search Engine");
+    app->setTitle("Trokam");
 
     return app;
 }

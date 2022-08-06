@@ -26,4 +26,5 @@ install(FILES etc/language.conf DESTINATION /usr/local/etc/trokam)
 install(DIRECTORY etc/signature DESTINATION /usr/local/etc/trokam)
 
 install(TARGETS search.wt DESTINATION /var/www/html/bin/)
-install(DIRECTORY etc/style DESTINATION /var/www/html/)
+install(DIRECTORY etc/style DESTINATION /var/www/html)
+install(DIRECTORY etc/approot DESTINATION /usr/local/etc/trokam)

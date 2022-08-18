@@ -2,11 +2,6 @@
  *                            T R O K A M
  *                       Internet Search Engine
  *
- * Copyright (C) 2017, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
- *
- * Copyright (C) 2017, Emweb bvba, Heverlee, Belgium.
- *
  * This file is part of Trokam.
  *
  * Trokam is free software: you can redistribute it and/or modify
@@ -23,21 +18,30 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
+// Boost
+#include <boost/algorithm/string.hpp>
+
 // Wt
+#include <Wt/WAnchor.h>
 #include <Wt/WApplication.h>
+#include <Wt/WContainerWidget.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WPushButton.h>
-#include <Wt/WContainerWidget.h>
 // #include <Wt/WHBoxLayout.h>
 // #include <Wt/WImage.h>
 // #include <Wt/WMenu.h>
 // #include <Wt/WNavigationBar.h>
 // #include <Wt/WLineEdit.h>
 // #include <Wt/WStackedWidget.h>
+#include <Wt/WLink.h>
 #include <Wt/WString.h>
-#include <Wt/WText.h>
 // #include <Wt/WVBoxLayout.h>
 #include <Wt/WTemplate.h>
+#include <Wt/WText.h>
+#include <Wt/Utils.h>
+
+// Xapian
+#include <xapian.h>
 
 // Trokam
 #include "aboutWidget.h"
@@ -57,6 +61,30 @@ Trokam::SearchPage::SearchPage(
 {
     Wt::log("info") << "SearchPage constructor";
 
+    application->internalPathChanged().connect(
+        [=] {
+            // handlePathChange();
+            Wt::log("info") << "current path:" << application->internalPath();
+            // const std::string internalPath= application->internalPath();
+            // std::string::size_type loc= internalPath.find("search?terms=");
+            // if(loc != std::string::npos)
+
+            std::string internal_path= application->internalPath();
+            boost::algorithm::trim_if(
+                internal_path, boost::algorithm::is_any_of("/ \n\r\t\\\""));
+
+            // const std::string search_terms = internalPath.substr(loc + 13);
+            // const std::string search_terms=
+            //     Trokam::PlainTextProcessor::urlDecode(internal_path);
+
+            const std::string search_terms=
+                Wt::Utils::urlDecode(internal_path);
+
+            Wt::log("info") << "decoded search_terms:" << search_terms;
+            search(search_terms);
+            show_search_results();
+        });
+
     addStyleClass("d-flex");
     addStyleClass("h-100");
     // addStyleClass("text-bg-dark");
@@ -72,9 +100,49 @@ Trokam::SearchPage::SearchPage(
     container->addStyleClass("mx-auto");
     container->addStyleClass("flex-column");
 
-    container->addWidget(
+    auto header = container->addWidget(
         std::make_unique<Wt::WTemplate>(
             Wt::WString::tr("search-page-header")));
+
+    auto input = header->bindWidget(
+        "input",
+        std::make_unique<Wt::WLineEdit>());
+    input->addStyleClass("form-control");
+    input->setPlaceholderText("Search for ...");
+    input->enterPressed().connect(
+        [=] {
+            std::string user_input= input->text().toUTF8();
+            Wt::log("info") << "user_input:" << user_input;
+            user_input = Xapian::Unicode::tolower(user_input);
+            Wt::log("info") << "user_input:" << user_input;
+            const std::string encoded_terms= Wt::Utils::urlEncode(user_input);
+            Wt::log("info") << "encoded terms:" << encoded_terms;
+            std::string internal_url = "/";
+            internal_url+= encoded_terms;
+            application->setInternalPath(internal_url, true);
+        });
+
+
+    auto button = header->bindWidget(
+        "button",
+        std::make_unique<Wt::WPushButton>("search"));
+    button->addStyleClass("btn");
+    button->addStyleClass("btn-outline-secondary");
+    button->clicked().connect(
+        [=] {
+
+            // cpp.cgi?key1=value1&key2=value2
+
+            std::string user_input= input->text().toUTF8();
+            Wt::log("info") << "user_input:" << user_input;
+            user_input = Xapian::Unicode::tolower(user_input);
+            Wt::log("info") << "user_input:" << user_input;
+            const std::string encoded_terms= Wt::Utils::urlEncode(user_input);
+            Wt::log("info") << "encoded terms:" << encoded_terms;
+            std::string internal_url = "/";
+            internal_url+= encoded_terms;
+            application->setInternalPath(internal_url, true);
+        });
 
     /*
     container->addWidget(
@@ -85,9 +153,17 @@ Trokam::SearchPage::SearchPage(
     userFindings =
         container->addWidget(std::make_unique<Wt::WTable>());
 
+    /**
     container->addWidget(
         std::make_unique<Wt::WTemplate>(
             Wt::WString::tr("search-page-footer")));
+    **/
+
+    container->addWidget(
+        std::make_unique<Wt::WTemplate>(
+            Wt::WString::tr("search-page-footer")));
+
+    createFooter(container);
 
     /***
      * Implement this using paths
@@ -102,6 +178,17 @@ Trokam::SearchPage::SearchPage(
         std::make_unique<Wt::WTemplate>(
             Wt::WString::tr("search-full-page")));
     */
+
+    container->addNew<Wt::WAnchor>(
+        Wt::WLink(Wt::LinkType::InternalPath, "/navigation/eat"), "Eat");
+
+    auto trigger_search =
+        container->
+            addWidget(std::make_unique<Wt::WPushButton>("Go"));
+    trigger_search->clicked().connect(
+        [=] {
+            application->setInternalPath("/search/cpp", true);
+        });
 
     auto change_style =
         container->
@@ -126,8 +213,9 @@ Trokam::SearchPage::SearchPage(
             }
             // application->refresh();
         });
-    search("cppcon");
-    show_search_results();
+    // search("cppcon");
+    // show_search_results();
+    Wt::log("info") << "current path:" << application->internalPath();
 }
 
 void Trokam::SearchPage::search(
@@ -233,4 +321,87 @@ void Trokam::SearchPage::show_search_results()
     {
         // Tell that there are not any results found.
     }
+}
+
+void Trokam::SearchPage::handlePathChange()
+{
+    Wt::log("info") << "current path:" << application->internalPath();
+}
+
+void Trokam::SearchPage::createFooter(
+    Wt::WContainerWidget *base)
+{
+    int total_pages = 2;
+
+    auto container_l0 =
+        base->addWidget(std::make_unique<Wt::WContainerWidget>());
+    container_l0->addStyleClass("mt-auto");
+    container_l0->addStyleClass("text-center");
+
+    auto container_l1 =
+        container_l0->addWidget(std::make_unique<Wt::WContainerWidget>());
+    container_l1->addStyleClass("lead");
+
+    auto button_previous =
+        container_l1->addWidget(std::make_unique<Wt::WPushButton>());
+    button_previous->setStyleClass("paging-button");
+    button_previous->setTextFormat(Wt::TextFormat::XHTML);
+    button_previous->setText("<span class=\"paging-text\">Previous</span>");
+    button_previous->clicked().connect(
+        [=] {
+            Wt::log("info") << "previous";
+            if(current_page > 1)
+            {
+                current_page--;
+                show_search_results();
+                createFooter(base);
+            }
+        });
+
+    container_l1->addWidget(std::make_unique<Wt::WText>("&nbsp;"));
+
+    auto button_1 =
+        container_l1->addWidget(std::make_unique<Wt::WPushButton>());
+    button_1->setStyleClass("paging-button");
+    button_1->setTextFormat(Wt::TextFormat::XHTML);
+    button_1->setText("<span class=\"paging-text\">1</span>");
+    button_1->clicked().connect(
+        [=] {
+            current_page = 1;
+            show_search_results();
+            createFooter(base);
+        });
+
+    container_l1->addWidget(std::make_unique<Wt::WText>("&nbsp;"));
+
+    auto button_2 =
+        container_l1->addWidget(std::make_unique<Wt::WPushButton>());
+    button_2->setStyleClass("paging-button");
+    button_2->setTextFormat(Wt::TextFormat::XHTML);
+    button_2->setText("<span class=\"paging-text\">2</span>");
+    button_2->clicked().connect(
+        [=] {
+            current_page = 2;
+            show_search_results();
+            createFooter(base);
+        });
+
+    container_l1->addWidget(std::make_unique<Wt::WText>("&nbsp;"));
+
+    auto button_next =
+        container_l1->addWidget(std::make_unique<Wt::WPushButton>());
+    button_next->addStyleClass("paging-button");
+    button_next->setTextFormat(Wt::TextFormat::XHTML);
+    button_next->setText("<span class=\"paging-text\">Next</span>");
+    button_next->clicked().connect(
+        [=] {
+            Wt::log("info") << "next";
+            if(current_page < total_pages)
+            {
+                current_page++;
+                show_search_results();
+                createFooter(base);
+            }
+        });
+
 }

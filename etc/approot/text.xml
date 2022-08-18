@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <messages xmlns:if="Wt.WTemplate.conditions">
 
+    <!--
     <message id="search-page-header">
       <header class="mb-auto text-center">
           <div>
@@ -15,6 +16,25 @@
           <div class="input-group mb-3 input-box">
               <input type="text" class="form-control" placeholder="Search for ..." aria-label="search for" aria-describedby="button-addon2"></input>
               <button class="btn btn-outline-secondary" type="button" id="button-addon2">search</button>
+          </div>
+      </header>
+    </message>
+    -->
+
+    <message id="search-page-header">
+      <header class="mb-auto text-center">
+          <div>
+              <h3 class="float-md-start mb-0">Trokam</h3>
+              <nav class="nav nav-masthead justify-content-center float-md-end">
+                  <a class="nav-link fw-bold py-1 px-0 active" aria-current="page" href="#">Home</a>
+                  <a class="nav-link fw-bold py-1 px-0" href="#">Features</a>
+                  <a class="nav-link fw-bold py-1 px-0" href="#">Contact</a>
+              </nav>
+          </div>
+
+          <div class="input-group mb-3 input-box">
+              ${input}
+              ${button}
           </div>
       </header>
     </message>
@@ -57,18 +77,82 @@
       </table>
     </message>
 
+    <!--
     <message id="search-page-footer">
       <div class="mt-auto text-center">
           <p class="lead">
-              <a href="#" class="paging-button"><span class="paging-text">Previous</span></a>
-              <a href="#" class="paging-button"><span class="paging-text">1</span></a>
-              <a href="#" class="paging-button-selected"><span class="paging-text">2</span></a>
-              <a href="#" class="paging-button"><span class="paging-text">3</span></a>
-              <a href="#" class="paging-button"><span class="paging-text">Next</span></a>
+              <a href="http://web10.trokam.com/p/p0" class="paging-button"><span class="paging-text">Previous</span></a>
+              <a href="http://web10.trokam.com/p/p1" class="paging-button"><span class="paging-text">1</span></a>
+              <a href="http://web10.trokam.com/p/p3" class="paging-button-selected"><span class="paging-text">2</span></a>
+              <a href="p3" class="paging-button"><span class="paging-text">3</span></a>
+              <a href="next" class="paging-button"><span class="paging-text">Next</span></a>
           </p>
           <p>Trokam is a Trade Mark</p>
       </div>
     </message>
+    -->
+
+    <!--
+    <message id="search-page-footer">
+      <footer class="mt-auto text-center">
+          <p class="lead">
+              ${page_previous}
+              ${page_1}
+              ${page_2}
+              ${page_3}
+              ${page_next}
+          </p>
+          <p>Trokam is a Trade Mark</p>
+      </div>
+    </message>
+    -->
+
+    <!--
+    <message id="search-page-footer">
+      <div class="mt-auto text-center">
+          <p class="lead">
+              <a href="PREVIOUS" class="paging-button"><span class="paging-text">Previous</span></a>
+              <a href="P1" class="paging-button"><span class="paging-text">1</span></a>
+              <a href="P2" class="paging-button-selected"><span class="paging-text">2</span></a>
+              <a href="P3" class="paging-button"><span class="paging-text">3</span></a>
+              <a href="NEXT" class="paging-button"><span class="paging-text">Next</span></a>
+          </p>
+          <p>Trokam is a Trade Mark</p>
+      </div>
+    </message>
+    -->
+
+    <!--
+    <message id="search-page-footer">
+      <div class="mt-auto text-center">
+          <p class="lead">
+            <button type="button" class="btn btn-primary btn-sm">Previous</button>
+            <button type="button" class="btn btn-primary btn-sm">1</button>
+            <button type="button" class="btn btn-primary btn-sm">2</button>
+            <button type="button" class="btn btn-primary btn-sm">3</button>
+            <button type="button" class="btn btn-primary btn-sm">4</button>
+            <button type="button" class="btn btn-primary btn-sm">Next</button>
+          </p>
+          <p>Trokam is a Trade Mark</p>
+      </div>
+    </message>
+    -->
+
+    <message id="search-page-footer">
+      <div class="mt-auto text-center">
+          <div class="lead">
+            <button type="button" class="paging-button"><span class="paging-text">Previous</span></button>
+            <button type="button" class="paging-button"><span class="paging-text">1</span></button>
+            <button type="button" class="paging-button"><span class="paging-text">2</span></button>
+            <button type="button" class="paging-button"><span class="paging-text">3</span></button>
+            <button type="button" class="paging-button"><span class="paging-text">4</span></button>
+            <button type="button" class="paging-button"><span class="paging-text">Next</span></button>
+          </div>
+          <p>Trokam is a Trade Mark</p>
+      </div>
+    </message>
+
+
 
     <message id="search-full-page">
 

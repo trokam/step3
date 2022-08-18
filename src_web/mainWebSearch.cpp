@@ -45,6 +45,8 @@ int main(int argc, char **argv)
     Trokam::Options opt;
     // opt.readSettings(CONFIG_FILE);
 
+    std::cout << "***** main *****\n";
+
     try
     {
         /**

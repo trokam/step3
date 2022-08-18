@@ -21,6 +21,11 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
+// C++
+#include <cctype>
+#include <iomanip>
+#include <sstream>
+
 // Boost
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>

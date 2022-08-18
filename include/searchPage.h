@@ -59,5 +59,9 @@ namespace Trokam
 
             void search(const std::string &terms);
             void show_search_results();
+            void handlePathChange();
+
+            void createFooter(
+                Wt::WContainerWidget *base);
     };
 }

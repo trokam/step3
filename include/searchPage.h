@@ -29,6 +29,8 @@
 #include <Wt/WNavigationBar.h>
 #include <Wt/WMessageBox.h>
 #include <Wt/WMenu.h>
+#include <Wt/WPopupMenu.h>
+#include <Wt/WSuggestionPopup.h>
 
 /// Trokam
 #include "bundle.h"
@@ -55,7 +57,11 @@ namespace Trokam
             std::vector<Trokam::Finding> items_found;
             std::vector<std::pair<int, bool>> language_options;
 
-            Wt::WTable *userFindings;
+            // std::unique_ptr<Wt::WPopupMenu> phrasesPopup;
+            Wt::WSuggestionPopup *suggestions = nullptr;
+
+            Wt::WLineEdit *input = nullptr;
+            Wt::WTable *userFindings = nullptr;
 
             void search(const std::string &terms);
             void show_search_results();
@@ -63,5 +69,16 @@ namespace Trokam
 
             void createFooter(
                 Wt::WContainerWidget *base);
+
+            void keyPressedInput(
+                const Wt::WKeyEvent &kEvent);
+
+            int phraseOnFocus = 0;
+
+            void phrasesPopupKeyPressed(
+                const Wt::WKeyEvent &kEvent);
+
+            void phrasesPopupSelect(
+                Wt::WMenuItem *item);
     };
 }

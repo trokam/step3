@@ -26,6 +26,7 @@
 #include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WEnvironment.h>
+#include <Wt/WPopupMenu.h>
 #include <Wt/WPushButton.h>
 // #include <Wt/WHBoxLayout.h>
 // #include <Wt/WImage.h>
@@ -104,9 +105,12 @@ Trokam::SearchPage::SearchPage(
         std::make_unique<Wt::WTemplate>(
             Wt::WString::tr("search-page-header")));
 
-    auto input = header->bindWidget(
+    /*
+    input = header->bindWidget(
         "input",
         std::make_unique<Wt::WLineEdit>());
+    */
+    input = container->addWidget(std::make_unique<Wt::WLineEdit>());
     input->addStyleClass("form-control");
     input->setPlaceholderText("Search for ...");
     input->enterPressed().connect(
@@ -122,6 +126,113 @@ Trokam::SearchPage::SearchPage(
             application->setInternalPath(internal_url, true);
         });
 
+    // input->textInput().connect(this, &Trokam::SearchWidget::textInput);
+    input->textInput().connect(
+        [=] {
+            if(input && suggestions)
+            {
+                suggestions->clearSuggestions();
+
+                std::string prefix= input->text().toUTF8();
+                Wt::log("info") << "prefix:" << prefix;
+
+                if(prefix.length() > 2)
+                {
+                    auto data =
+                        shared_resources->
+                            readable_content_db.lookUp(prefix);
+
+                    unsigned int max_results = 12; // opt.maxResults();
+
+                    for(size_t i= 0; ((i<data.size()) && (i<max_results)); i++)
+                    {
+                        Wt::log("info") << "adding:" << std::get<0>(data[i]);
+                        suggestions->addSuggestion(std::get<0>(data[i]));
+                    }
+                }
+
+                /**
+                std::vector<Wt::WMenuItem*> items = phrasesPopup->items();
+                for(Wt::WMenuItem *e: items)
+                {
+                    phrasesPopup->removeItem(e);
+                }
+
+                std::string prefix= input->text().toUTF8();
+                Wt::log("info") << "prefix:" << prefix;
+
+                phrasesPopup->setHidden(false);
+
+                if(prefix.length() > 2)
+                {
+                    auto data =
+                        shared_resources->
+                            readable_content_db.lookUp(prefix);
+
+                    unsigned int max_results = 12; // opt.maxResults();
+
+                    for(size_t i= 0; ((i<data.size()) && (i<max_results)); i++)
+                    {
+                        Wt::log("info") << "adding:" << std::get<0>(data[i]);
+                        phrasesPopup->addItem(std::get<0>(data[i]));
+                    }
+
+                    std::vector<Wt::WMenuItem*> alternatives= phrasesPopup->items();
+                    for(unsigned int i=0; i<alternatives.size(); i++)
+                    {
+                        alternatives[i]->setCanReceiveFocus(true);
+                        alternatives[i]->
+                            keyWentDown().connect(
+                                this,
+                                &SearchPage::phrasesPopupKeyPressed);
+                    }
+
+                    phrasesPopup->popup(input);
+                    phrasesPopup->setHidden(false);
+
+                    // phrasesPopup->items()[0]->setFocus(true);
+                }
+                **/
+            }
+        });
+
+    input->keyWentDown().connect(
+        this, &Trokam::SearchPage::keyPressedInput);
+
+    Wt::WSuggestionPopup::Options contactOptions;
+    contactOptions.highlightBeginTag = "<span class=\"highlight\">";
+    contactOptions.highlightEndTag = "</span>";
+    contactOptions.listSeparator = ',';
+    contactOptions.whitespace = " \n";
+    contactOptions.wordSeparators = "-., \"@\n;";
+    contactOptions.appendReplacedText = ", ";
+
+    suggestions =
+        container->addChild(
+        std::make_unique<Wt::WSuggestionPopup>(
+                Wt::WSuggestionPopup::generateMatcherJS(contactOptions),
+                Wt::WSuggestionPopup::generateReplacerJS(contactOptions)));
+    suggestions->setAutoSelectEnabled(false);
+    suggestions->setCanReceiveFocus(true);
+
+    /*
+    suggestions =
+        container->addChild(
+            std::make_unique<Wt::WSuggestionPopup>());
+    */
+
+    suggestions->forEdit(input);
+
+    /**
+    phrasesPopup = std::make_unique<Wt::WPopupMenu>();
+    phrasesPopup->
+        itemSelected().connect(
+            this,
+            &Trokam::SearchPage::phrasesPopupSelect);
+
+    phrasesPopup->setCanReceiveFocus(true);
+    phrasesPopup->setHidden(true);
+    **/
 
     auto button = header->bindWidget(
         "button",
@@ -179,9 +290,12 @@ Trokam::SearchPage::SearchPage(
             Wt::WString::tr("search-full-page")));
     */
 
+    /**
     container->addNew<Wt::WAnchor>(
         Wt::WLink(Wt::LinkType::InternalPath, "/navigation/eat"), "Eat");
+    **/
 
+    /**
     auto trigger_search =
         container->
             addWidget(std::make_unique<Wt::WPushButton>("Go"));
@@ -189,6 +303,7 @@ Trokam::SearchPage::SearchPage(
         [=] {
             application->setInternalPath("/search/cpp", true);
         });
+    **/
 
     auto change_style =
         container->
@@ -403,5 +518,117 @@ void Trokam::SearchPage::createFooter(
                 createFooter(base);
             }
         });
+}
 
+void Trokam::SearchPage::keyPressedInput(const Wt::WKeyEvent &kEvent)
+{
+    Wt::log("info") << __PRETTY_FUNCTION__;
+
+    if ((kEvent.key() == Wt::Key::Down) && (suggestions))
+    {
+        Wt::log("info") << "A";
+
+        // std::vector<Wt::WMenuItem*> alternatives= suggestions->items();
+        // Wt::log("info") << "alternatives.size()=" << alternatives.size();
+
+        // if(alternatives.size() > 0)
+        {
+            Wt::log("info") << "B";
+
+            input->setFocus(false);
+            suggestions->setFocus(true);
+            // alternatives[0]->setFocus(true);
+            phraseOnFocus= 0;
+
+            // application->processEvents();
+        }
+    }
+
+    /*
+    if ((kEvent.key() == Wt::Key::Down) && (phrasesPopup))
+    {
+        Wt::log("info") << "A";
+
+        std::vector<Wt::WMenuItem*> alternatives= phrasesPopup->items();
+
+        Wt::log("info") << "alternatives.size()=" << alternatives.size();
+
+        if(alternatives.size() > 0)
+        {
+            Wt::log("info") << "B";
+
+            input->setFocus(false);
+            phrasesPopup->setFocus(true);
+            alternatives[0]->setFocus(true);
+            phraseOnFocus= 0;
+
+            application->processEvents();
+        }
+    }
+    */
+}
+
+void Trokam::SearchPage::phrasesPopupKeyPressed(
+    const Wt::WKeyEvent &kEvent)
+{
+    Wt::log("info") << __PRETTY_FUNCTION__;
+
+    /*
+    if(kEvent.key() == Wt::Key::Down)
+    {
+        phraseOnFocus++;
+        if((0 <= phraseOnFocus) && (phraseOnFocus < phrasesPopup->count()))
+        {
+            std::vector<Wt::WMenuItem*> alternatives= phrasesPopup->items();
+            alternatives[phraseOnFocus]->setFocus(true);
+        }
+        else
+        {
+            phraseOnFocus--;
+        }
+    }
+    else if(kEvent.key() == Wt::Key::Up)
+    {
+        phraseOnFocus--;
+        if((0 <= phraseOnFocus) && (phraseOnFocus < phrasesPopup->count()))
+        {
+            std::vector<Wt::WMenuItem*> alternatives= phrasesPopup->items();
+            alternatives[phraseOnFocus]->setFocus(true);
+        }
+        else if (phraseOnFocus == -1)
+        {
+            input->setFocus(true);
+        }
+    }
+    else if(kEvent.key() == Wt::Key::Enter)
+    {
+        if(phrasesPopup)
+        {
+            phrasesPopup->select(phraseOnFocus);
+        }
+    }
+    else
+    {
+        Wt::log("info") << "other key";
+    }
+    */
+}
+
+void Trokam::SearchPage::phrasesPopupSelect(Wt::WMenuItem *item)
+{
+    Wt::log("info") << __PRETTY_FUNCTION__;
+
+    /*
+    phraseOnFocus= -1;
+
+    const std::string choice= item->text().toUTF8();
+    input->setText(choice);
+    input->setFocus(true);
+
+    application->processEvents();
+
+    search(choice);
+    show_search_results();
+    // generateFooter();
+    */
 }

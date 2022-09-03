@@ -70,6 +70,10 @@ namespace Trokam
             void createFooter(
                 Wt::WContainerWidget *base);
 
+            void suggestionSelected(
+                const int index,
+                Wt::WFormWidget* widget);
+
             void keyPressedInput(
                 const Wt::WKeyEvent &kEvent);
 

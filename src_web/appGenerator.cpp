@@ -144,13 +144,15 @@ std::unique_ptr<Wt::WApplication>
     /**
      * Add the only one widget in the application layout.
      **/
+    /*
     auto layout = app->root()->setLayout(std::make_unique<Wt::WHBoxLayout>());
     layout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
     layout->setContentsMargins(0, 0, 0, 0);
     // layout->addWidget(std::make_unique<Trokam::TopWindow>(commonResources, app.get()));
     layout->addWidget(std::make_unique<Trokam::SearchPage>(commonResources, app.get()));
+    */
 
-    // app->root()->addWidget(std::make_unique<Trokam::SearchPage>(commonResources, app.get()));
+    app->root()->addWidget(std::make_unique<Trokam::SearchPage>(commonResources, app.get()));
 
     /**
      * Set web site title.

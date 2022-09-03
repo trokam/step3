@@ -22,6 +22,7 @@
 #include <boost/algorithm/string.hpp>
 
 // Wt
+#include <Wt/WAbstractItemModel.h>
 #include <Wt/WAnchor.h>
 #include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>
@@ -37,6 +38,7 @@
 #include <Wt/WLink.h>
 #include <Wt/WString.h>
 // #include <Wt/WVBoxLayout.h>
+#include <Wt/WStringListModel.h>
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 #include <Wt/Utils.h>
@@ -49,9 +51,10 @@
 #include "searchWidget.h"
 #include "ackWidget.h"
 #include "donWidget.h"
+#include "preferences.h"
+#include "plain_text_processor.h"
 #include "searchPage.h"
 #include "sharedResources.h"
-#include "preferences.h"
 
 Trokam::SearchPage::SearchPage(
     boost::shared_ptr<Trokam::SharedResources> &sr,
@@ -105,13 +108,11 @@ Trokam::SearchPage::SearchPage(
         std::make_unique<Wt::WTemplate>(
             Wt::WString::tr("search-page-header")));
 
-    /*
     input = header->bindWidget(
         "input",
         std::make_unique<Wt::WLineEdit>());
-    */
-    input = container->addWidget(std::make_unique<Wt::WLineEdit>());
-    input->addStyleClass("form-control");
+    // input = container->addWidget(std::make_unique<Wt::WLineEdit>());
+    // input->addStyleClass("form-control");
     input->setPlaceholderText("Search for ...");
     input->enterPressed().connect(
         [=] {
@@ -131,23 +132,42 @@ Trokam::SearchPage::SearchPage(
         [=] {
             if(input && suggestions)
             {
-                suggestions->clearSuggestions();
+                // std::string prefix= input->text().toUTF8();
 
-                std::string prefix= input->text().toUTF8();
-                Wt::log("info") << "prefix:" << prefix;
+                std::string full_text= input->text().toUTF8();
+                std::vector<std::string> tokens =
+                    Trokam::PlainTextProcessor::tokenize(full_text);
 
-                if(prefix.length() > 2)
+                if(tokens.size()>0)
                 {
-                    auto data =
-                        shared_resources->
-                            readable_content_db.lookUp(prefix);
+                    size_t last = tokens.size()-1;
+                    std::string prefix= tokens[last];
 
-                    unsigned int max_results = 12; // opt.maxResults();
-
-                    for(size_t i= 0; ((i<data.size()) && (i<max_results)); i++)
+                    std::string prev_tokens;
+                    for(size_t i=0; i<last; i++)
                     {
-                        Wt::log("info") << "adding:" << std::get<0>(data[i]);
-                        suggestions->addSuggestion(std::get<0>(data[i]));
+                        prev_tokens += tokens[i] + " ";
+                    }
+
+                    Wt::log("info") << "prefix:" << prefix;
+
+                    suggestions->clearSuggestions();
+
+                    if(prefix.length() > 2)
+                    {
+                        auto data =
+                            shared_resources->
+                                readable_content_db.lookUp(prefix);
+
+                        unsigned int max_results = 12; // opt.maxResults();
+
+                        for(size_t i= 0; ((i<data.size()) && (i<max_results)); i++)
+                        {
+                            Wt::log("info") << "adding:" << std::get<0>(data[i]);
+                            // suggestions->addSuggestion(std::get<0>(data[i]));
+                            std::string full_line = prev_tokens + std::get<0>(data[i]);
+                            suggestions->addSuggestion(full_line);
+                        }
                     }
                 }
 
@@ -200,20 +220,38 @@ Trokam::SearchPage::SearchPage(
         this, &Trokam::SearchPage::keyPressedInput);
 
     Wt::WSuggestionPopup::Options contactOptions;
+    /**
     contactOptions.highlightBeginTag = "<span class=\"highlight\">";
     contactOptions.highlightEndTag = "</span>";
+    **/
+
+    contactOptions.highlightBeginTag = "<b>";
+    contactOptions.highlightEndTag = "</b>";
+
+    /*
     contactOptions.listSeparator = ',';
     contactOptions.whitespace = " \n";
     contactOptions.wordSeparators = "-., \"@\n;";
-    contactOptions.appendReplacedText = ", ";
+    */
+    // contactOptions.appendReplacedText = ", ";
 
     suggestions =
         container->addChild(
         std::make_unique<Wt::WSuggestionPopup>(
                 Wt::WSuggestionPopup::generateMatcherJS(contactOptions),
                 Wt::WSuggestionPopup::generateReplacerJS(contactOptions)));
+    // suggestions->setThemeStyleEnabled(false);
     suggestions->setAutoSelectEnabled(false);
     suggestions->setCanReceiveFocus(true);
+    suggestions->activated().connect(
+        this, &Trokam::SearchPage::suggestionSelected);
+
+    /**
+    suggestions->addStyleClass("Wt-popup");
+    suggestions->addStyleClass("dropdown-menu");
+    suggestions->addStyleClass("typeahead");
+    suggestions->addStyleClass("wt-reparented");
+    **/
 
     /*
     suggestions =
@@ -518,6 +556,29 @@ void Trokam::SearchPage::createFooter(
                 createFooter(base);
             }
         });
+}
+
+void Trokam::SearchPage::suggestionSelected(
+    const int index,
+    Wt::WFormWidget *widget)
+{
+    Wt::log("info") << __PRETTY_FUNCTION__;
+    Wt::log("info") << "index=" << index;
+
+    // std::shared_ptr<Wt::WAbstractItemModel> abstract_model= suggestions->model();
+    auto abstract_model= suggestions->model();
+    auto string_model= std::dynamic_pointer_cast<Wt::WStringListModel>(abstract_model);
+
+    // D& new_d = dynamic_cast<D&>(a)
+    // Wt::WStringListModel *model= dynamic_cast<Wt::WStringListModel*>(suggestions->model());
+    // Wt::log("info") << "selected=" << string_model->stringList()[index];
+
+    Wt::WString search_terms = string_model->stringList()[index];
+
+    Wt::log("info") << "search_terms=" << search_terms.toUTF8();
+
+    search(search_terms.toUTF8());
+    show_search_results();
 }
 
 void Trokam::SearchPage::keyPressedInput(const Wt::WKeyEvent &kEvent)

@@ -58,6 +58,8 @@ namespace Trokam
 
             ReadableContentDB();
 
+            void open(const std::string &path);
+
             std::vector<Finding>
                 search(
                     const std::string &querystring,

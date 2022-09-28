@@ -27,47 +27,65 @@
 // Wt
 #include <Wt/WLogger.h>
 
+// Fmt
+#include <fmt/format.h>
+
 // Trokam
 #include "common.h"
 #include "file_ops.h"
 #include "sharedResources.h"
 
+/*
 Trokam::SharedResources::SharedResources(
     Trokam::Options &value):
         settings(value)
+*/
+Trokam::SharedResources::SharedResources(
+    nlohmann::json &value):
+        settings(value)
 {
-    /**
-    std::vector<std::vector<std::string>> clusterSettings;
-    Trokam::FileOps::read(CLUSTER_FILE, clusterSettings);
+    const std::string host;
+    const std::string port;
+    const std::string name = settings["transfers"]["name"];
+    const std::string user = settings["transfers"]["user"];
+    db.reset(new Trokam::Postgresql(host, port, name, user));
 
-    Wt::log("info") << "clusterSettings.size(): " << clusterSettings.size();
+    getNewDB();
 
-    for (size_t row=0; row<clusterSettings.size(); row++)
+/*
+    Wt::log("info") << "after database reset";
+    std::cout << "after database reset\n";
+
+    // Get the row with the largest id.
+    std::string sql_select;
+    sql_select=  "SELECT id ";
+    sql_select+= "FROM package ";
+    sql_select+= "ORDER BY id DESC ";
+    sql_select+= "LIMIT 1 ";
+
+    std::cout << "sql_select:" << sql_select << "\n";
+
+    pqxx::result answer;
+    db->execAnswer(sql_select, answer);
+
+    int max_id = -1;
+    pqxx::result::iterator row= answer.begin();
+    if(row != answer.end())
     {
-        const std::string host= clusterSettings[row][0];
-        const std::string port= clusterSettings[row][1];
-        const std::string name= clusterSettings[row][2];
-        const std::string user= clusterSettings[row][3];
-        const std::string pass= clusterSettings[row][4];
-
-        Wt::log("info") << "host: " << host << " port: " << port << " name: " << name << " user: " << user << " pass: " << pass;
-
-        Trokam::Postgresql *db= new Trokam::Postgresql(host, port, name, user, pass);
-        dbCluster.push_back(db);
+        max_id = row[0].as(int());
+    }
+    else
+    {
+        // No answer.
+        // std::cerr << "Error, no answer.\n";
     }
 
-    Wt::log("info") << "database cluster size: " << dbCluster.size();
-    **/
-
-    /**
-    Wt::log("info") << "before database test.";
-
-    std::string db_path = "/usr/local/data/trokam/WritableContentDB";
-    std::unique_ptr<Xapian::Database> db;
-    db.reset(new Xapian::Database(db_path));
-
-    Wt::log("info") << "after database test.";
-    **/
+    // Generate the name for the id.
+    const int NODE_0 = 0;
+    std::string transfer_node_name  = fmt::format("node-{:02}-{:06}", NODE_0, max_id);
+    const std::string path = "/mnt/" + transfer_node_name;
+    readable_content_db.open(path);
+*/
 }
 
 Trokam::SharedResources::~SharedResources()
@@ -78,4 +96,56 @@ Trokam::SharedResources::~SharedResources()
         delete dbCluster[i];
     }
     */
+}
+
+void Trokam::SharedResources::getNewDB()
+{
+    // Get the row with the largest id.
+    /*
+    std::string sql_select;
+    sql_select=  "SELECT id ";
+    sql_select+= "FROM package ";
+    sql_select+= "ORDER BY id DESC ";
+    sql_select+= "LIMIT 1 ";
+    */
+
+    std::string sql_select;
+    sql_select=  "SELECT MAX(id) ";
+    sql_select+= "FROM package ";
+
+    pqxx::result answer;
+    db->execAnswer(sql_select, answer);
+
+    int max_id = -1;
+    pqxx::result::iterator row= answer.begin();
+    if(row != answer.end())
+    {
+        max_id = row[0].as(int());
+    }
+    else
+    {
+        // No answer.
+        // std::cerr << "Error, no answer.\n";
+    }
+
+    // If there is a new transfer available, then use this one.
+    if(max_id > current_transfer)
+    {
+        current_transfer = max_id;
+
+        // Generate the name for the id.
+        const int NODE_0 = 0;
+        std::string transfer_node_name = fmt::format("node-{:02}-{:06}", NODE_0, current_transfer);
+        const std::string path = "/mnt/" + transfer_node_name;
+        readable_content_db.open(path);
+
+        Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& transfer:" << current_transfer << " in-use &&&&&&&&&&&&&&&&&&&&\n";
+
+        // Mark in the database that this one is in use.
+        // This enable that previous transfers, not in use anymore, could be deleted.
+    }
+    else
+    {
+        Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& USING LATEST ONE ALREADY &&&&&&&&&&&&&&&&&&&&\n";
+    }
 }

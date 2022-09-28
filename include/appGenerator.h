@@ -24,13 +24,16 @@
 #ifndef TROKAM_APP_GENERATOR_H
 #define TROKAM_APP_GENERATOR_H
 
-/// Wt
+// Wt
 #include <Wt/WApplication.h>
 
-/// Boost
+// Json
+#include <nlohmann/json.hpp>
+
+// Boost
 #include <boost/shared_ptr.hpp>
 
-/// Trokam
+// Trokam
 #include "sharedResources.h"
 #include "options.h"
 #include "appGenerator.h"
@@ -40,7 +43,8 @@ namespace Trokam
     class AppGenerator
     {
         public:
-            AppGenerator(Trokam::Options &opt);
+            // AppGenerator(Trokam::Options &opt);
+            AppGenerator(nlohmann::json &opt);
             std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env);
 
         private:

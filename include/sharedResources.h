@@ -25,7 +25,11 @@
 #define TROKAM_SHARED_RESOURCES_H
 
 // C++
+#include <memory>
 #include <vector>
+
+// Json
+#include <nlohmann/json.hpp>
 
 // Trokam
 #include "options.h"
@@ -38,13 +42,21 @@ namespace Trokam
     {
         public:
 
-            SharedResources(Trokam::Options &value);
+            // SharedResources(Trokam::Options &value);
+            SharedResources(nlohmann::json &value);
             ~SharedResources();
 
-            Trokam::Options settings;  // ???
+            // Trokam::Options settings;  // ???
             // std::vector<Trokam::Postgresql*> dbCluster;
 
             Trokam::ReadableContentDB readable_content_db;
+            void getNewDB();
+
+        private:
+
+            std::unique_ptr<Trokam::Postgresql> db;
+            int current_transfer = -1;
+            nlohmann::json &settings;
     };
 }
 

@@ -21,7 +21,7 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-/// Wt
+// Wt
 #include <Wt/WApplication.h>
 #include <Wt/WBootstrapTheme.h>
 #include <Wt/WEnvironment.h>
@@ -31,13 +31,17 @@
 #include <Wt/WCssTheme.h>
 #include <Wt/WLink.h>
 
-/// Trokam
+// Json
+#include <nlohmann/json.hpp>
+
+// Trokam
 #include "common.h"
 #include "appGenerator.h"
 #include "topWindow.h"
 #include "searchPage.h"
 
-Trokam::AppGenerator::AppGenerator(Trokam::Options &opt)
+// Trokam::AppGenerator::AppGenerator(Trokam::Options &opt)
+Trokam::AppGenerator::AppGenerator(nlohmann::json &opt)
     :commonResources(new Trokam::SharedResources(opt))
 {}
 
@@ -107,6 +111,8 @@ std::unique_ptr<Wt::WApplication>
     // Using Bootstrap CSS version 5.
     auto bootstrapTheme = std::make_shared<Wt::WBootstrap5Theme>();
     app->setTheme(bootstrapTheme);
+    // app->setCssTheme("polished");
+    app->styleSheet().addRule(".Wt-suggest b", "color: black;");
 
     // app->useStyleSheet("/resources/themes/bootstrap/5/css/bootstrap.css");
     // app->useStyleSheet("/resources/themes/bootstrap/5/css/bootstrap.min.css");

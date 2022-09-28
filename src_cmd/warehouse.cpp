@@ -170,7 +170,7 @@ bool Trokam::Warehouse::isEmpty()
         // std::cerr << "Error, no answer.\n";
     }
 
-    return false;    
+    return false;
 }
 
 void Trokam::Warehouse::clean()
@@ -187,7 +187,7 @@ void Trokam::Warehouse::clean()
     sql_create_table+= "state integer, ";
     sql_create_table+= "epoch integer)";
     m_db->execNoAnswer(sql_create_table);
-    
+
     std::string sql_create_index;
     sql_create_index = "CREATE INDEX doc_id_key ON pages(doc_id);";
     m_db->execNoAnswer(sql_create_index);
@@ -242,5 +242,5 @@ std::string Trokam::Warehouse::getUrl(
         // std::cerr << "Error, no answer.\n";
     }
 
-    return "";    
+    return "";
 }

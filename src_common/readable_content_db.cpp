@@ -57,6 +57,12 @@ Trokam::ReadableContentDB::ReadableContentDB()
         new Xapian::Database(db_path));
 }
 
+void Trokam::ReadableContentDB::open(const std::string &path)
+{
+    db.reset(
+        new Xapian::Database(db_path));
+}
+
 std::vector<Trokam::Finding>
     Trokam::ReadableContentDB::search(
         const std::string &querystring,

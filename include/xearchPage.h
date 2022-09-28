@@ -30,7 +30,6 @@
 #include <Wt/WMessageBox.h>
 #include <Wt/WMenu.h>
 #include <Wt/WPopupMenu.h>
-#include <Wt/WStringListModel.h>
 #include <Wt/WSuggestionPopup.h>
 
 /// Trokam
@@ -58,9 +57,8 @@ namespace Trokam
             std::vector<Trokam::Finding> items_found;
             std::vector<std::pair<int, bool>> language_options;
 
-            std::shared_ptr<Wt::WStringListModel> fourCharModel_;
-
-            // Wt::WSuggestionPopup *suggestions = nullptr;
+            // std::unique_ptr<Wt::WPopupMenu> phrasesPopup;
+            Wt::WSuggestionPopup *suggestions = nullptr;
 
             Wt::WLineEdit *input = nullptr;
             Wt::WTable *userFindings = nullptr;
@@ -72,15 +70,6 @@ namespace Trokam
             void createFooter(
                 Wt::WContainerWidget *base);
 
-            void serverSideFilteringPopups(
-                Wt::WContainerWidget *parent);
-
-            void filter(const Wt::WString& input);
-
-            Wt::WSuggestionPopup* createAliasesMatchingPopup(
-                Wt::WContainerWidget *parent);
-
-            /*
             void suggestionSelected(
                 const int index,
                 Wt::WFormWidget* widget);
@@ -88,11 +77,12 @@ namespace Trokam
             void keyPressedInput(
                 const Wt::WKeyEvent &kEvent);
 
+            int phraseOnFocus = 0;
+
             void phrasesPopupKeyPressed(
                 const Wt::WKeyEvent &kEvent);
 
             void phrasesPopupSelect(
                 Wt::WMenuItem *item);
-            */
     };
 }

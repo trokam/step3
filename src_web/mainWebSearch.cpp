@@ -27,23 +27,30 @@
 /// Boost
 //#include <boost/bind.hpp>
 
+// Json
+#include <nlohmann/json.hpp>
+
 /// Wt
 #include <Wt/WApplication.h>
 #include <Wt/WEnvironment.h>
 
 /// Trokam
-#include <appGenerator.h>
-#include <common.h>
-#include <options.h>
-// #include "reporting.h"
+#include "appGenerator.h"
+#include "common.h"
+#include "file_ops.h"
+#include "options.h"
 
 int main(int argc, char **argv)
 {
     /**
      * Program settings.
      **/
-    Trokam::Options opt;
+    // Trokam::Options opt;
     // opt.readSettings(CONFIG_FILE);
+
+    const std::string config_path = "/usr/local/etc/trokam/trokam.config";
+    std::string text = Trokam::FileOps::read(config_path);
+    nlohmann::json config = nlohmann::json::parse(text);
 
     std::cout << "***** main *****\n";
 
@@ -53,7 +60,8 @@ int main(int argc, char **argv)
          * 'AppGenerator' take the settings in the constructor.
          **/
 
-        Trokam::AppGenerator ag(opt);
+        // Trokam::AppGenerator ag(opt);
+        Trokam::AppGenerator ag(config);
 
         /**
          * This line block the execution, upon its return

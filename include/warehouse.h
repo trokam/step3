@@ -1,9 +1,6 @@
 /***********************************************************************
  *                            T R O K A M
- *                       Internet Search Engine
- *
- * Copyright (C) 2022, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
+ *                      trokam.com / trokam.org
  *
  * This file is part of Trokam.
  *
@@ -32,7 +29,7 @@
 // Postgresql
 #include <pqxx/pqxx>
 
-// Triokam
+// Trokam
 #include "postgresql.h"
 
 namespace Trokam

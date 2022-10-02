@@ -5,26 +5,45 @@ project(Trokam)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3")
 
-#set(SOURCES_WEB src)
-include_directories(include)
+set(SUBSYSTEM "ALL" CACHE STRING "Choose a system: WEB, CRAWLER or ALL")
 
-file(GLOB SOURCES_WEB    "src_web/*.cpp")
-file(GLOB SOURCES_CMD    "src_cmd/*.cpp")
-file(GLOB SOURCES_COMMON "src_common/*.cpp")
+message(STATUS "System choice:" ${SUBSYSTEM})
 
-add_executable(search.wt ${SOURCES_WEB} ${SOURCES_COMMON})
-add_executable(trokam    ${SOURCES_CMD} ${SOURCES_COMMON})
+if((SUBSYSTEM STREQUAL "WEB") OR (SUBSYSTEM STREQUAL "ALL"))
 
-find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
-find_package(fmt)
+    include_directories(include)
 
-target_link_libraries(trokam curl pqxx xapian Boost::regex Boost::program_options textcat)
-target_link_libraries(search.wt xapian Boost::system Boost::regex Boost::program_options pqxx wt wtfcgi fmt::fmt)
+    file(GLOB SOURCES_WEB    "src_web/*.cpp")
+    file(GLOB SOURCES_COMMON "src_common/*.cpp")
 
-install(TARGETS trokam DESTINATION /usr/local/bin)
-install(FILES etc/language.conf DESTINATION /usr/local/etc/trokam)
-install(DIRECTORY etc/signature DESTINATION /usr/local/etc/trokam)
+    add_executable(search.wt ${SOURCES_WEB} ${SOURCES_COMMON})
 
-install(TARGETS search.wt DESTINATION /var/www/html/bin/)
-install(DIRECTORY etc/style DESTINATION /var/www/html)
-install(DIRECTORY etc/approot DESTINATION /usr/local/etc/trokam)
+    find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
+    find_package(fmt)
+
+    target_link_libraries(search.wt xapian Boost::system Boost::regex Boost::program_options pqxx wt wtfcgi fmt::fmt)
+
+    install(TARGETS search.wt DESTINATION /var/www/html/bin/)
+    install(DIRECTORY etc/style DESTINATION /var/www/html)
+    install(DIRECTORY etc/approot DESTINATION /usr/local/etc/trokam)
+
+endif()
+
+if((SUBSYSTEM STREQUAL "CRAWLER") OR (SUBSYSTEM STREQUAL "ALL"))
+
+    include_directories(include)
+
+    file(GLOB SOURCES_CMD    "src_cmd/*.cpp")
+    file(GLOB SOURCES_COMMON "src_common/*.cpp")
+
+    add_executable(trokam    ${SOURCES_CMD} ${SOURCES_COMMON})
+
+    find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
+
+    target_link_libraries(trokam curl pqxx xapian Boost::regex Boost::program_options textcat)
+
+    install(TARGETS trokam DESTINATION /usr/local/bin)
+    install(FILES etc/language.conf DESTINATION /usr/local/etc/trokam)
+    install(DIRECTORY etc/signature DESTINATION /usr/local/etc/trokam)
+
+endif()

@@ -143,6 +143,11 @@ void Trokam::SharedResources::getNewDB()
 
         // Mark in the database that this one is in use.
         // This enable that previous transfers, not in use anymore, could be deleted.
+        std::string sql_update;
+        sql_update=  "UPDATE package ";
+        sql_update+= "SET in_use=true ";
+        sql_update+= "WHERE id=" + std::to_string(max_id);
+        db->execNoAnswer(sql_update);
     }
     else
     {

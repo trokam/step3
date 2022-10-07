@@ -31,6 +31,7 @@
 #include <xapian.h>
 
 // Trokam
+#include "options.h"
 #include "warehouse.h"
 
 namespace Trokam
@@ -56,7 +57,8 @@ namespace Trokam
     {
         public:
 
-            ReadableContentDB();
+            ReadableContentDB(
+                Trokam::Options &opt);
 
             void open(const std::string &path);
 
@@ -75,6 +77,8 @@ namespace Trokam
             const int SLOT_URL   = 0;
             const int SLOT_TITLE = 1;
             const int SLOT_RELEVANCE = 2;
+
+            Trokam::Options &options;
 
             std::unique_ptr<Xapian::Database> db;
             std::string db_path;

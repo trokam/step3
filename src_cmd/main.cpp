@@ -40,10 +40,10 @@ int main(int argc, char *argv[])
     {
         // Initializing the crawler database.
         std::cout << "Clearing crawler database ...\n";
-        Trokam::Crawler crawler;
+        Trokam::Crawler crawler(opt);
         crawler.clean();
 
-        Trokam::WritableContentDB writable_content_db;
+        Trokam::WritableContentDB writable_content_db(opt);
         writable_content_db.clean();
     }
     else if(action == "init")
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        Trokam::Crawler crawler;
+        Trokam::Crawler crawler(opt);
         crawler.initialise(seeds_file);
     }
     else if(action == "index")
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         // Indexing the web.
         std::cout << "Indexind the web ...\n";
         const int TOTAL_RUNS = 1;
-        Trokam::Crawler crawler;
+        Trokam::Crawler crawler(opt);
         for(int i=0; i<TOTAL_RUNS; i++)
         {
             std::cout
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
             std::cerr << "Provide a prefix term to look-up using --prefix\n";
             exit(1);
         }
-        Trokam::ReadableContentDB readable_content_db;
+        Trokam::ReadableContentDB readable_content_db(opt);
         auto data = readable_content_db.lookUp(prefix);
 
         unsigned int max_results = opt.maxResults();
@@ -113,7 +113,13 @@ int main(int argc, char *argv[])
         // unsigned int offset = opt.offset();
         // unsigned int pagesize = opt.pageSize();
         Xapian::doccount results_requested = 24;
-        Trokam::ReadableContentDB readable_content_db;
+        Trokam::ReadableContentDB readable_content_db(opt);
+
+        for(auto e: languages)
+        {
+            std::cout << "language:" << e << "\n";
+        }
+
         auto data =
             // readable_content_db.search(terms, languages, offset, pagesize);
             readable_content_db.search(terms, languages, results_requested);

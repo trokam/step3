@@ -33,7 +33,9 @@
 #include "file_ops.h"
 #include "plain_text_processor.h"
 
-Trokam::ReadableContentDB::ReadableContentDB()
+Trokam::ReadableContentDB::ReadableContentDB(
+    Trokam::Options &opt)
+    : options(opt)
 {
     // std::string dbpath;
 
@@ -51,7 +53,7 @@ Trokam::ReadableContentDB::ReadableContentDB()
     }
     **/
 
-    db_path = "/usr/local/data/trokam/grasp";
+    db_path = options.db_content();  // "/usr/local/data/trokam/grasp";
 
     db.reset(
         new Xapian::Database(db_path));

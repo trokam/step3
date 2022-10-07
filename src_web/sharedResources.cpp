@@ -1,9 +1,6 @@
 /***********************************************************************
  *                            T R O K A M
- *                       Internet Search Engine
- *
- * Copyright (C) 2018, Nicolas Slusarenko
- *                     nicolas.slusarenko@Trokam::.com
+ *                      trokam.com / trokam.org
  *
  * This file is part of Trokam::.
  *

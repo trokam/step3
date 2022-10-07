@@ -36,6 +36,7 @@
 
 // Trokam
 #include "common.h"
+#include "options.h"
 #include "warehouse.h"
 
 namespace Trokam
@@ -43,6 +44,9 @@ namespace Trokam
     class Crawler
     {
         public:
+
+            Crawler(Trokam::Options &opt);
+
             void run();
 
             // Initialise the crawler database.
@@ -52,11 +56,12 @@ namespace Trokam
             void clean();
 
         private:
-            // number of simultaneous transfers
-            const size_t MAX_PARALLEL  = 7;    
 
-            // number of URL processed per run 
-            const int    TOTAL_PER_RUN = 1000;  
+            // number of simultaneous transfers
+            const size_t MAX_PARALLEL  = 7;
+
+            // number of URL processed per run
+            const int    TOTAL_PER_RUN = 1000;
 
             // max number to URLs extracted from a web page
             const int    MAX_URL_EXTRACTED = 300;
@@ -66,6 +71,8 @@ namespace Trokam
 
             // max number of external URLs to save
             const int    MAX_EXTERNAL = 10;
+
+            Trokam::Options &options;
 
             // The database that keeps the URLs and their
             // state: pending, downloaded, etc.

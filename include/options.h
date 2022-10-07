@@ -41,6 +41,7 @@ namespace Trokam
             std::string seedsFile() const;
             std::string terms() const;
             std::string languages() const;
+            std::string db_content() const;
             unsigned int offset() const;
             unsigned int pageSize() const;
             unsigned maxResults() const;
@@ -51,6 +52,7 @@ namespace Trokam
             std::string opt_seeds_file;
             std::string opt_terms;
             std::string opt_languages;
+            std::string opt_db_content;
             unsigned int opt_offset = 1;
             unsigned int opt_page_size = 5;
             unsigned int opt_max_results = UINT_MAX;

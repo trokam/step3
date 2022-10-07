@@ -1,9 +1,6 @@
 /***********************************************************************
  *                            T R O K A M
- *                       Internet Search Engine
- *
- * Copyright (C) 2022, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
+ *                      trokam.com / trokam.org
  *
  * This file is part of Trokam.
  *
@@ -25,43 +22,39 @@
 
 // C++
 #include <memory>
+#include <iostream>
 #include <string>
+#include <vector>
 
-// Xapian
-#include <xapian.h>
+// Libcurl
+#include <curl/curl.h>
 
-// Trokam
-#include "options.h"
-#include "warehouse.h"
+// Json
+#include <nlohmann/json.hpp>
 
 namespace Trokam
 {
-    class WritableContentDB
+    class RemoteControl
     {
         public:
 
-            WritableContentDB(
-                Trokam::Options &opt);
-
-            void insert(
-                const int &id,
+            RemoteControl(const nlohmann::json &config);
+            ~RemoteControl();
+            
+            std::string exec_post(
                 const std::string &url,
-                const std::string &title,
-                const std::string &text,
-                const std::string &language);
+                const std::string &data);
 
-            void clean();
+            std::string exec_get(
+                const std::string &url);
+
+            std::string exec_delete_vol(
+                const std::string &url);
 
         private:
-
-            const int SLOT_URL   = 0;
-            const int SLOT_TITLE = 1;
-            const int SLOT_RELEVANCE = 2;
-
-            Trokam::Options &options;
-
-            std::unique_ptr<Xapian::WritableDatabase> db;
-
-            std::string db_path;
+        
+            CURL *curl = NULL;
+            std::vector<std::string> headers;       
     };
 }
+

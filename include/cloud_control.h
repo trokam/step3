@@ -1,9 +1,6 @@
 /***********************************************************************
  *                            T R O K A M
- *                       Internet Search Engine
- *
- * Copyright (C) 2022, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
+ *                      trokam.com / trokam.org
  *
  * This file is part of Trokam.
  *
@@ -25,43 +22,46 @@
 
 // C++
 #include <memory>
+#include <iostream>
 #include <string>
+#include <vector>
 
-// Xapian
-#include <xapian.h>
+// Json
+#include <nlohmann/json.hpp>
 
 // Trokam
-#include "options.h"
-#include "warehouse.h"
+#include "remote_control.h"
 
 namespace Trokam
 {
-    class WritableContentDB
+    class CloudControl
     {
         public:
 
-            WritableContentDB(
-                Trokam::Options &opt);
+            CloudControl(const nlohmann::json &config);
 
-            void insert(
-                const int &id,
-                const std::string &url,
-                const std::string &title,
-                const std::string &text,
-                const std::string &language);
+            std::string createVolume(
+                const int &size_gb,
+                const std::string &name,
+                const std::string &label);
 
-            void clean();
+            void attachVolumeToMachine(
+                const std::string &volume_id,
+                const std::string &machine_id);
 
+            void detachVolumeFromMachine(
+                const std::string &volume_id,
+                const std::string &machine_id);
+
+            void destroyVolume(
+                const std::string &volume_id);
+                
         private:
 
-            const int SLOT_URL   = 0;
-            const int SLOT_TITLE = 1;
-            const int SLOT_RELEVANCE = 2;
-
-            Trokam::Options &options;
-
-            std::unique_ptr<Xapian::WritableDatabase> db;
-
-            std::string db_path;
+            RemoteControl remote_control;
+            
+            void waitToCompleteAction(const std::string &volume_id);
+            bool isCompleted(nlohmann::json &bunch);
     };
 }
+

@@ -1,9 +1,6 @@
 /***********************************************************************
  *                            T R O K A M
- *                       Internet Search Engine
- *
- * Copyright (C) 2022, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
+ *                      trokam.com / trokam.org
  *
  * This file is part of Trokam.
  *
@@ -25,43 +22,34 @@
 
 // C++
 #include <memory>
+#include <iostream>
 #include <string>
+#include <vector>
 
-// Xapian
-#include <xapian.h>
+// Json
+#include <nlohmann/json.hpp>
+
+// Postgresql
+#include <pqxx/pqxx>
 
 // Trokam
-#include "options.h"
-#include "warehouse.h"
+#include "postgresql.h"
 
 namespace Trokam
 {
-    class WritableContentDB
+    class Node
     {
         public:
 
-            WritableContentDB(
-                Trokam::Options &opt);
+            Node(const nlohmann::json &config);
 
-            void insert(
-                const int &id,
-                const std::string &url,
-                const std::string &title,
-                const std::string &text,
-                const std::string &language);
-
-            void clean();
+            int getMaxIndex();
+            void insertVolumeId(const std::string &volume_id);
+            std::string getVolumeId(const int &index);
 
         private:
 
-            const int SLOT_URL   = 0;
-            const int SLOT_TITLE = 1;
-            const int SLOT_RELEVANCE = 2;
-
-            Trokam::Options &options;
-
-            std::unique_ptr<Xapian::WritableDatabase> db;
-
-            std::string db_path;
+            std::unique_ptr<Trokam::Postgresql> m_db;
     };
 }
+

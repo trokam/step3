@@ -42,10 +42,11 @@ Trokam::Options::Options(int argc, char* argv[])
         boost::program_options::options_description desc("Allowed options");
         desc.add_options()
             ("help",         "Produce help message")
-            ("action",       boost::program_options::value<std::string>(),  "Possible actions: empty, init, index, look-up and search.")
+            ("action",       boost::program_options::value<std::string>(),  "Possible actions: clean, init, index, look-up and search.")
             ("seeds-file",   boost::program_options::value<std::string>(),  "File with first URLs.")
             ("terms",        boost::program_options::value<std::string>(),  "Terms to search.")
             ("languages",    boost::program_options::value<std::string>(),  "Languages to search. Comma separated.")
+            ("db-content",   boost::program_options::value<std::string>(),  "Path to the content database.")
             ("offset",       boost::program_options::value<unsigned int>(), "Results page.")
             ("pagesize",     boost::program_options::value<unsigned int>(), "Results per page.")
             ("max-results",  boost::program_options::value<unsigned int>(), "Maximum number of results.");
@@ -77,6 +78,11 @@ Trokam::Options::Options(int argc, char* argv[])
         if(vm.count("languages"))
         {
             opt_languages = vm["languages"].as<std::string>();
+        }
+
+        if(vm.count("db-content"))
+        {
+            opt_db_content = vm["db-content"].as<std::string>();
         }
 
         if(vm.count("offset"))
@@ -119,6 +125,11 @@ std::string Trokam::Options::terms() const
 std::string Trokam::Options::languages() const
 {
     return opt_languages;
+}
+
+std::string Trokam::Options::db_content() const
+{
+    return opt_db_content;
 }
 
 unsigned int Trokam::Options::offset() const

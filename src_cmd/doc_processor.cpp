@@ -32,6 +32,11 @@
 #include "file_ops.h"
 #include "plain_text_processor.h"
 
+Trokam::DocProcessor::DocProcessor(
+    Trokam::Options &opt)
+    : options(opt), writable_content_db(opt)
+{}
+
 void Trokam::DocProcessor::insert(
     const web_doc *doc,
     const std::string &retrieval_error,

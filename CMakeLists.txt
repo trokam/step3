@@ -5,7 +5,7 @@ project(Trokam)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3")
 
-set(SUBSYSTEM "ALL" CACHE STRING "Choose a system: WEB, CRAWLER or ALL")
+set(SUBSYSTEM "ALL" CACHE STRING "Choose a system: WEB, CRAWLER, CONVEYOR or ALL")
 
 message(STATUS "System choice:" ${SUBSYSTEM})
 
@@ -36,7 +36,7 @@ if((SUBSYSTEM STREQUAL "CRAWLER") OR (SUBSYSTEM STREQUAL "ALL"))
     file(GLOB SOURCES_CMD    "src_cmd/*.cpp")
     file(GLOB SOURCES_COMMON "src_common/*.cpp")
 
-    add_executable(trokam    ${SOURCES_CMD} ${SOURCES_COMMON})
+    add_executable(trokam ${SOURCES_CMD} ${SOURCES_COMMON})
 
     find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
 
@@ -45,5 +45,23 @@ if((SUBSYSTEM STREQUAL "CRAWLER") OR (SUBSYSTEM STREQUAL "ALL"))
     install(TARGETS trokam DESTINATION /usr/local/bin)
     install(FILES etc/language.conf DESTINATION /usr/local/etc/trokam)
     install(DIRECTORY etc/signature DESTINATION /usr/local/etc/trokam)
+
+endif()
+
+if((SUBSYSTEM STREQUAL "CONVEYOR") OR (SUBSYSTEM STREQUAL "ALL"))
+
+    include_directories(include)
+
+    file(GLOB SOURCES_CONVEYOR "src_conveyor/*.cpp")
+    file(GLOB SOURCES_COMMON   "src_common/*.cpp")
+
+    add_executable(conveyor ${SOURCES_CONVEYOR} ${SOURCES_COMMON})
+
+    find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
+    find_package(fmt)
+
+    target_link_libraries(conveyor curl pqxx xapian Boost::system Boost::regex Boost::filesystem Boost::program_options fmt::fmt)
+
+    install(TARGETS conveyor DESTINATION /usr/local/bin)
 
 endif()

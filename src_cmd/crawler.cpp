@@ -56,6 +56,11 @@ static int appendData(
     return size * nmemb;
 }
 
+Trokam::Crawler::Crawler(
+    Trokam::Options &opt)
+    : options(opt)
+{}
+
 void Trokam::Crawler::run()
 {
     // Gets a bundle of URLs for downloading.
@@ -89,7 +94,7 @@ void Trokam::Crawler::run()
     }
 
     // This is the processor of the downloaded data.
-    Trokam::DocProcessor processor;
+    Trokam::DocProcessor processor(options);
 
     CURLMsg *transfer_info;
     int msgs_left = -1;
@@ -112,7 +117,7 @@ void Trokam::Crawler::run()
         // from the individual transfers. Repeated calls to this function will
         // return a new struct each time, until a NULL is returned as a signal
         // that there is no more to get at this point. The integer pointed to 'msgs_left'
-        // will contain the number of remaining messages after this function was called. 
+        // will contain the number of remaining messages after this function was called.
         // More info: https://curl.se/libcurl/c/curl_multi_info_read.html
         while((transfer_info = curl_multi_info_read(curl_multi_handler, &msgs_left)))
         {
@@ -150,7 +155,7 @@ void Trokam::Crawler::run()
                         << "\n\n============================= skipping "
                         << "=============================\n";
                     std::cout << "Document is not of text type.\n";
-                    std::cout << "URL:" << doc->url << '\n';                    
+                    std::cout << "URL:" << doc->url << '\n';
                 }
 
                 // Remove the handle of this transfer.
@@ -201,7 +206,7 @@ void Trokam::Crawler::run()
     curl_multi_cleanup(curl_multi_handler);
     curl_global_cleanup();
 
-    // Set the state of the URSs just processed to 'indexed'.    
+    // Set the state of the URSs just processed to 'indexed'.
     house.setIndexed(url_bundle);
 }
 
@@ -251,7 +256,7 @@ void Trokam::Crawler::extractSaveUrl(
     // Insert multiple URLs in one transaction.
     house.insertSeveralUrl(internal_selection);
 
-    // Insert multiple URLs in one transaction.    
+    // Insert multiple URLs in one transaction.
     house.insertSeveralUrl(external_selection);
 }
 
@@ -297,7 +302,7 @@ void Trokam::Crawler::initialise(
     {
         std::cout << "seed: " << e << "\n";
     }
- 
+
     // Insert multiple URLs in one transaction.
     house.insertSeveralUrl(seed_urls);
 }

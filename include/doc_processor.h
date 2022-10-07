@@ -35,6 +35,8 @@ namespace Trokam
     {
         public:
 
+            DocProcessor(Trokam::Options &opt);
+
             void insert(
                 const web_doc *doc,
                 const std::string &retrieval_error,
@@ -51,6 +53,8 @@ namespace Trokam
         private:
 
             const size_t TEXT_LENGTH_LIMIT = 15000;
+
+            Trokam::Options &options;
 
             std::string text;
             std::string title;

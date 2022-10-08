@@ -1,9 +1,6 @@
 /***********************************************************************
  *                            T R O K A M
- *                       Internet Search Engine
- *
- * Copyright (C) 2018, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
+ *                      trokam.com / trokam.org
  *
  * This file is part of Trokam.
  *
@@ -21,8 +18,7 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-#ifndef TROKAM_SHARED_RESOURCES_H
-#define TROKAM_SHARED_RESOURCES_H
+#pragma once
 
 // C++
 #include <memory>
@@ -42,12 +38,8 @@ namespace Trokam
     {
         public:
 
-            // SharedResources(Trokam::Options &value);
             SharedResources(nlohmann::json &value);
             ~SharedResources();
-
-            // Trokam::Options settings;  // ???
-            // std::vector<Trokam::Postgresql*> dbCluster;
 
             Trokam::ReadableContentDB readable_content_db;
             void getNewDB();
@@ -59,5 +51,3 @@ namespace Trokam
             nlohmann::json &settings;
     };
 }
-
-#endif /// TROKAM_SHARED_RESOURCES_H

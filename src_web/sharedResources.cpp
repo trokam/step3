@@ -132,8 +132,9 @@ void Trokam::SharedResources::getNewDB()
 
         // Generate the name for the id.
         const int NODE_0 = 0;
-        std::string transfer_node_name = fmt::format("node-{:02}-{:06}", NODE_0, current_transfer);
-        const std::string path = "/mnt/" + transfer_node_name;
+        std::string transfer_node_name = fmt::format("node_{:02}_{:06}", NODE_0, current_transfer);
+        const std::string path = "/mnt/" + transfer_node_name + "/content";
+        Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& path:" << path;
         readable_content_db.open(path);
 
         Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& transfer:" << current_transfer << " in-use &&&&&&&&&&&&&&&&&&&&\n";

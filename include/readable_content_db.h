@@ -57,9 +57,6 @@ namespace Trokam
     {
         public:
 
-            ReadableContentDB(
-                Trokam::Options &opt);
-
             void open(const std::string &path);
 
             std::vector<Finding>
@@ -78,9 +75,6 @@ namespace Trokam
             const int SLOT_TITLE = 1;
             const int SLOT_RELEVANCE = 2;
 
-            Trokam::Options &options;
-
             std::unique_ptr<Xapian::Database> db;
-            std::string db_path;
     };
 }

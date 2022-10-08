@@ -33,36 +33,9 @@
 #include "file_ops.h"
 #include "plain_text_processor.h"
 
-Trokam::ReadableContentDB::ReadableContentDB(
-    Trokam::Options &opt)
-    : options(opt)
-{
-    // std::string dbpath;
-
-    /**
-    if(const char* env_home = std::getenv("HOME"))
-    {
-        // std::cout << "Your PATH is: " << env_p << '\n';
-        db_path  = env_home;
-        db_path += "/ReadableContentDB";
-    }
-    else
-    {
-        std::cerr << "fail: could not create ReadableContentDB database.";
-        exit(1);
-    }
-    **/
-
-    db_path = options.db_content();  // "/usr/local/data/trokam/grasp";
-
-    db.reset(
-        new Xapian::Database(db_path));
-}
-
 void Trokam::ReadableContentDB::open(const std::string &path)
 {
-    db.reset(
-        new Xapian::Database(db_path));
+    db.reset(new Xapian::Database(path));
 }
 
 std::vector<Trokam::Finding>

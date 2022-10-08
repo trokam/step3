@@ -84,7 +84,8 @@ int main(int argc, char *argv[])
             std::cerr << "Provide a prefix term to look-up using --prefix\n";
             exit(1);
         }
-        Trokam::ReadableContentDB readable_content_db(opt);
+        Trokam::ReadableContentDB readable_content_db;
+        readable_content_db.open(opt.db_content());
         auto data = readable_content_db.lookUp(prefix);
 
         unsigned int max_results = opt.maxResults();
@@ -113,7 +114,8 @@ int main(int argc, char *argv[])
         // unsigned int offset = opt.offset();
         // unsigned int pagesize = opt.pageSize();
         Xapian::doccount results_requested = 24;
-        Trokam::ReadableContentDB readable_content_db(opt);
+        Trokam::ReadableContentDB readable_content_db;
+        readable_content_db.open(opt.db_content());
 
         for(auto e: languages)
         {

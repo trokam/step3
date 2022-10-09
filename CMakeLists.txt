@@ -52,10 +52,11 @@ if((SUBSYSTEM STREQUAL "CONVEYOR") OR (SUBSYSTEM STREQUAL "ALL"))
 
     include_directories(include)
 
-    file(GLOB SOURCES_CONVEYOR "src_conveyor/*.cpp")
-    file(GLOB SOURCES_COMMON   "src_common/*.cpp")
+    file(GLOB SOURCES_CONVEYOR  "src_conveyor/*.cpp")
+    file(GLOB SOURCES_TRANSPORT "src_transport/*.cpp")
+    file(GLOB SOURCES_COMMON    "src_common/*.cpp")
 
-    add_executable(conveyor ${SOURCES_CONVEYOR} ${SOURCES_COMMON})
+    add_executable(conveyor ${SOURCES_CONVEYOR} ${SOURCES_TRANSPORT} ${SOURCES_COMMON})
 
     find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
     find_package(fmt)
@@ -70,16 +71,17 @@ if((SUBSYSTEM STREQUAL "CLEANER") OR (SUBSYSTEM STREQUAL "ALL"))
 
     include_directories(include)
 
-    file(GLOB SOURCES_CLEANER "src_cleaner/*.cpp")
-    file(GLOB SOURCES_COMMON  "src_common/*.cpp")
+    file(GLOB SOURCES_CLEANER   "src_cleaner/*.cpp")
+    file(GLOB SOURCES_TRANSPORT "src_transport/*.cpp")
+    file(GLOB SOURCES_COMMON    "src_common/*.cpp")
 
-    add_executable(cleaner ${SOURCES_CLEANER} ${SOURCES_COMMON})
+    add_executable(cleaner ${SOURCES_CLEANER} ${SOURCES_TRANSPORT} ${SOURCES_COMMON})
 
     find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
     find_package(fmt)
 
     target_link_libraries(cleaner curl pqxx xapian Boost::system Boost::regex Boost::filesystem Boost::program_options fmt::fmt)
 
-    install(TARGETS conveyor DESTINATION /usr/local/bin)
+    install(TARGETS cleaner DESTINATION /usr/local/bin)
 
 endif()

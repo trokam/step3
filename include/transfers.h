@@ -44,9 +44,10 @@ namespace Trokam
             Transfers(const nlohmann::json &config);
 
             int getMaxIndex();
-            
+
             void insert(
-                const int &index,
+                const int &node_id,
+                const std::string &path,
                 const std::string &volume_id);
 
             pqxx::result getPrevious();

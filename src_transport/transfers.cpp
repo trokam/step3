@@ -24,6 +24,31 @@
 // Trokam
 #include "transfers.h"
 
+/**
+ * transfers=> \d crawlers
+ *               Table "public.crawlers"
+ *  Column |  Type   | Collation | Nullable | Default
+ * --------+---------+-----------+----------+---------
+ *  id     | integer |           | not null |
+ *  extra  | text    |           |          |
+ * Indexes:
+ *     "crawlers_pkey" PRIMARY KEY, btree (id)
+ *
+ * transfers=> \d directories
+ *                          Table "public.directories"
+ *    Column    |            Type             | Collation | Nullable | Default
+ * -------------+-----------------------------+-----------+----------+---------
+ *  id          | integer                     |           | not null |
+ *  crawlers_id | integer                     |           |          |
+ *  date        | timestamp without time zone |           |          |
+ *  path        | text                        |           |          |
+ *  extra       | text                        |           |          |
+ * Indexes:
+ *     "directories_pkey" PRIMARY KEY, btree (id)
+ * Foreign-key constraints:
+ *     "fk_crawlers" FOREIGN KEY (crawlers_id) REFERENCES crawlers(id)
+ **/
+
 Trokam::Transfers::Transfers(const nlohmann::json &config)
 {
     const std::string host = config["transfers"]["host"];
@@ -57,12 +82,23 @@ int Trokam::Transfers::getMaxIndex()
 }
 
 void Trokam::Transfers::insert(
-    const int &index,
+    const int &node_id,
+    const std::string &path,
     const std::string &volume_id)
 {
+    /*
     std::string sql_insert;
     sql_insert=  "INSERT INTO package(id, date, node_volume_id, in_use) ";
     sql_insert+= "VALUES(" + std::to_string(index) + ", NOW(), '" + volume_id + "', false)";
+    m_db->execNoAnswer(sql_insert);
+    */
+
+    std::string sql_insert;
+    sql_insert=  "INSERT INTO directories(crawlers_id, date, path, extra) ";
+    sql_insert+= "VALUES(" + std::to_string(node_id) + ", NOW(), '" + path + "', '" + volume_id + "')";
+
+    std::cout << "sql_insert:" << sql_insert << "\n";
+
     m_db->execNoAnswer(sql_insert);
 }
 

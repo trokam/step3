@@ -87,8 +87,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    const int THIS_NODE_ID = 0;
     const std::string node_user = pw->pw_name;
+    const int THIS_NODE_ID =           config["this_node_id"];
     const std::string AUTH_TOKEN =     config["auth_token"];
     const std::string NODE_ID =        config["node_id"];
     const std::string WEBSERVER_ID =   config["webserver_id"];
@@ -343,11 +343,16 @@ int main(int argc, char *argv[])
      * Register in transfer database the new node.
      *************************************/
 
-    transfers.insert(max_id, transfer_volume_id);
+    // transfers.insert(max_id, transfer_volume_id);
+
+    const std::string path = "/mnt/" + transfer_node_label + "/content";
+    transfers.insert(THIS_NODE_ID, path, transfer_volume_id);
 
     /**************************************
      * Remove old transfers
      *************************************/
+
+    /**
 
     pqxx::result previous_transfers = transfers.getPrevious();
 
@@ -386,6 +391,8 @@ int main(int argc, char *argv[])
 
         row_f++;
     }
+
+    **/
 
     return 0;
 }

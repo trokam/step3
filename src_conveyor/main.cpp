@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     }
 
     const std::string node_user = pw->pw_name;
-    const int THIS_NODE_ID =           config["this_node_id"];
+    const int THIS_NODE_INDEX =        config["this_node_index"];
     const std::string AUTH_TOKEN =     config["auth_token"];
     const std::string NODE_ID =        config["node_id"];
     const std::string WEBSERVER_ID =   config["webserver_id"];
@@ -150,8 +150,8 @@ int main(int argc, char *argv[])
 
     max_id++;
 
-    std::string transfer_node_name  = fmt::format("node-{:02}-{:06}", THIS_NODE_ID, max_id);
-    std::string transfer_node_label = fmt::format("node_{:02}_{:06}", THIS_NODE_ID, max_id);
+    std::string transfer_node_name  = fmt::format("node-{:02}-{:06}", THIS_NODE_INDEX, max_id);
+    std::string transfer_node_label = fmt::format("node_{:02}_{:06}", THIS_NODE_INDEX, max_id);
 
     std::cout << "transfer_node_name=" << transfer_node_name << '\n';
     std::cout << "transfer_node_label=" << transfer_node_label << '\n';
@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
     // transfers.insert(max_id, transfer_volume_id);
 
     const std::string path = "/mnt/" + transfer_node_label + "/content";
-    transfers.insert(THIS_NODE_ID, path, transfer_volume_id);
+    transfers.insert(THIS_NODE_INDEX, path, transfer_volume_id);
 
     /**************************************
      * Remove old transfers
@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
         std::cout << "index web: " << index << '\n';
         std::cout << "vol_id: " << vol_id << '\n';
 
-        std::string previous_transfer_label = fmt::format("node_{:02}_{:06}", THIS_NODE_ID, index);
+        std::string previous_transfer_label = fmt::format("node_{:02}_{:06}", THIS_NODE_INDEX, index);
 
         std::cout << "============== Remove previous in webserver ==============\n";
 

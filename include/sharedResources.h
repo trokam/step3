@@ -31,6 +31,7 @@
 #include "options.h"
 #include "readable_content_db.h"
 #include "postgresql.h"
+#include "transfers.h"
 
 namespace Trokam
 {
@@ -46,8 +47,10 @@ namespace Trokam
 
         private:
 
-            std::unique_ptr<Trokam::Postgresql> db;
+            // std::unique_ptr<Trokam::Postgresql> db;
             int current_transfer = -1;
             nlohmann::json &settings;
+            // Trokam::Transfers &transfers;
+            std::unique_ptr<Trokam::Transfers> transfers;
     };
 }

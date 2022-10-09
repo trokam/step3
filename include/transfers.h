@@ -41,16 +41,21 @@ namespace Trokam
     {
         public:
 
-            Transfers(const nlohmann::json &config);
+            Transfers(nlohmann::json &config);
 
-            int getMaxIndex();
+            int getMaxIndex(const int &crawlers_id);
+
+            std::string getPath(
+                const int &index,
+                const int &crawlers_id);
 
             void insert(
                 const int &node_id,
                 const std::string &path,
                 const std::string &volume_id);
 
-            pqxx::result getPrevious();
+            pqxx::result getPrevious(
+                const int &crawler_index);
 
             void remove(
                 const int &index);

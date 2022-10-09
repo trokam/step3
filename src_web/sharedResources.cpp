@@ -41,71 +41,19 @@ Trokam::SharedResources::SharedResources(
     nlohmann::json &value):
         settings(value)
 {
-    const std::string host;
-    const std::string port;
-    const std::string name = settings["transfers"]["name"];
-    const std::string user = settings["transfers"]["user"];
-    db.reset(new Trokam::Postgresql(host, port, name, user));
-
+    Wt::log("info") << "---- 0";
+    transfers.reset(new Trokam::Transfers(settings));
+    Wt::log("info") << "---- 1";
     getNewDB();
-
-/*
-    Wt::log("info") << "after database reset";
-    std::cout << "after database reset\n";
-
-    // Get the row with the largest id.
-    std::string sql_select;
-    sql_select=  "SELECT id ";
-    sql_select+= "FROM package ";
-    sql_select+= "ORDER BY id DESC ";
-    sql_select+= "LIMIT 1 ";
-
-    std::cout << "sql_select:" << sql_select << "\n";
-
-    pqxx::result answer;
-    db->execAnswer(sql_select, answer);
-
-    int max_id = -1;
-    pqxx::result::iterator row= answer.begin();
-    if(row != answer.end())
-    {
-        max_id = row[0].as(int());
-    }
-    else
-    {
-        // No answer.
-        // std::cerr << "Error, no answer.\n";
-    }
-
-    // Generate the name for the id.
-    const int NODE_0 = 0;
-    std::string transfer_node_name  = fmt::format("node-{:02}-{:06}", NODE_0, max_id);
-    const std::string path = "/mnt/" + transfer_node_name;
-    readable_content_db.open(path);
-*/
+    Wt::log("info") << "---- 2";
 }
 
 Trokam::SharedResources::~SharedResources()
-{
-    /*
-    for(size_t i=0; i<dbCluster.size(); i++)
-    {
-        delete dbCluster[i];
-    }
-    */
-}
+{}
 
 void Trokam::SharedResources::getNewDB()
 {
-    // Get the row with the largest id.
     /*
-    std::string sql_select;
-    sql_select=  "SELECT id ";
-    sql_select+= "FROM package ";
-    sql_select+= "ORDER BY id DESC ";
-    sql_select+= "LIMIT 1 ";
-    */
-
     std::string sql_select;
     sql_select=  "SELECT MAX(id) ";
     sql_select+= "FROM package ";
@@ -124,6 +72,10 @@ void Trokam::SharedResources::getNewDB()
         // No answer.
         // std::cerr << "Error, no answer.\n";
     }
+    */
+
+    const int crawlers_id = 0;
+    const int max_id = transfers->getMaxIndex(crawlers_id);
 
     // If there is a new transfer available, then use this one.
     if(max_id > current_transfer)
@@ -131,9 +83,12 @@ void Trokam::SharedResources::getNewDB()
         current_transfer = max_id;
 
         // Generate the name for the id.
-        const int NODE_0 = 0;
-        std::string transfer_node_name = fmt::format("node_{:02}_{:06}", NODE_0, current_transfer);
-        const std::string path = "/mnt/" + transfer_node_name + "/content";
+        // const int NODE_0 = 0;
+        // std::string transfer_node_name = fmt::format("node_{:02}_{:06}", NODE_0, current_transfer);
+        // const std::string path = "/mnt/" + transfer_node_name + "/content";
+
+        std::string path = transfers->getPath(max_id, crawlers_id);
+
         Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& path:" << path;
         readable_content_db.open(path);
 
@@ -141,11 +96,13 @@ void Trokam::SharedResources::getNewDB()
 
         // Mark in the database that this one is in use.
         // This enable that previous transfers, not in use anymore, could be deleted.
+        /**
         std::string sql_update;
         sql_update=  "UPDATE package ";
         sql_update+= "SET in_use=true ";
         sql_update+= "WHERE id=" + std::to_string(max_id);
         db->execNoAnswer(sql_update);
+        */
     }
     else
     {

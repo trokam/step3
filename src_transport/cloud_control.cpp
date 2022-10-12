@@ -34,7 +34,7 @@
 Trokam::CloudControl::CloudControl(
     const nlohmann::json &config)
     :remote_control(config)
-{} 
+{}
 
 std::string Trokam::CloudControl::createVolume(
     const int &size_gb,
@@ -50,18 +50,18 @@ std::string Trokam::CloudControl::createVolume(
     payload["region"]=           "ams3";
     payload["filesystem_type"]=  "ext4";
     payload["filesystem_label"]= label;
-    
+
     // std::cout << "payload.dump\n" << payload.dump() << '\n';
 
     const std::string reply = remote_control.exec_post(url, payload.dump());
     const nlohmann::json answer = nlohmann::json::parse(reply);
-    
+
     // std::cout << "answer\n" << answer.dump(4) << '\n';
-    std::string result = answer["volume"]["id"];    
-    waitToCompleteAction(result);   
-    
+    std::string result = answer["volume"]["id"];
+    waitToCompleteAction(result);
+
     return result;
-    // std::cout << "local_destination_volume_id:" << local_destination_volume_id << '\n';    
+    // std::cout << "local_destination_volume_id:" << local_destination_volume_id << '\n';
 }
 
 void Trokam::CloudControl::attachVolumeToMachine(
@@ -76,7 +76,7 @@ void Trokam::CloudControl::attachVolumeToMachine(
     payload["region"]=       "ams3";
 
     remote_control.exec_post(url, payload.dump());
-    waitToCompleteAction(volume_id);       
+    waitToCompleteAction(volume_id);
 }
 
 void Trokam::CloudControl::detachVolumeFromMachine(
@@ -91,7 +91,7 @@ void Trokam::CloudControl::detachVolumeFromMachine(
     payload["region"]=       "ams3";
 
     remote_control.exec_post(url, payload.dump());
-    waitToCompleteAction(volume_id);       
+    waitToCompleteAction(volume_id);
 }
 
 void Trokam::CloudControl::destroyVolume(
@@ -99,7 +99,10 @@ void Trokam::CloudControl::destroyVolume(
 {
     const std::string url= "https://api.digitalocean.com/v2/volumes/" + volume_id;
     const std::string reply= remote_control.exec_delete_vol(url);
-    std::cout << "reply:" << reply << '\n';
+    if(!reply.empty())
+    {
+        std::cout << "reply:" << reply << '\n';
+    }
 }
 
 void Trokam::CloudControl::waitToCompleteAction(
@@ -108,7 +111,7 @@ void Trokam::CloudControl::waitToCompleteAction(
     bool completed = false;
     while(!completed)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));            
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         const std::string url= "https://api.digitalocean.com/v2/volumes/" + volume_id + "/actions";
         auto reply= remote_control.exec_get(url);
         auto answer= nlohmann::json::parse(reply);
@@ -121,8 +124,8 @@ void Trokam::CloudControl::waitToCompleteAction(
             std::cout << "waiting for action to complete ...\n";
         }
     }
-    
-    std::this_thread::sleep_for(std::chrono::seconds(5));            
+
+    std::this_thread::sleep_for(std::chrono::seconds(5));
 }
 
 bool Trokam::CloudControl::isCompleted(nlohmann::json &bunch)

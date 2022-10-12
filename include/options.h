@@ -45,6 +45,7 @@ namespace Trokam
             unsigned int offset() const;
             unsigned int pageSize() const;
             unsigned maxResults() const;
+            unsigned cycles() const;
 
         private:
 
@@ -56,5 +57,6 @@ namespace Trokam
             unsigned int opt_offset = 1;
             unsigned int opt_page_size = 5;
             unsigned int opt_max_results = UINT_MAX;
+            unsigned int opt_cycles = 1;
     };
 }

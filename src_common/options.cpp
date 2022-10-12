@@ -49,7 +49,8 @@ Trokam::Options::Options(int argc, char* argv[])
             ("db-content",   boost::program_options::value<std::string>(),  "Path to the content database.")
             ("offset",       boost::program_options::value<unsigned int>(), "Results page.")
             ("pagesize",     boost::program_options::value<unsigned int>(), "Results per page.")
-            ("max-results",  boost::program_options::value<unsigned int>(), "Maximum number of results.");
+            ("max-results",  boost::program_options::value<unsigned int>(), "Maximum number of results.")
+            ("cycles",       boost::program_options::value<unsigned int>(), "Indexing cycles.");
         boost::program_options::variables_map vm;
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
@@ -99,6 +100,11 @@ Trokam::Options::Options(int argc, char* argv[])
         {
             opt_max_results = vm["max-results"].as<unsigned int>();
         }
+
+        if(vm.count("cycles"))
+        {
+            opt_cycles = vm["cycles"].as<unsigned int>();
+        }
     }
     catch(const std::exception& e)
     {
@@ -145,4 +151,9 @@ unsigned int Trokam::Options::pageSize() const
 unsigned int Trokam::Options::maxResults() const
 {
     return opt_max_results;
+}
+
+unsigned int Trokam::Options::cycles() const
+{
+    return opt_cycles;
 }

@@ -18,6 +18,11 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
+// Boost
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+
 // Trokam
 #include "remote_control.h"
 
@@ -86,11 +91,8 @@ std::string Trokam::RemoteControl::exec_post(
     CURLcode res = curl_easy_perform(curl);
     if(res != CURLE_OK)
     {
-        std::cerr << "failed:" << curl_easy_strerror(res) << '\n';
-    }
-    else
-    {
-        std::cerr << "success\n";
+        BOOST_LOG_TRIVIAL(fatal) << "libcurl fail:" << curl_easy_strerror(res);
+        exit(1);
     }
 
     if(list != NULL)
@@ -122,11 +124,8 @@ std::string Trokam::RemoteControl::exec_delete_vol(
     CURLcode res = curl_easy_perform(curl);
     if(res != CURLE_OK)
     {
-        std::cerr << "failed:" << curl_easy_strerror(res) << '\n';
-    }
-    else
-    {
-        std::cerr << "success\n";
+        BOOST_LOG_TRIVIAL(fatal) << "libcurl fail:" << curl_easy_strerror(res);
+        exit(1);
     }
 
     if(list != NULL)
@@ -158,11 +157,8 @@ std::string Trokam::RemoteControl::exec_get(
     CURLcode res = curl_easy_perform(curl);
     if(res != CURLE_OK)
     {
-        std::cerr << "failed:" << curl_easy_strerror(res) << '\n';
-    }
-    else
-    {
-        std::cerr << "success\n";
+        BOOST_LOG_TRIVIAL(fatal) << "libcurl fail:" << curl_easy_strerror(res);
+        exit(1);
     }
 
     if(list != NULL)
@@ -172,4 +168,3 @@ std::string Trokam::RemoteControl::exec_get(
 
     return raw;
 }
-

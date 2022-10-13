@@ -76,7 +76,7 @@ endif()
 
 if((SUBSYSTEM STREQUAL "CLEANER") OR (SUBSYSTEM STREQUAL "ALL"))
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3 -pthread")
     include_directories(include)
 
     file(GLOB SOURCES_CLEANER   "src_cleaner/*.cpp")
@@ -85,10 +85,12 @@ if((SUBSYSTEM STREQUAL "CLEANER") OR (SUBSYSTEM STREQUAL "ALL"))
 
     add_executable(cleaner ${SOURCES_CLEANER} ${SOURCES_TRANSPORT} ${SOURCES_COMMON})
 
-    find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
+    ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
+
+    find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread log)
     find_package(fmt)
 
-    target_link_libraries(cleaner curl pqxx xapian Boost::system Boost::regex Boost::filesystem Boost::program_options fmt::fmt)
+    target_link_libraries(cleaner curl pqxx xapian Boost::system Boost::regex Boost::filesystem Boost::program_options Boost::log fmt::fmt)
 
     install(TARGETS cleaner DESTINATION /usr/local/bin)
 

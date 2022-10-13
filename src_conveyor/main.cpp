@@ -84,6 +84,20 @@ void verify(const int &state, std::string &command)
     }
 }
 
+void show_state(const int &state, std::string &command)
+{
+    if(state != 0)
+    {
+        BOOST_LOG_TRIVIAL(info)
+            << "failure during execution of command:'" << command << "'";
+    }
+    else
+    {
+        BOOST_LOG_TRIVIAL(info)
+            << "successful execution of command:'" << command << "'";
+    }
+}
+
 int main(int argc, char *argv[])
 {
     // Get the configuration file
@@ -120,12 +134,13 @@ int main(int argc, char *argv[])
         /**************************************
         *      Generate date string
         *************************************/
-
+        /*
         std::string date= current_datetime();
         if(date.length() != 16)
         {
             exit(10);
         }
+        */
 
         /**************************************
         * Generate the volume name
@@ -151,14 +166,17 @@ int main(int argc, char *argv[])
         BOOST_LOG_TRIVIAL(debug) << "local_current_name=" << local_current_name;
         BOOST_LOG_TRIVIAL(debug) << "local_current_label=" << local_current_label;
 
-        std::string command =
-            "trokam --action index --cycles " + std::to_string(INDEXING_CYCLES) + " --db-content /mnt/" +
-            local_current_label + "/content > /tmp/trokam_indexing_" + date + ".log";
+        for(unsigned int i=0; i<INDEXING_CYCLES; i++)
+        {
+            std::string date= current_datetime();
+            std::string command =
+                "trokam --action index --cycles 1 --db-content /mnt/" +
+                local_current_label + "/content > /tmp/trokam_indexing_" + date + ".log";
 
-        BOOST_LOG_TRIVIAL(debug) << "command to perform crawling:" << command;
-
-        state = system(command.c_str());
-        verify(state, command);
+            // BOOST_LOG_TRIVIAL(debug) << "command to perform crawling:" << command;
+            state = system(command.c_str());
+            show_state(state, command);
+        }
 
         /**************************************
         * Generate the names of destination directories
@@ -219,7 +237,9 @@ int main(int argc, char *argv[])
         * Copy file to transfer volume
         *************************************/
 
-        BOOST_LOG_TRIVIAL(info) << "Copy database from origin to destination volume";
+        std::string command;
+
+        // BOOST_LOG_TRIVIAL(info) << "Copy database from origin to destination volume";
 
         BOOST_LOG_TRIVIAL(info) << "Make directory";
         command = "ssh root@127.0.0.1 mkdir -p /mnt/" + local_destination_label;

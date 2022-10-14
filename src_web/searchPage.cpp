@@ -289,13 +289,18 @@ void Trokam::SearchPage::createFooter(
 {
     int total_pages = 2;
 
-    auto container_l0 =
+    if(w_footer != nullptr)
+    {
+        delete w_footer;
+    }
+
+    auto w_footer =
         base->addWidget(std::make_unique<Wt::WContainerWidget>());
-    container_l0->addStyleClass("mt-auto");
-    container_l0->addStyleClass("text-center");
+    w_footer->addStyleClass("mt-auto");
+    w_footer->addStyleClass("text-center");
 
     auto container_l1 =
-        container_l0->addWidget(std::make_unique<Wt::WContainerWidget>());
+        w_footer->addWidget(std::make_unique<Wt::WContainerWidget>());
     container_l1->addStyleClass("lead");
 
     auto button_previous =

@@ -34,18 +34,19 @@
 #include <boost/shared_ptr.hpp>
 
 // Trokam
-#include "sharedResources.h"
-#include "options.h"
 #include "appGenerator.h"
+#include "options.h"
+#include "preferences.h"
+#include "sharedResources.h"
 
 namespace Trokam
 {
     class AppGenerator
     {
         public:
-            // AppGenerator(Trokam::Options &opt);
             AppGenerator(nlohmann::json &opt);
-            std::unique_ptr<Wt::WApplication> createApplication(const Wt::WEnvironment& env);
+            std::unique_ptr<Wt::WApplication>
+                createApplication(const Wt::WEnvironment& env);
 
         private:
             boost::shared_ptr<Trokam::SharedResources> commonResources;

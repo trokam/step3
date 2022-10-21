@@ -37,6 +37,7 @@
 #include "bundle.h"
 #include "data.h"
 #include "pageWidget.h"
+#include "preferences.h"
 #include "sharedResources.h"
 
 namespace Trokam
@@ -53,17 +54,25 @@ namespace Trokam
 
             Wt::WApplication *application;
             boost::shared_ptr<Trokam::SharedResources> shared_resources;
+
+            Trokam::Preferences user_settings;
+
             int results_per_page = 8;
             int current_page = 1;
             std::vector<Trokam::Finding> items_found;
             std::vector<std::pair<int, bool>> language_options;
 
             std::shared_ptr<Wt::WStringListModel> fourCharModel_;
+            std::shared_ptr<Wt::WButtonGroup> group;
 
             // Wt::WSuggestionPopup *suggestions = nullptr;
 
+            Wt::WContainerWidget *container = nullptr;
             Wt::WLineEdit *input = nullptr;
             Wt::WTable *userFindings = nullptr;
+            Wt::WContainerWidget *w_footer = nullptr;
+            Wt::WPushButton *w_button_preferences = nullptr;
+            Wt::WPushButton *w_about = nullptr;
 
             void search(const std::string &terms);
             void show_search_results();
@@ -74,6 +83,9 @@ namespace Trokam
 
             void serverSideFilteringPopups(
                 Wt::WContainerWidget *parent);
+
+            void showLanguageOptions();
+            bool savePreferences();
 
             void filter(const Wt::WString& input);
 

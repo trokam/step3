@@ -69,7 +69,6 @@ namespace Trokam
             Wt::WTable    *userFindings;
             Wt::WTimer    *timer;
             Wt::WTemplate *ptr_pagination = nullptr;
-            Wt::Widget    *w_footer = nullptr;
 
             // int total_results = 26;
             int results_per_page = 8;

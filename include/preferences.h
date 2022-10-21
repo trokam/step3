@@ -23,6 +23,9 @@
 // C++
 #include <string>
 
+// Json
+#include <nlohmann/json.hpp>
+
 /**
  * Language numbering loosely correlates
  * language frequency of Internet pages.
@@ -57,10 +60,44 @@ namespace Trokam
         SWEDISH    = 20
     };
 
+    enum Theme: unsigned int
+    {
+        LIGHT =  0,
+        DARK  =  1,
+    };
+
     class Preferences
     {
         public:
+
+            Preferences();
+            Preferences(const std::string &raw);
+
+            // unsigned int languages();
+            unsigned int getTheme();
+            void setTheme(const unsigned int &theme);
+
+            // std::vector<unsigned int> getLanguages();
+            // void setLanguages(const std::vector<unsigned int> &languages);
+
+            std::vector<std::pair<int, bool>> getLanguages();
+            void setLanguages(const std::vector<std::pair<int, bool>> &languages);
+
+            void generate(const std::string &input);
+            std::string serialize();
+
             static std::string languageName(
                 const unsigned int language_id);
+
+        private:
+
+            // nlohmann::json preferences;
+            unsigned int pref_theme = Trokam::Theme::LIGHT;
+            bool pref_show_analysis = true;
+            std::vector<unsigned int> pref_languages = {Trokam::Language::ENGLISH};
+
+            bool is_in_use(
+                unsigned int &index,
+                std::vector<unsigned int> &bunch);
     };
 }

@@ -21,7 +21,7 @@
     </message>
     -->
 
-    <message id="search-page-header">
+    <message id="search-page-header-0">
       <header class="mb-auto text-center">
           <div>
               <h3 class="float-md-start mb-0">Trokam</h3>
@@ -31,6 +31,38 @@
                   <a class="nav-link fw-bold py-1 px-0" href="#">Contact</a>
               </nav>
           </div>
+
+          <div class="input-group mb-3 input-box">
+              ${input}
+              ${button}
+          </div>
+      </header>
+    </message>
+
+    <message id="search-page-header-1">
+      <header class="mb-auto text-center">
+          <h3 class="float-md-start mb-0">Trokam</h3>
+          <nav class="nav nav-masthead justify-content-center float-md-end">
+              <button type="button" class="paging-button"><span class="paging-text">Preferences</span></button>
+              &nbsp;
+              <button type="button" class="paging-button"><span class="paging-text">Terms of Service</span></button>
+          </nav>
+
+          <div class="input-group mb-3 input-box">
+              ${input}
+              ${button}
+          </div>
+      </header>
+    </message>
+
+    <message id="search-page-header">
+      <header class="mb-auto text-center">
+          <h3 class="float-md-start mb-0">Trokam</h3>
+          <nav class="nav nav-masthead justify-content-center float-md-end">
+              ${button_preferences}
+              &nbsp;
+              ${button_about}
+          </nav>
 
           <div class="input-group mb-3 input-box">
               ${input}

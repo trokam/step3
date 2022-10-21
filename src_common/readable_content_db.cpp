@@ -104,7 +104,7 @@ std::vector<Trokam::Finding>
         finding.relevance_title = Trokam::PlainTextProcessor::howMuchOf(title, querystring);
         finding.relevance_total =
             finding.relevance_body +
-            finding.relevance_url * 18.5 +
+            finding.relevance_url * 24.0 +  // 18.5 +
             finding.relevance_title * 3.5;
         finding.snippet =
             mset.snippet(

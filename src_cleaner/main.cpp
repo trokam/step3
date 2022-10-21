@@ -91,12 +91,18 @@ int main(int argc, char *argv[])
     const int crawler_index = 0;
     pqxx::result previous_transfers = transfers.getPrevious(crawler_index);
 
-    pqxx::result::iterator row_f= previous_transfers.begin();
-    while(row_f != previous_transfers.end())
+    pqxx::result::iterator row= previous_transfers.begin();
+    while(row != previous_transfers.end())
     {
-        const int index =          row_f[0].as(int());
-        const std::string path =   row_f[1].as(std::string());
-        const std::string vol_id = row_f[2].as(std::string());
+        const int index =          row[0].as(int());
+        const std::string vol_id = row[2].as(std::string());
+        std::string path =   row[1].as(std::string());
+
+        size_t pos = path.find("/content");
+        if(pos != std::string::npos)
+        {
+            path = path.substr(0, pos);
+        }
 
         BOOST_LOG_TRIVIAL(info) << "index: "  << index;
         BOOST_LOG_TRIVIAL(info) << "path: "   << path;
@@ -124,7 +130,7 @@ int main(int argc, char *argv[])
 
         transfers.remove(index);
 
-        row_f++;
+        row++;
     }
 
     return 0;

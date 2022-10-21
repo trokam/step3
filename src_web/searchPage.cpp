@@ -25,6 +25,8 @@
 #include <Wt/WAbstractItemModel.h>
 #include <Wt/WAnchor.h>
 #include <Wt/WApplication.h>
+#include <Wt/WButtonGroup.h>
+#include <Wt/WCheckBox.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WPopupMenu.h>
@@ -36,9 +38,11 @@
 // #include <Wt/WLineEdit.h>
 // #include <Wt/WStackedWidget.h>
 #include <Wt/WLink.h>
+#include <Wt/WRadioButton.h>
 #include <Wt/WString.h>
 // #include <Wt/WVBoxLayout.h>
 #include <Wt/WStringListModel.h>
+#include <Wt/WTabWidget.h>
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 #include <Wt/Utils.h>
@@ -51,7 +55,6 @@
 #include "searchWidget.h"
 #include "ackWidget.h"
 #include "donWidget.h"
-#include "preferences.h"
 #include "plain_text_processor.h"
 #include "searchPage.h"
 #include "sharedResources.h"
@@ -66,6 +69,22 @@ Trokam::SearchPage::SearchPage(
         shared_resources(sr)
 {
     Wt::log("info") << "SearchPage constructor";
+
+    const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
+
+    std::string cookie_preferences;
+    if(env.getCookie("preferences"))
+    {
+        cookie_preferences= *(env.getCookie("preferences"));
+        Wt::log("info") << "createApplication -- cookie -- preferences:" << cookie_preferences;
+    }
+    else
+    {
+        Wt::log("info") << "cookie -- preferences = NULL";
+    }
+
+    user_settings.generate(cookie_preferences);
+    Wt::log("info") << "user_settings.getTheme()=" << user_settings.getTheme();
 
     application->internalPathChanged().connect(
         [=] {
@@ -96,7 +115,7 @@ Trokam::SearchPage::SearchPage(
     // addStyleClass("text-bg-dark");
     addStyleClass("text-bg-primary");
 
-    auto container = addWidget(std::make_unique<Wt::WContainerWidget>());
+    container = addWidget(std::make_unique<Wt::WContainerWidget>());
 
     container->addStyleClass("cover-container");
     container->addStyleClass("d-flex");
@@ -150,16 +169,35 @@ Trokam::SearchPage::SearchPage(
             application->setInternalPath(internal_url, true);
         });
 
+    w_button_preferences = header->bindWidget(
+        "button_preferences",
+        std::make_unique<Wt::WPushButton>());
+    w_button_preferences->addStyleClass("paging-button");
+    w_button_preferences->setTextFormat(Wt::TextFormat::XHTML);
+    w_button_preferences->setText("<span class=\"paging-text\">Preferences</span>");
+    w_button_preferences->
+        clicked().connect(this, &Trokam::SearchPage::showLanguageOptions);
+
+    w_about = header->bindWidget(
+        "button_about",
+        std::make_unique<Wt::WPushButton>());
+    w_about->addStyleClass("paging-button");
+    w_about->setTextFormat(Wt::TextFormat::XHTML);
+    w_about->setText("<span class=\"paging-text\">About</span>");
+
     userFindings =
         container->addWidget(std::make_unique<Wt::WTable>());
 
+    /*
     container->addWidget(
         std::make_unique<Wt::WTemplate>(
             Wt::WString::tr("search-page-footer")));
+    */
 
-    serverSideFilteringPopups(container);
+    // serverSideFilteringPopups(container);
     createFooter(container);
 
+    /**
     auto change_style =
         container->
             addWidget(std::make_unique<Wt::WPushButton>("Change style"));
@@ -183,6 +221,17 @@ Trokam::SearchPage::SearchPage(
             }
             // application->refresh();
         });
+    **/
+
+   /**
+     * Initialize searched languages.
+     **/
+    for(unsigned int i=0; i<LANGUAGES_TOTAL; i++)
+    {
+        auto language_item = std::make_pair(i, false);
+        language_options.push_back(language_item);
+    }
+    language_options = user_settings.getLanguages();
 
     Wt::log("info") << "current path:" << application->internalPath();
 }
@@ -196,7 +245,6 @@ void Trokam::SearchPage::search(
 
     Xapian::doccount results_requested = 24;
 
-    /*
     std::vector<std::string> language_selected;
     for(unsigned int i=0; i<language_options.size(); i++)
     {
@@ -207,10 +255,13 @@ void Trokam::SearchPage::search(
             language_selected.push_back(language_name);
         }
     }
-    */
 
-    std::vector<std::string> language_selected;
-    language_selected.push_back("english");
+    // std::vector<std::string> language_selected;
+    // If no language selected, then use English.
+    if(language_selected.size() == 0)
+    {
+        language_selected.push_back("english");
+    }
 
     shared_resources->getNewDB();
 
@@ -222,6 +273,7 @@ void Trokam::SearchPage::search(
                 results_requested);
 
     Wt::log("info") << "+++++++ total results:" << items_found.size();
+    createFooter(container);
 
     // current_page = 1;
 }
@@ -289,13 +341,19 @@ void Trokam::SearchPage::createFooter(
 {
     int total_pages = 2;
 
-    if(w_footer != nullptr)
+    if(w_footer == nullptr)
     {
-        delete w_footer;
+        w_footer = base->addWidget(std::make_unique<Wt::WContainerWidget>());
     }
 
-    auto w_footer =
-        base->addWidget(std::make_unique<Wt::WContainerWidget>());
+    w_footer->clear();
+
+    int total_results = items_found.size();
+    if(total_results == 0)
+    {
+        return;
+    }
+
     w_footer->addStyleClass("mt-auto");
     w_footer->addStyleClass("text-center");
 
@@ -415,6 +473,207 @@ void Trokam::SearchPage::filter(const Wt::WString& input)
 
         fourCharModel_->addString(v);
     }
+}
+
+void Trokam::SearchPage::showLanguageOptions()
+{
+    /**
+    std::string cookie_preferences;
+
+    const Wt::WEnvironment& env = application->environment();
+    if(env.getCookie("preferences"))
+    {
+        cookie_preferences= *(env.getCookie("preferences"));
+        Wt::log("info") << "showLanguageOptions -- cookie -- preferences:" << cookie_preferences;
+    }
+    else
+    {
+        Wt::log("info") << "cookie -- preferences = NULL";
+    }
+
+    preferences.generate(cookie_preferences);
+    language_options = preferences.getLanguages();
+    **/
+
+    /**
+    for(unsigned int i=0; i<language_options.size(); i++)
+    {
+        std::cout << "--- element:" << i << " -- " << std::get<bool>(language_options[i]) << '\n';
+    }
+    **/
+
+    Wt::log("info") << "P0";
+
+    auto preferences_box = addChild(std::make_unique<Wt::WDialog>("Preferences"));
+    // auto header = std::make_unique<Wt::WText>(Wt::WString("Search Languages"));
+
+    auto language_choices = std::make_unique<Wt::WTable>();
+    language_choices->addStyleClass("table");
+
+    Wt::log("info") << "P1";
+
+    const int max_per_column = 7;
+    for(unsigned int i=0; i<language_options.size(); i++)
+    {
+        std::string language_name = Trokam::Preferences::languageName(i);
+        bool language_selected = std::get<bool>(language_options[i]);
+
+        int col = i / max_per_column;
+        int row = i % max_per_column;
+
+        Wt::WCheckBox *cb =
+            language_choices->elementAt(row, col)->addNew<Wt::WCheckBox>(language_name);
+        cb->setInline(false);
+        cb->setChecked(language_selected);
+
+        cb->checked().connect(  [=] { std::get<bool>(language_options[i])= true; });
+        cb->unChecked().connect([=] { std::get<bool>(language_options[i])= false; });
+    }
+
+    Wt::log("info") << "P2";
+
+    // Show analysis option
+    auto wt_show_analysis = std::make_unique<Wt::WCheckBox>("Show analysis");
+    wt_show_analysis->setInline(false);
+    wt_show_analysis->setChecked(true);
+
+    // wt_show_analysis->checked().connect(  [=] { std::get<bool>(language_options[i])= true; });
+    // wt_show_analysis->unChecked().connect([=] { std::get<bool>(language_options[i])= false; });
+
+    /*
+    auto change_style = std::make_unique<Wt::WPushButton>("Change style");
+    change_style->clicked().connect(
+        [=] {
+            const Wt::WEnvironment& env = application->environment();
+            std::string page_style = "light";
+            if(env.getCookie("page_style") != nullptr)
+            {
+                page_style= *(env.getCookie("page_style"));
+            }
+
+            if(page_style == "light")
+            {
+                application->setCookie("page_style", "dark", 10000000);
+            }
+            else
+            {
+                application->setCookie("page_style", "light", 10000000);
+            }
+            // application->refresh();
+        });
+    */
+
+            // const Wt::WEnvironment& env = application->environment();
+            // int page_style = 0;
+            /*
+            if(env.getCookie("theme") != nullptr)
+            {
+                page_style= *(env.getCookie("theme"));
+            }
+            */
+
+auto w_theme = std::make_unique<Wt::WContainerWidget>();
+
+group = std::make_shared<Wt::WButtonGroup>();
+Wt::WRadioButton *button;
+
+button = w_theme->addNew<Wt::WRadioButton>("Light");
+button->setInline(false);
+group->addButton(button);
+
+button = w_theme->addNew<Wt::WRadioButton>("Dark");
+button->setInline(false);
+group->addButton(button);
+
+Wt::log("info") << "user_settings.getTheme()=" << user_settings.getTheme();
+group->setSelectedButtonIndex(user_settings.getTheme());
+
+
+    Wt::log("info") << "P3";
+
+    auto tabW = std::make_unique<Wt::WTabWidget>();
+
+    tabW.get()->
+        addTab(
+            std::move(language_choices),
+            "Languages",
+            Wt::ContentLoading::Eager);
+
+    tabW.get()->
+        addTab(
+            std::move(wt_show_analysis),
+            "Analysis",
+            Wt::ContentLoading::Eager);
+
+    tabW.get()->
+        addTab(
+            std::move(w_theme),
+            "Theme",
+            Wt::ContentLoading::Eager);
+
+    /*
+    tabW.get()->addTab(std::make_unique<Wt::WTextArea>("You could change any other style attribute of the"
+                                " tab widget by modifying the style class."
+                                " The style class 'trhead' is applied to this tab."),
+                "Style", Wt::ContentLoading::Eager)->setStyleClass("trhead");
+    */
+
+    tabW.get()->setStyleClass("tabwidget");
+
+    auto closeButton = std::make_unique<Wt::WPushButton>("Close");
+    closeButton->addStyleClass("btn btn-primary");
+    closeButton->clicked().connect([=] {
+                                            if(savePreferences())
+                                            {
+                                                removeChild(preferences_box);
+                                            }
+                                       });
+
+    // Process the dialog result.
+    preferences_box->finished().connect([=] {
+                                            if(savePreferences())
+                                            {
+                                                removeChild(preferences_box);
+                                            }
+                                        });
+
+    // preferences_box->titleBar()->addWidget(std::move(header));
+    // preferences_box->contents()->addWidget(std::move(language_choices));
+    preferences_box->contents()->addWidget(std::move(tabW));
+    preferences_box->footer()->addWidget(std::move(closeButton));
+    preferences_box->rejectWhenEscapePressed();
+    preferences_box->setModal(false);
+    preferences_box->show();
+
+    Wt::log("info") << "P4";
+}
+
+bool Trokam::SearchPage::savePreferences()
+{
+    /**
+    std::string language_selected;
+    for(unsigned int i=0; i<language_options.size(); i++)
+    {
+        if(std::get<bool>(language_options[i]))
+        {
+            language_selected += std::to_string(i) + ",";
+        }
+    }
+
+    application->setCookie("languages", language_selected, 10000000);
+    **/
+    // application->setCookie("theme", group->selectedButtonIndex(), 10000000);
+
+    Wt::log("info") << "group->selectedButtonIndex():" << group->selectedButtonIndex();
+    unsigned int theme = group->selectedButtonIndex();
+    user_settings.setTheme(theme);
+    user_settings.setLanguages(language_options);
+
+    std::string cookie_preferences = user_settings.serialize();
+    Wt::log("info") << "cookie_preferences:" << cookie_preferences;
+    application->setCookie("preferences", cookie_preferences, 10000000);
+
+    return true;
 }
 
 Wt::WSuggestionPopup* Trokam::SearchPage::createAliasesMatchingPopup(

@@ -69,9 +69,17 @@ int getSize(const std::string &path)
 
 std::string current_datetime()
 {
-  std::time_t tt = std::time(nullptr);
-  std::tm *tm = std::localtime(&tt);
-  return fmt::format("{:%Y-%m-%d-%H-%M}", *tm);
+    std::time_t tt = std::time(nullptr);
+    std::tm *tm = std::localtime(&tt);
+    return fmt::format("{:%Y-%m-%d-%H-%M}", *tm);
+}
+
+int current_day()
+{
+    std::time_t tt = std::time(nullptr);
+    std::tm *tm = std::localtime(&tt);
+    int result = tm->tm_mday;
+    return result;
 }
 
 void verify(const int &state, std::string &command)
@@ -116,6 +124,7 @@ int main(int argc, char *argv[])
 
     const std::string node_user = pw->pw_name;
     const int THIS_NODE_INDEX =          config["this_node_index"];
+    const int REINIT_DB_DAY =            config["reinit_db_day"];
     const std::string AUTH_TOKEN =       config["auth_token"];
     const std::string NODE_ID =          config["node_id"];
     const std::string WEBSERVER_ID =     config["webserver_id"];
@@ -128,19 +137,34 @@ int main(int argc, char *argv[])
 
     int state = 0;
     const std::string STOP_CONVEYOR = "/tmp/stop_conveyor";
+    int today = current_day();
+    int previous_day = today;
 
     while(!boost::filesystem::exists(STOP_CONVEYOR))
     {
+        BOOST_LOG_TRIVIAL(info) << "\n-----------------------------------------";
+
+        today = current_day();
+        BOOST_LOG_TRIVIAL(info) << "today=" << today;
+
         /**************************************
-        *      Generate date string
+        * Check if today correspond to start
+        * with a clean database.
         *************************************/
-        /*
-        std::string date= current_datetime();
-        if(date.length() != 16)
+
+        BOOST_LOG_TRIVIAL(info) << "today is:" << today << " previous day:" << previous_day;
+        if(today != previous_day)
         {
-            exit(10);
+            if(today == REINIT_DB_DAY)
+            {
+                BOOST_LOG_TRIVIAL(info) << "today correspond a reinit of the database";
+
+                std::string date= current_datetime();
+                std::string command = "prime > /tmp/trokam_prime_" + date + ".log";
+                state = system(command.c_str());
+                show_state(state, command);
+            }
         }
-        */
 
         /**************************************
         * Generate the volume name
@@ -168,14 +192,20 @@ int main(int argc, char *argv[])
 
         for(unsigned int i=0; i<INDEXING_CYCLES; i++)
         {
+            BOOST_LOG_TRIVIAL(debug) << "crawling cycle:" << i;
+
             std::string date= current_datetime();
             std::string command =
                 "trokam --action index --cycles 1 --db-content /mnt/" +
                 local_current_label + "/content > /tmp/trokam_indexing_" + date + ".log";
 
-            // BOOST_LOG_TRIVIAL(debug) << "command to perform crawling:" << command;
             state = system(command.c_str());
             show_state(state, command);
+
+            if(boost::filesystem::exists(STOP_CONVEYOR))
+            {
+                break;
+            }
         }
 
         /**************************************
@@ -380,6 +410,12 @@ int main(int argc, char *argv[])
 
         const std::string path = "/mnt/" + transfer_node_label + "/content";
         transfers.insert(THIS_NODE_INDEX, path, transfer_volume_id);
+
+        /**************************************
+        * Save today's number to check in the next loop
+        * if there is  a change.
+        *************************************/
+        previous_day = today;
     }
 
     boost::filesystem::remove(STOP_CONVEYOR);

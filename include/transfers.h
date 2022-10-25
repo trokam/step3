@@ -45,6 +45,11 @@ namespace Trokam
 
             int getMaxIndex(const int &crawlers_id);
 
+            std::vector<int> getMaxIndex(
+                const std::vector<int> &crawlers_id);
+
+            std::vector<int> getCrawlersId();
+
             std::string getPath(
                 const int &index,
                 const int &crawlers_id);

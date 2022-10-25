@@ -59,6 +59,30 @@ Trokam::Transfers::Transfers(nlohmann::json &config)
     m_db.reset(new Trokam::Postgresql(host, port, name, user));
 }
 
+std::vector<int> Trokam::Transfers::getCrawlersId()
+{
+    std::string sql_select;
+    sql_select=  "SELECT id ";
+    sql_select+= "FROM crawlers ";
+    pqxx::result answer;
+    m_db->execAnswer(sql_select, answer);
+
+    std::vector<int> result;
+    pqxx::result::iterator row= answer.begin();
+    if(row != answer.end())
+    {
+        const int id = row[0].as(int());
+        result.push_back(id);
+    }
+    else
+    {
+        // No answer.
+        std::cout << "Fail, no answer to get max id\n";
+    }
+
+    return result;
+}
+
 int Trokam::Transfers::getMaxIndex(const int &crawlers_id)
 {
     /*
@@ -88,6 +112,18 @@ int Trokam::Transfers::getMaxIndex(const int &crawlers_id)
         std::cout << "Fail, no answer to get max id\n";
     }
 
+    return result;
+}
+
+std::vector<int> Trokam::Transfers::getMaxIndex(
+    const std::vector<int> &crawlers_id)
+{
+    std::vector<int> result;
+    for(unsigned int i=0; i<crawlers_id.size(); i++)
+    {
+        int index = getMaxIndex(crawlers_id[i]);
+        result.push_back(index);
+    }
     return result;
 }
 

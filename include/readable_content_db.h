@@ -57,7 +57,9 @@ namespace Trokam
     {
         public:
 
+            // ReadableContentDB();
             void open(const std::string &path);
+            void add(const std::string &path);
 
             std::vector<Finding>
                 search(
@@ -68,6 +70,8 @@ namespace Trokam
             std::vector<std::pair<std::string, Xapian::doccount>>
                 lookUp(
                     const std::string &prefix);
+
+            void close();
 
         private:
 

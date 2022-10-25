@@ -502,15 +502,11 @@ void Trokam::SearchPage::showLanguageOptions()
     }
     **/
 
-    Wt::log("info") << "P0";
-
     auto preferences_box = addChild(std::make_unique<Wt::WDialog>("Preferences"));
     // auto header = std::make_unique<Wt::WText>(Wt::WString("Search Languages"));
 
     auto language_choices = std::make_unique<Wt::WTable>();
     language_choices->addStyleClass("table");
-
-    Wt::log("info") << "P1";
 
     const int max_per_column = 7;
     for(unsigned int i=0; i<language_options.size(); i++)
@@ -529,8 +525,6 @@ void Trokam::SearchPage::showLanguageOptions()
         cb->checked().connect(  [=] { std::get<bool>(language_options[i])= true; });
         cb->unChecked().connect([=] { std::get<bool>(language_options[i])= false; });
     }
-
-    Wt::log("info") << "P2";
 
     // Show analysis option
     auto wt_show_analysis = std::make_unique<Wt::WCheckBox>("Show analysis");
@@ -588,9 +582,6 @@ group->addButton(button);
 Wt::log("info") << "user_settings.getTheme()=" << user_settings.getTheme();
 group->setSelectedButtonIndex(user_settings.getTheme());
 
-
-    Wt::log("info") << "P3";
-
     auto tabW = std::make_unique<Wt::WTabWidget>();
 
     tabW.get()->
@@ -644,8 +635,6 @@ group->setSelectedButtonIndex(user_settings.getTheme());
     preferences_box->rejectWhenEscapePressed();
     preferences_box->setModal(false);
     preferences_box->show();
-
-    Wt::log("info") << "P4";
 }
 
 bool Trokam::SearchPage::savePreferences()

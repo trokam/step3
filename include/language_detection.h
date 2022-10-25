@@ -25,7 +25,7 @@
 
 extern "C"
 {
-#include "textcat/textcat.h"
+#include "libexttextcat/textcat.h"
 }
 
 namespace Trokam
@@ -66,10 +66,10 @@ namespace Trokam
                 {
                     return "unknown";
                 }
- 
+
                 size_t second_braket = result.find(']', 1);
                 result = result.substr(1, second_braket-1);
-                return result;                
+                return result;
             }
 
         private:

@@ -41,7 +41,7 @@ if((SUBSYSTEM STREQUAL "CRAWLER") OR (SUBSYSTEM STREQUAL "ALL"))
 
     find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
 
-    target_link_libraries(trokam curl pqxx xapian Boost::regex Boost::program_options textcat)
+    target_link_libraries(trokam curl pqxx xapian Boost::regex Boost::program_options exttextcat)
 
     install(TARGETS trokam DESTINATION /usr/local/bin)
     install(FILES etc/language.conf DESTINATION /usr/local/etc/trokam)

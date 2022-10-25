@@ -33,9 +33,17 @@
 #include "file_ops.h"
 #include "plain_text_processor.h"
 
+// void Trokam::ReadableContentDB::ReadableContentDB(){}
+
 void Trokam::ReadableContentDB::open(const std::string &path)
 {
     db.reset(new Xapian::Database(path));
+}
+
+void Trokam::ReadableContentDB::add(const std::string &path)
+{
+    Xapian::Database database(path);
+    db->add_database(database);
 }
 
 std::vector<Trokam::Finding>
@@ -85,7 +93,7 @@ std::vector<Trokam::Finding>
     Xapian::Enquire enquire(*db);
     enquire.set_query(query);
 
-    std::vector<Trokam::Finding> result;
+    std::vector<Trokam::Finding> preliminar;
 
     const Xapian::doccount offset = 1;
     Xapian::MSet mset = enquire.get_mset(offset, pre_scan_size);
@@ -116,7 +124,25 @@ std::vector<Trokam::Finding>
                 std::string("</strong>"),
                 std::string("..."));
 
-        result.push_back(finding);
+        preliminar.push_back(finding);
+    }
+
+    std::sort(
+        preliminar.begin(),
+        preliminar.end(),
+        [](auto a, auto b) { return a.url < b.url; });
+
+    std::vector<Trokam::Finding> result;
+
+    std::string previous_url;
+    for(auto it=preliminar.begin(); it!=preliminar.end(); it++)
+    {
+        std::string &current_url = it->url;
+        if(current_url != previous_url)
+        {
+           result.push_back(*it);
+        }
+        previous_url = current_url;
     }
 
     std::sort(
@@ -218,4 +244,12 @@ std::vector<std::pair<std::string, Xapian::doccount>>
         );
 
     return result;
+}
+
+void Trokam::ReadableContentDB::close()
+{
+    if(db.get()!= nullptr)
+    {
+        db->close();
+    }
 }

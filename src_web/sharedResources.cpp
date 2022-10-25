@@ -53,56 +53,40 @@ Trokam::SharedResources::~SharedResources()
 
 void Trokam::SharedResources::getNewDB()
 {
-    /*
-    std::string sql_select;
-    sql_select=  "SELECT MAX(id) ";
-    sql_select+= "FROM package ";
+    // const int crawlers_id = 0;
+    // const int max_id = transfers->getMaxIndex(crawlers_id);
 
-    pqxx::result answer;
-    db->execAnswer(sql_select, answer);
-
-    int max_id = -1;
-    pqxx::result::iterator row= answer.begin();
-    if(row != answer.end())
-    {
-        max_id = row[0].as(int());
-    }
-    else
-    {
-        // No answer.
-        // std::cerr << "Error, no answer.\n";
-    }
-    */
-
-    const int crawlers_id = 0;
-    const int max_id = transfers->getMaxIndex(crawlers_id);
+    const std::vector<int> crawlers_id = transfers->getCrawlersId();
+    const std::vector<int> max_id = transfers->getMaxIndex(crawlers_id);
 
     // If there is a new transfer available, then use this one.
-    if(max_id > current_transfer)
+    // if(max_id > current_transfer)
+    if(max_id != current_transfer)
     {
+        Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& UPDATING DBs &&&&&&&&&&&&&&&&&&&&\n";
+        Wt::log("info") << "before close";
+        readable_content_db.close();
+        Wt::log("info") << "after close";
+
+        for(unsigned int i=0; i<crawlers_id.size(); i++)
+        {
+            std::string path = transfers->getPath(max_id[i], crawlers_id[i]);
+            Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& path:" << path;
+            if(i == 0)
+            {
+                readable_content_db.open(path);
+            }
+            else
+            {
+                readable_content_db.add(path);
+            }
+        }
+
+        for(auto &e: max_id)
+        {
+           Wt::log("info") << "&& max_id:" << e;
+        }
         current_transfer = max_id;
-
-        // Generate the name for the id.
-        // const int NODE_0 = 0;
-        // std::string transfer_node_name = fmt::format("node_{:02}_{:06}", NODE_0, current_transfer);
-        // const std::string path = "/mnt/" + transfer_node_name + "/content";
-
-        std::string path = transfers->getPath(max_id, crawlers_id);
-
-        Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& path:" << path;
-        readable_content_db.open(path);
-
-        Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& transfer:" << current_transfer << " in-use &&&&&&&&&&&&&&&&&&&&\n";
-
-        // Mark in the database that this one is in use.
-        // This enable that previous transfers, not in use anymore, could be deleted.
-        /**
-        std::string sql_update;
-        sql_update=  "UPDATE package ";
-        sql_update+= "SET in_use=true ";
-        sql_update+= "WHERE id=" + std::to_string(max_id);
-        db->execNoAnswer(sql_update);
-        */
     }
     else
     {

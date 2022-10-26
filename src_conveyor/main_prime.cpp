@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
         *************************************/
 
         int max_id = node.getMaxIndex();
-        if(max_id != -1)
+        if(max_id != 0)
         {
             std::cout << "fail: database is not emptly.";
             exit(1);

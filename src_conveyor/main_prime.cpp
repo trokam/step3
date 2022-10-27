@@ -119,6 +119,7 @@ int main(int argc, char *argv[])
         }
 
         const std::string node_user = pw->pw_name;
+        const int THIS_NODE_INDEX =          config["this_node_index"];
         const std::string AUTH_TOKEN =       config["auth_token"];
         const std::string NODE_ID =          config["node_id"];
 
@@ -145,8 +146,11 @@ int main(int argc, char *argv[])
         * Index pages in current location of database
         *************************************/
 
-        std::string local_destination_name  = fmt::format("local-{:06}", max_id);
-        std::string local_destination_label = fmt::format("local_{:06}", max_id);
+        // std::string local_destination_name  = fmt::format("local-{:06}", max_id);
+        // std::string local_destination_label = fmt::format("local_{:06}", max_id);
+
+        std::string local_destination_name  = fmt::format("local-{:02}-{:06}", THIS_NODE_INDEX, max_id);
+        std::string local_destination_label = fmt::format("local_{:02}_{:06}", THIS_NODE_INDEX, max_id);
 
         BOOST_LOG_TRIVIAL(debug) << "local_destination_name=" << local_destination_name << "'";
         BOOST_LOG_TRIVIAL(debug) << "local_destination_label=" << local_destination_label << "'";

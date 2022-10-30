@@ -21,7 +21,7 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-#pragma once    
+#pragma once
 
 /// C++
 #include <string>
@@ -58,5 +58,15 @@ namespace Trokam
 
             static void rmDir(
                 const std::string &dirname);
+
+            static std::string generateDirName(
+                const std::string &stem,
+                const int &index,
+                const int &serial);
+
+            static std::string generateDirLabel(
+                const std::string &stem,
+                const int &index,
+                const int &serial);
     };
 }

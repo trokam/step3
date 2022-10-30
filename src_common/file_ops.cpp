@@ -28,6 +28,9 @@
 // Boost
 #include <boost/algorithm/string.hpp>
 
+// Fmt
+#include <fmt/core.h>
+
 // Trokam
 #include "file_ops.h"
 
@@ -112,4 +115,24 @@ void Trokam::FileOps::rmDir(
     {
         std::cerr << "failure on deleting directory: " << dirname << "\n";
     }
+}
+
+std::string Trokam::FileOps::generateDirName(
+    const std::string &stem,
+    const int &index,
+    const int &serial)
+{
+    std::string result =
+        fmt::format("{}-{:02}-{:06}", stem, index, serial);
+    return result;
+}
+
+std::string Trokam::FileOps::generateDirLabel(
+    const std::string &stem,
+    const int &index,
+    const int &serial)
+{
+    std::string result =
+        fmt::format("{}_{:02}_{:06}", stem, index, serial);
+    return result;
 }

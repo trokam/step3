@@ -136,11 +136,13 @@ int main(int argc, char *argv[])
         int max_id = node.getMaxIndex();
         if(max_id != 0)
         {
-            std::cout << "fail: database is not emptly.";
+            std::cout << "fail: database is not emptly.\n";
             exit(1);
         }
 
-        max_id = 0;
+        node.insertVolumeId("invalid_id");
+        max_id = node.getMaxIndex();
+        BOOST_LOG_TRIVIAL(info) << "max_id=" << max_id;
 
         /**************************************
         * Index pages in current location of database
@@ -149,8 +151,11 @@ int main(int argc, char *argv[])
         // std::string local_destination_name  = fmt::format("local-{:06}", max_id);
         // std::string local_destination_label = fmt::format("local_{:06}", max_id);
 
-        std::string local_destination_name  = fmt::format("local-{:02}-{:06}", THIS_NODE_INDEX, max_id);
-        std::string local_destination_label = fmt::format("local_{:02}_{:06}", THIS_NODE_INDEX, max_id);
+        // std::string local_destination_name  = fmt::format("local-{:02}-{:06}", THIS_NODE_INDEX, max_id);
+        // std::string local_destination_label = fmt::format("local_{:02}_{:06}", THIS_NODE_INDEX, max_id);
+
+        std::string local_destination_name  = Trokam::FileOps::generateDirName("local", THIS_NODE_INDEX, max_id);
+        std::string local_destination_label = Trokam::FileOps::generateDirLabel("local", THIS_NODE_INDEX, max_id);
 
         BOOST_LOG_TRIVIAL(debug) << "local_destination_name=" << local_destination_name << "'";
         BOOST_LOG_TRIVIAL(debug) << "local_destination_label=" << local_destination_label << "'";
@@ -170,7 +175,8 @@ int main(int argc, char *argv[])
         std::string local_destination_volume_id =
             cloud_control.createVolume(local_new_size, local_destination_name, local_destination_label);
 
-        node.insertVolumeId(local_destination_volume_id);
+        // node.insertVolumeId(local_destination_volume_id);
+        node.updateVolumeId(max_id, local_destination_volume_id);
 
         BOOST_LOG_TRIVIAL(info) << "local_destination_volume_id:" << local_destination_volume_id;
 
@@ -242,6 +248,7 @@ int main(int argc, char *argv[])
         }
 
         const std::string node_user = pw->pw_name;
+        const int THIS_NODE_INDEX =          config["this_node_index"];
         const std::string AUTH_TOKEN =       config["auth_token"];
         const std::string NODE_ID =          config["node_id"];
 
@@ -272,8 +279,11 @@ int main(int argc, char *argv[])
         * Index pages in current location of database
         *************************************/
 
-        std::string local_destination_name  = fmt::format("local-{:06}", max_id);
-        std::string local_destination_label = fmt::format("local_{:06}", max_id);
+        // std::string local_destination_name  = fmt::format("local-{:06}", max_id);
+        // std::string local_destination_label = fmt::format("local_{:06}", max_id);
+
+        std::string local_destination_name  = Trokam::FileOps::generateDirName("local", THIS_NODE_INDEX, max_id);
+        std::string local_destination_label = Trokam::FileOps::generateDirLabel("local", THIS_NODE_INDEX, max_id);
 
         BOOST_LOG_TRIVIAL(debug) << "local_destination_name=" << local_destination_name << "'";
         BOOST_LOG_TRIVIAL(debug) << "local_destination_label=" << local_destination_label << "'";

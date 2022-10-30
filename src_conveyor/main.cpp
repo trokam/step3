@@ -86,8 +86,8 @@ void verify(const int &state, std::string &command)
 {
     if(state != 0)
     {
-        BOOST_LOG_TRIVIAL(fatal)
-            << "failure during execution of command:'" << command << "'";
+        std::cout
+            << "failure during execution of command:'" << command << "'" << std::endl;
         exit(1);
     }
 }
@@ -96,18 +96,20 @@ void show_state(const int &state, std::string &command)
 {
     if(state != 0)
     {
-        BOOST_LOG_TRIVIAL(info)
-            << "failure during execution of command:'" << command << "'";
+        std::cout
+            << "failure during execution of command:'" << command << "'" << std::endl;
     }
     else
     {
-        BOOST_LOG_TRIVIAL(info)
-            << "successful execution of command:'" << command << "'";
+        std::cout
+            << "successful execution of command:'" << command << "'" << std::endl;
     }
 }
 
 int main(int argc, char *argv[])
 {
+    std::cout << "start conveyor" << std::endl;
+
     // Get the configuration file
     const std::string config_path = "/usr/local/etc/trokam/trokam.config";
     std::string text = Trokam::FileOps::read(config_path);
@@ -118,7 +120,7 @@ int main(int argc, char *argv[])
     struct passwd *pw = getpwuid(uid);
     if(!pw)
     {
-        BOOST_LOG_TRIVIAL(fatal) << "fail to get current username";
+        std::cout << "fail to get current username" << std::endl;
         exit(1);
     }
 
@@ -142,22 +144,21 @@ int main(int argc, char *argv[])
 
     while(!boost::filesystem::exists(STOP_CONVEYOR))
     {
-        BOOST_LOG_TRIVIAL(info) << "\n-----------------------------------------";
+        std::cout << "\n-----------------------------------------" << std::endl;
 
         today = current_day();
-        BOOST_LOG_TRIVIAL(info) << "today=" << today;
 
         /**************************************
         * Check if today correspond to start
         * with a clean database.
         *************************************/
 
-        BOOST_LOG_TRIVIAL(info) << "today is:" << today << " previous day:" << previous_day;
+        std::cout << "today is:" << today << " previous day:" << previous_day << std::endl;
         if(today != previous_day)
         {
             if(today == REINIT_DB_DAY)
             {
-                BOOST_LOG_TRIVIAL(info) << "today correspond a reinit of the database";
+                std::cout << "today correspond a reinit of the database" << std::endl;
 
                 std::string date= current_datetime();
                 std::string command = "prime > /tmp/trokam_prime_" + date + ".log";
@@ -171,8 +172,10 @@ int main(int argc, char *argv[])
         *************************************/
 
         int max_id = node.getMaxIndex();
-        std::string local_origin_name  = fmt::format("local-{:06}", max_id);
-        std::string local_origin_label = fmt::format("local_{:06}", max_id);
+        // std::string local_origin_name  = fmt::format("local-{:02}-{:06}", THIS_NODE_INDEX, max_id);
+        // std::string local_origin_label = fmt::format("local_{:02}_{:06}", THIS_NODE_INDEX, max_id);
+        // std::string local_origin_name  = Trokam::FileOps::generateDirName("local", THIS_NODE_INDEX, max_id);
+        // std::string local_origin_label = Trokam::FileOps::generateDirLabel("local", THIS_NODE_INDEX, max_id);
 
         /**************************************
         * Get the current origin volumeID
@@ -184,15 +187,17 @@ int main(int argc, char *argv[])
         * Index pages in current location of database
         *************************************/
 
-        std::string local_current_name  = fmt::format("local-{:06}", max_id);
-        std::string local_current_label = fmt::format("local_{:06}", max_id);
+        // std::string local_current_name  = fmt::format("local-{:02}-{:06}", THIS_NODE_INDEX, max_id);
+        // std::string local_current_label = fmt::format("local_{:02}_{:06}", THIS_NODE_INDEX, max_id);
+        std::string local_current_name  = Trokam::FileOps::generateDirName("local", THIS_NODE_INDEX, max_id);
+        std::string local_current_label = Trokam::FileOps::generateDirLabel("local", THIS_NODE_INDEX, max_id);
 
-        BOOST_LOG_TRIVIAL(debug) << "local_current_name=" << local_current_name;
-        BOOST_LOG_TRIVIAL(debug) << "local_current_label=" << local_current_label;
+        std::cout << "local_current_name=" << local_current_name << std::endl;
+        std::cout << "local_current_label=" << local_current_label << std::endl;
 
         for(unsigned int i=0; i<INDEXING_CYCLES; i++)
         {
-            BOOST_LOG_TRIVIAL(debug) << "crawling cycle:" << i;
+            std::cout << "crawling cycle:" << i << std::endl;
 
             std::string date= current_datetime();
             std::string command =
@@ -214,17 +219,21 @@ int main(int argc, char *argv[])
 
         max_id++;
 
-        std::string transfer_node_name  = fmt::format("node-{:02}-{:06}", THIS_NODE_INDEX, max_id);
-        std::string transfer_node_label = fmt::format("node_{:02}_{:06}", THIS_NODE_INDEX, max_id);
+        // std::string transfer_node_name  = fmt::format("node-{:02}-{:06}", THIS_NODE_INDEX, max_id);
+        // std::string transfer_node_label = fmt::format("node_{:02}_{:06}", THIS_NODE_INDEX, max_id);
+        std::string transfer_node_name  = Trokam::FileOps::generateDirName("node", THIS_NODE_INDEX, max_id);
+        std::string transfer_node_label = Trokam::FileOps::generateDirLabel("node", THIS_NODE_INDEX, max_id);
 
-        BOOST_LOG_TRIVIAL(debug) << "transfer_node_name:'" << transfer_node_name << "'";
-        BOOST_LOG_TRIVIAL(debug) << "transfer_node_label:'" << transfer_node_label << "'";
+        std::cout << "transfer_node_name:'" << transfer_node_name << "'" << std::endl;
+        std::cout << "transfer_node_label:'" << transfer_node_label << "'" << std::endl;
 
-        std::string local_destination_name  = fmt::format("local-{:06}", max_id);
-        std::string local_destination_label = fmt::format("local_{:06}", max_id);
+        // std::string local_destination_name  = fmt::format("local-{:06}", max_id);
+        // std::string local_destination_label = fmt::format("local_{:06}", max_id);
+        std::string local_destination_name  = Trokam::FileOps::generateDirName("local", THIS_NODE_INDEX, max_id);
+        std::string local_destination_label = Trokam::FileOps::generateDirLabel("local", THIS_NODE_INDEX, max_id);
 
-        BOOST_LOG_TRIVIAL(debug) << "local_destination_name=" << local_destination_name << "'";
-        BOOST_LOG_TRIVIAL(debug) << "local_destination_label=" << local_destination_label << "'";
+        std::cout << "local_destination_name=" << local_destination_name << "'" << std::endl;
+        std::cout << "local_destination_label=" << local_destination_label << "'" << std::endl;
 
         /**************************************
         * Get database size
@@ -239,27 +248,27 @@ int main(int argc, char *argv[])
         // With a margin
         const int transfer_new_size = current_content_size + 1;
 
-        BOOST_LOG_TRIVIAL(debug) << "local_new_size:'" << local_new_size << "'";
-        BOOST_LOG_TRIVIAL(debug) << "transfer_new_size:'" << transfer_new_size << "'";
+        std::cout << "local_new_size:'" << local_new_size << "'" << std::endl;
+        std::cout << "transfer_new_size:'" << transfer_new_size << "'" << std::endl;
 
         /**************************************
         * Create local volume
         *************************************/
 
-        BOOST_LOG_TRIVIAL(info) << "creating local volume";
+        std::cout << "creating local volume" << std::endl;
 
         std::string local_destination_volume_id =
             cloud_control.createVolume(local_new_size, local_destination_name, local_destination_label);
 
         node.insertVolumeId(local_destination_volume_id);
 
-        BOOST_LOG_TRIVIAL(info) << "local_destination_volume_id:" << local_destination_volume_id;
+        std::cout << "local_destination_volume_id:" << local_destination_volume_id << std::endl;
 
         /**************************************
         * Attaching destination local volume
         *************************************/
 
-        BOOST_LOG_TRIVIAL(info) << "Attaching local volume to node";
+        std::cout << "Attaching local volume to node" << std::endl;
 
         cloud_control.attachVolumeToMachine(local_destination_volume_id, NODE_ID);
 
@@ -269,25 +278,23 @@ int main(int argc, char *argv[])
 
         std::string command;
 
-        // BOOST_LOG_TRIVIAL(info) << "Copy database from origin to destination volume";
-
-        BOOST_LOG_TRIVIAL(info) << "Make directory";
+        std::cout << "Make directory for local destination" << std::endl;
         command = "ssh root@127.0.0.1 mkdir -p /mnt/" + local_destination_label;
         state = std::system(command.c_str());
         verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "Mounting local volume";
+        std::cout << "Mounting local destination volume" << std::endl;
         command = "ssh root@127.0.0.1 mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_" + local_destination_name + " /mnt/" + local_destination_label;
         state = std::system(command.c_str());
         // verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "Modifying permissions";
+        std::cout << "Modifying permissions of local destination directory" << std::endl;
         command = "ssh root@127.0.0.1 chown " + node_user + ":" + node_user + " -R /mnt/" + local_destination_label;
         state = std::system(command.c_str());
         verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "Copying database from old volume to new one";
-        command = "cp -r /mnt/" + local_origin_label + "/* /mnt/" + local_destination_label;
+        std::cout << "Copying database from local current directory to local destination directory" << std::endl;
+        command = "cp -r /mnt/" + local_current_label + "/* /mnt/" + local_destination_label;
         state = std::system(command.c_str());
         verify(state, command);
 
@@ -300,9 +307,9 @@ int main(int argc, char *argv[])
         * Create transfer volume
         *************************************/
 
-        BOOST_LOG_TRIVIAL(info) << "creating transfer volume";
-        BOOST_LOG_TRIVIAL(info) << "transfer_node_name:" << transfer_node_name;
-        BOOST_LOG_TRIVIAL(info) << "transfer_node_label:" << transfer_node_label;
+        std::cout << "creating transfer volume";
+        std::cout << "transfer_node_name:" << transfer_node_name << std::endl;
+        std::cout << "transfer_node_label:" << transfer_node_label << std::endl;
 
         std::string transfer_volume_id =
             cloud_control.createVolume(transfer_new_size, transfer_node_name, transfer_node_label);
@@ -311,7 +318,7 @@ int main(int argc, char *argv[])
         * Attach volume to node
         *************************************/
 
-        BOOST_LOG_TRIVIAL(info) << "attaching volume to node";
+        std::cout << "attaching volume to node" << std::endl;
 
         cloud_control.attachVolumeToMachine(transfer_volume_id, NODE_ID);
 
@@ -319,29 +326,27 @@ int main(int argc, char *argv[])
         * Copy database to transfer volume
         *************************************/
 
-        // BOOST_LOG_TRIVIAL(info) << "Copying database";
-
-        BOOST_LOG_TRIVIAL(info) << "Mounting volume";
+        std::cout << "Mounting volume to transfer database" << std::endl;
         command = "ssh root@127.0.0.1 mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_" + transfer_node_name + " /mnt/" + transfer_node_label;
         state = std::system(command.c_str());
         // verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "Modifying permissions";
+        std::cout << "Modifying permissions of transfer directory" << std::endl;
         command = "ssh root@127.0.0.1 chown " + node_user + ":" + node_user + " -R /mnt/" + transfer_node_label;
         state = std::system(command.c_str());
         verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "Copying database";
-        command = "cp -r /mnt/" + local_origin_label + "/content /mnt/" + transfer_node_label;
+        std::cout << "Copying database to transfer volume" << std::endl;
+        command = "cp -r /mnt/" + local_current_label + "/content /mnt/" + transfer_node_label;
         state = std::system(command.c_str());
         verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "Unmounting volume";
+        std::cout << "Unmounting transfer volume" << std::endl;
         command = "ssh root@127.0.0.1 umount /mnt/" + transfer_node_label;
         state = std::system(command.c_str());
         verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "Delete mount directory";
+        std::cout << "Delete transfer directory" << std::endl;
         command = "ssh root@127.0.0.1 rm -r /mnt/" + transfer_node_label;
         state = std::system(command.c_str());
         verify(state, command);
@@ -350,15 +355,15 @@ int main(int argc, char *argv[])
         * Detach and destroy the local origin volume
         *************************************/
 
-        // BOOST_LOG_TRIVIAL(info) << "unmont, detaching and destroy local origin volume";
+        // std::cout << "unmont, detaching and destroy local origin volume";
 
-        BOOST_LOG_TRIVIAL(info) << "Unmounting local origin volume";
-        command = "ssh root@127.0.0.1 umount /mnt/" + local_origin_label;
+        std::cout << "Unmounting local current volume" << std::endl;
+        command = "ssh root@127.0.0.1 umount /mnt/" + local_current_label;
         state = std::system(command.c_str());
         verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "Delete mount directory of local origin volume";
-        command = "ssh root@127.0.0.1 rm -r /mnt/" + local_origin_label;
+        std::cout << "Delete mount directory of local current volume" << std::endl;
+        command = "ssh root@127.0.0.1 rm -r /mnt/" + local_current_label;
         state = std::system(command.c_str());
         verify(state, command);
 
@@ -369,7 +374,7 @@ int main(int argc, char *argv[])
         * Detach volume from node
         *************************************/
 
-        BOOST_LOG_TRIVIAL(info) << "Detaching volume from node";
+        std::cout << "Detaching volume from node" << std::endl;
 
         cloud_control.detachVolumeFromMachine(transfer_volume_id, NODE_ID);
 
@@ -377,12 +382,12 @@ int main(int argc, char *argv[])
         * Create directory in webserver
         *************************************/
 
-        BOOST_LOG_TRIVIAL(info) << "Create directory in webserver";
+        std::cout << "Create directory in webserver" << std::endl;
         command = "ssh root@" + WEBSERVER_ADDR + " mkdir -p /mnt/" + transfer_node_label;
         state = std::system(command.c_str());
         verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "Attaching volume to webserver";
+        std::cout << "Attaching volume to webserver" << std::endl;
 
         cloud_control.attachVolumeToMachine(transfer_volume_id, WEBSERVER_ID);
 
@@ -390,14 +395,12 @@ int main(int argc, char *argv[])
         * Verify status of the action
         *************************************/
 
-        // BOOST_LOG_TRIVIAL(info) << "mounting new volume to webserver and changing persmissions";
-
-        BOOST_LOG_TRIVIAL(info) << "mounting volume in webserver";
+        std::cout << "mounting volume in webserver" << std::endl;
         command = "ssh root@" + WEBSERVER_ADDR + " mount -o discard,defaults,noatime /dev/disk/by-id/scsi-0DO_Volume_" + transfer_node_name + " /mnt/" + transfer_node_label;
         state = std::system(command.c_str());
         // verify(state, command);
 
-        BOOST_LOG_TRIVIAL(info) << "changing permissions";
+        std::cout << "changing permissions" << std::endl;
         command = "ssh root@" + WEBSERVER_ADDR + " chmod a+wr -R /mnt/" + transfer_node_label;
         state = std::system(command.c_str());
         verify(state, command);

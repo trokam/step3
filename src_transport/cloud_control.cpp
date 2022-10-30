@@ -22,6 +22,7 @@
 #include <chrono>
 #include <ctime>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -51,17 +52,23 @@ std::string Trokam::CloudControl::createVolume(
     payload["filesystem_type"]=  "ext4";
     payload["filesystem_label"]= label;
 
-    // std::cout << "payload.dump\n" << payload.dump() << '\n';
-
     const std::string reply = remote_control.exec_post(url, payload.dump());
     const nlohmann::json answer = nlohmann::json::parse(reply);
 
-    // std::cout << "answer\n" << answer.dump(4) << '\n';
-    std::string result = answer["volume"]["id"];
+    std::string result;
+    try
+    {
+        // result = answer["volume"]["id"];
+        result = answer.at("volume").at("id");
+    }
+    catch(const std::exception &e)
+    {
+        std::cout << "fail:" << e.what() << '\n';
+        std::cout << "request:" << payload.dump() << '\n';
+        std::cout << "answer:" << answer.dump(4) << std::endl;
+    }
     waitToCompleteAction(result);
-
     return result;
-    // std::cout << "local_destination_volume_id:" << local_destination_volume_id << '\n';
 }
 
 void Trokam::CloudControl::attachVolumeToMachine(

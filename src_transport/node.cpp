@@ -66,6 +66,17 @@ void Trokam::Node::insertVolumeId(const std::string &volume_id)
     m_db->execNoAnswer(sql_insert);
 }
 
+void Trokam::Node::updateVolumeId(
+    const int &index,
+    const std::string &volume_id)
+{
+    std::string sql_update;
+    sql_update=  "UPDATE bundle ";
+    sql_update+= "SET local_volume_id='" + volume_id + "' ";
+    sql_update+= "WHERE id=" + std::to_string(index);
+    m_db->execNoAnswer(sql_update);
+}
+
 std::string Trokam::Node::getVolumeId(const int &index)
 {
     std::string sql_select;

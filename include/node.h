@@ -44,10 +44,15 @@ namespace Trokam
             Node(const nlohmann::json &config);
 
             int getMaxIndex();
-            void insertVolumeId(const std::string &volume_id);
-            std::string getVolumeId(const int &index);
+            void insertVolumeId(
+                const std::string &volume_id);
+            void updateVolumeId(
+                const int &index,
+                const std::string &volume_id);
+            std::string getVolumeId(
+                const int &index);
 
-        private:
+            private:
 
             std::unique_ptr<Trokam::Postgresql> m_db;
     };

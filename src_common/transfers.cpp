@@ -69,15 +69,11 @@ std::vector<int> Trokam::Transfers::getCrawlersId()
 
     std::vector<int> result;
     pqxx::result::iterator row= answer.begin();
-    if(row != answer.end())
+    while(row != answer.end())
     {
         const int id = row[0].as(int());
         result.push_back(id);
-    }
-    else
-    {
-        // No answer.
-        std::cout << "Fail, no answer to get max id\n";
+        row++;
     }
 
     return result;

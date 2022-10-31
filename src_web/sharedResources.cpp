@@ -41,11 +41,8 @@ Trokam::SharedResources::SharedResources(
     nlohmann::json &value):
         settings(value)
 {
-    Wt::log("info") << "---- 0";
     transfers.reset(new Trokam::Transfers(settings));
-    Wt::log("info") << "---- 1";
     getNewDB();
-    Wt::log("info") << "---- 2";
 }
 
 Trokam::SharedResources::~SharedResources()
@@ -59,19 +56,24 @@ void Trokam::SharedResources::getNewDB()
     const std::vector<int> crawlers_id = transfers->getCrawlersId();
     const std::vector<int> max_id = transfers->getMaxIndex(crawlers_id);
 
+    for(unsigned int i=0; i<crawlers_id.size(); i++)
+    {
+        Wt::log("info") << "crawlers_if[" << i << "]=" << crawlers_id[i];
+    }
+
     // If there is a new transfer available, then use this one.
     // if(max_id > current_transfer)
     if(max_id != current_transfer)
     {
-        Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& UPDATING DBs &&&&&&&&&&&&&&&&&&&&\n";
         Wt::log("info") << "before close";
         readable_content_db.close();
         Wt::log("info") << "after close";
 
+        Wt::log("info") << "Opening the latest content databases";
         for(unsigned int i=0; i<crawlers_id.size(); i++)
         {
             std::string path = transfers->getPath(max_id[i], crawlers_id[i]);
-            Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& path:" << path;
+            Wt::log("info") << "db content path:" << path;
             if(i == 0)
             {
                 readable_content_db.open(path);
@@ -90,6 +92,6 @@ void Trokam::SharedResources::getNewDB()
     }
     else
     {
-        Wt::log("info") << "&&&&&&&&&&&&&&&&&&&& USING LATEST ONE ALREADY &&&&&&&&&&&&&&&&&&&&\n";
+        Wt::log("info") << "Using latest databases already.";
     }
 }

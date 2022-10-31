@@ -154,7 +154,7 @@ std::string Trokam::Transfers::getPath(
     else
     {
         // No answer.
-        std::cout << "Fail, no answer to get max id\n";
+        std::cout << "Fail, no answer to get path\n";
     }
 
     return result;

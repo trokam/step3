@@ -133,15 +133,17 @@ int main(int argc, char *argv[])
         * Generate the volume name
         *************************************/
 
+        /**
         int max_id = node.getMaxIndex();
         if(max_id != 0)
         {
             std::cout << "fail: database is not emptly.\n";
             exit(1);
         }
+        **/
 
-        node.insertVolumeId("invalid_id");
-        max_id = node.getMaxIndex();
+        node.insertVolumeId("00000000-0000-0000-0000-000000000000");
+        int max_id = node.getMaxIndex();
         BOOST_LOG_TRIVIAL(info) << "max_id=" << max_id;
 
         /**************************************

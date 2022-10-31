@@ -74,7 +74,7 @@ void Trokam::SharedResources::getNewDB()
         {
             std::string path = transfers->getPath(max_id[i], crawlers_id[i]);
             Wt::log("info") << "db content path:" << path;
-            if(!path.emptly())
+            if(!path.empty())
             {
                 if(i == 0)
                 {

@@ -65,9 +65,7 @@ void Trokam::SharedResources::getNewDB()
     // if(max_id > current_transfer)
     if(max_id != current_transfer)
     {
-        Wt::log("info") << "before close";
         readable_content_db.close();
-        Wt::log("info") << "after close";
 
         Wt::log("info") << "Opening the latest content databases";
         for(unsigned int i=0; i<crawlers_id.size(); i++)

@@ -184,27 +184,24 @@ void Trokam::Transfers::insert(
 pqxx::result Trokam::Transfers::getPrevious(
     const int &crawler_index)
 {
-    /*
-    const int max_id = getMaxIndex();
-
-    std::string sql_select;
-    sql_select=  "SELECT id, node_volume_id ";
-    sql_select+= "FROM package ";
-    sql_select+= "WHERE id<" + std::to_string(max_id) + " ";
-    sql_select+= "AND date < (NOW() - INTERVAL '2m') ";
-
-    pqxx::result answer;
-    m_db->execAnswer(sql_select, answer);
-    return answer;
-    */
-
     const int max_id = getMaxIndex(crawler_index);
 
+    /*
     std::string sql_select;
     sql_select=  "SELECT id, path, extra ";
     sql_select+= "FROM directories ";
     sql_select+= "WHERE id<" + std::to_string(max_id) + " ";
     sql_select+= "AND date < (NOW() - INTERVAL '2m') ";
+    */
+
+    std::string sql_select;
+    sql_select=  "SELECT id, path, extra ";
+    sql_select+= "FROM directories ";
+    sql_select+= "WHERE id<" + std::to_string(max_id) + " ";
+    sql_select+= "AND crawlers_id=" + std::to_string(crawler_index) + " ";
+    sql_select+= "AND date < (NOW() - INTERVAL '2m') ";
+
+    std::cout << "sql_select:" << sql_select << "\n";
 
     pqxx::result answer;
     m_db->execAnswer(sql_select, answer);

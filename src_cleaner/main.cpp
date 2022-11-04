@@ -70,6 +70,8 @@ void verify(const int &state, std::string &command)
 
 int main(int argc, char *argv[])
 {
+    std::cout << "cleaning begin at:" << current_datetime() << '\n';
+
     // Get the configuration file
     const std::string config_path = "/usr/local/etc/trokam/trokam.config";
     std::string text = Trokam::FileOps::read(config_path);
@@ -88,49 +90,54 @@ int main(int argc, char *argv[])
     /**************************************
      * Remove old transfers
      *************************************/
-    const int crawler_index = 0;
-    pqxx::result previous_transfers = transfers.getPrevious(crawler_index);
-
-    pqxx::result::iterator row= previous_transfers.begin();
-    while(row != previous_transfers.end())
+    // const int crawler_index = 0;
+    const std::vector<int> crawlers_id = transfers.getCrawlersId();
+    for(unsigned int i=0; i<crawlers_id.size(); i++)
     {
-        const int index =          row[0].as(int());
-        const std::string vol_id = row[2].as(std::string());
-        std::string path =   row[1].as(std::string());
+        const int crawler_index = crawlers_id[i];
+        pqxx::result previous_transfers = transfers.getPrevious(crawler_index);
 
-        size_t pos = path.find("/content");
-        if(pos != std::string::npos)
+        pqxx::result::iterator row= previous_transfers.begin();
+        while(row != previous_transfers.end())
         {
-            path = path.substr(0, pos);
+            const int index =          row[0].as(int());
+            const std::string vol_id = row[2].as(std::string());
+            std::string path =   row[1].as(std::string());
+
+            size_t pos = path.find("/content");
+            if(pos != std::string::npos)
+            {
+                path = path.substr(0, pos);
+            }
+
+            BOOST_LOG_TRIVIAL(info) << "index: "  << index;
+            BOOST_LOG_TRIVIAL(info) << "path: "   << path;
+            BOOST_LOG_TRIVIAL(info) << "vol_id: " << vol_id;
+
+            BOOST_LOG_TRIVIAL(info) << "umount previous directory in webserver";
+            command = "ssh root@" + WEBSERVER_ADDR + " umount " + path;
+            state = std::system(command.c_str());
+            verify(state, command);
+
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+
+            BOOST_LOG_TRIVIAL(info) << "delete previous directory in webserver";
+            command = "ssh root@" + WEBSERVER_ADDR + " rm -r " + path;
+            state = std::system(command.c_str());
+            verify(state, command);
+
+            BOOST_LOG_TRIVIAL(info) << "detaching previous volume";
+
+            cloud_control.detachVolumeFromMachine(vol_id, WEBSERVER_ID);
+
+            BOOST_LOG_TRIVIAL(info) << "deleting previous volume";
+
+            cloud_control.destroyVolume(vol_id);
+
+            transfers.remove(index);
+
+            row++;
         }
-
-        BOOST_LOG_TRIVIAL(info) << "index: "  << index;
-        BOOST_LOG_TRIVIAL(info) << "path: "   << path;
-        BOOST_LOG_TRIVIAL(info) << "vol_id: " << vol_id;
-
-        BOOST_LOG_TRIVIAL(info) << "umount previous directory in webserver";
-        command = "ssh root@" + WEBSERVER_ADDR + " umount " + path;
-        state = std::system(command.c_str());
-        verify(state, command);
-
-        std::this_thread::sleep_for(std::chrono::seconds(5));
-
-        BOOST_LOG_TRIVIAL(info) << "delete previous directory in webserver";
-        command = "ssh root@" + WEBSERVER_ADDR + " rm -r " + path;
-        state = std::system(command.c_str());
-        verify(state, command);
-
-        BOOST_LOG_TRIVIAL(info) << "detaching previous volume";
-
-        cloud_control.detachVolumeFromMachine(vol_id, WEBSERVER_ID);
-
-        BOOST_LOG_TRIVIAL(info) << "deleting previous volume";
-
-        cloud_control.destroyVolume(vol_id);
-
-        transfers.remove(index);
-
-        row++;
     }
 
     return 0;

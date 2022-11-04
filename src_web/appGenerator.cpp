@@ -52,6 +52,27 @@ std::unique_ptr<Wt::WApplication>
 {
     Wt::log("info") << "WApplication -- constructor";
 
+    Wt::log("info") << "internal path:" << env.internalPath();
+    Wt::log("info") << "deployement path:" << env.deploymentPath();
+    char* app_path_ptr  = getenv("APP_PATH");
+    std::string app_path = app_path_ptr;
+    Wt::log("info") << "app path:" << app_path;
+
+    Wt::log("info") << "-------- paramaters --------";
+    std::map<std::string, std::vector<std::string>> parameter = env.getParameterMap();
+    for (auto it = parameter.begin(); it != parameter.end(); ++it)
+    {
+        Wt::log("info") << "parameter: " << it->first << ", " << it->second[0];
+    }
+    Wt::log("info") << "-------- paramaters --------";
+
+    // const std::string term = env.getCgiValue("term");
+    const std::vector<std::string> term = env.getParameterValues("APP_PATH");
+    for(auto e: term)
+    {
+        Wt::log("info") << "term:'" << e << "'";
+    }
+
     std::string cookie_preferences;
 
     if(env.getCookie("preferences"))

@@ -216,9 +216,6 @@ Trokam::SearchPage::SearchPage(
     button->addStyleClass("btn-outline-secondary");
     button->clicked().connect(
         [=] {
-
-            // cpp.cgi?key1=value1&key2=value2
-
             std::string user_input= input->text().toUTF8();
             Wt::log("info") << "user_input:" << user_input;
             user_input = Xapian::Unicode::tolower(user_input);
@@ -819,10 +816,29 @@ void Trokam::SearchPage::inputKeyWentUp(
     }
     if(kEvent.key() == Wt::Key::Enter)
     {
-
+        return;
     }
     else
     {
+        std::vector<std::string> parts =
+            Trokam::PlainTextProcessor::tokenize(user_input);
+
+        unsigned int total = parts.size();
+        unsigned int last = total - 1;
+
+        for(unsigned int i=0; i<parts.size(); i++)
+        {
+            Wt::log("info") << "parts[" << i << "]=" << parts[i];
+        }
+
+        if(parts[last].size() <= 3)
+        {
+            w_sugggestion_box->setHidden(true);
+            return;
+        }
+
+        user_input = parts[last];
+
         w_sugggestion_box->setHidden(false);
         w_sugggestion_box->positionAt(input);
 
@@ -849,7 +865,7 @@ void Trokam::SearchPage::inputKeyWentUp(
             w_sugggestion_box->addItem(std::get<std::string>(words_found[i]));
 
             count++;
-            if(count > 10)
+            if(count > 12)
             {
                 break;
             }
@@ -868,8 +884,24 @@ void Trokam::SearchPage::suggestionBoxKeyWentUp(
 
 void Trokam::SearchPage::suggestionBoxEnterPressed()
 {
-    std::string user_input= w_sugggestion_box->currentText().toUTF8();
-    // user_input = Xapian::Unicode::tolower(user_input);
+    std::string partial_input = input->text().toUTF8();
+
+    std::vector<std::string> parts =
+        Trokam::PlainTextProcessor::tokenize(partial_input);
+
+    unsigned int total = parts.size();
+    unsigned int last = total - 1;
+
+    std::string user_input;
+    for(unsigned int i=0; i<last; i++)
+    {
+        user_input += parts[i] + " ";
+    }
+    user_input += w_sugggestion_box->currentText().toUTF8();
+
+    Wt::log("info") << "++++ searching for:" << user_input;
+
+    user_input = Xapian::Unicode::tolower(user_input);
     const std::string encoded_terms = Wt::Utils::urlEncode(user_input);
     input->setText(user_input);
     input->setFocus();

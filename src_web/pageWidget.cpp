@@ -33,7 +33,6 @@
 Trokam::PageWidget::PageWidget(boost::shared_ptr<Trokam::SharedResources> &sr,
                                Wt::WApplication* app): WContainerWidget(),
                                                        application(app)
-
 {
     resources= sr;
 }

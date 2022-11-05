@@ -30,6 +30,7 @@
 #include <Wt/WMessageBox.h>
 #include <Wt/WMenu.h>
 #include <Wt/WPopupMenu.h>
+#include <Wt/WSelectionBox.h>
 #include <Wt/WStringListModel.h>
 #include <Wt/WSuggestionPopup.h>
 
@@ -73,6 +74,7 @@ namespace Trokam
             Wt::WContainerWidget *w_footer = nullptr;
             Wt::WPushButton *w_button_preferences = nullptr;
             Wt::WPushButton *w_about = nullptr;
+            Wt::WSelectionBox *w_sugggestion_box = nullptr;
 
             void search(const std::string &terms);
             void show_search_results();
@@ -81,16 +83,26 @@ namespace Trokam
             void createFooter(
                 Wt::WContainerWidget *base);
 
-            void serverSideFilteringPopups(
-                Wt::WContainerWidget *parent);
+            // void serverSideFilteringPopups(
+            //    Wt::WContainerWidget *parent);
 
             void showLanguageOptions();
             bool savePreferences();
 
             void filter(const Wt::WString& input);
 
-            Wt::WSuggestionPopup* createAliasesMatchingPopup(
-                Wt::WContainerWidget *parent);
+            void inputKeyWentUp(
+                const Wt::WKeyEvent &kEvent);
+
+            void suggestionBoxKeyWentUp(
+                const Wt::WKeyEvent &kEvent);
+
+            void suggestionBoxEnterPressed();
+
+            void suggestionBoxEscapePressed();
+
+            // Wt::WSuggestionPopup* createAliasesMatchingPopup(
+            //    Wt::WContainerWidget *parent);
 
             /*
             void suggestionSelected(

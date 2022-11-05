@@ -59,7 +59,7 @@
 #include "searchPage.h"
 #include "sharedResources.h"
 
-#define INLINE_JAVASCRIPT(...) #__VA_ARGS__
+// #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
 Trokam::SearchPage::SearchPage(
     boost::shared_ptr<Trokam::SharedResources> &sr,
@@ -137,6 +137,7 @@ Trokam::SearchPage::SearchPage(
     input->setPlaceholderText("Search for ...");
     input->enterPressed().connect(
         [=] {
+            w_sugggestion_box->setHidden(true);
             std::string user_input= input->text().toUTF8();
             Wt::log("info") << "user_input:" << user_input;
             user_input = Xapian::Unicode::tolower(user_input);
@@ -147,6 +148,66 @@ Trokam::SearchPage::SearchPage(
             internal_url+= encoded_terms;
             application->setInternalPath(internal_url, true);
         });
+
+    input->keyWentUp().connect(this, &Trokam::SearchPage::inputKeyWentUp);
+
+    /*
+    input->keyWentUp().connect(
+        [=] {
+            std::string user_input= input->text().toUTF8();
+            if(user_input.length() <= 3)
+            {
+                w_sugggestion_box->setHidden(true);
+                return;
+            }
+
+            w_sugggestion_box->setHidden(false);
+
+            Wt::log("info") << "----- user_input:" << user_input;
+            std::string low_case_terms= Xapian::Unicode::tolower(user_input);
+
+            // Xapian::doccount results_requested = 24;
+
+            shared_resources->getNewDB();
+
+            std::vector<std::pair<std::string, Xapian::doccount>> words_found =
+                shared_resources->
+                    readable_content_db.lookUp(
+                        low_case_terms);
+
+            int count = 0;
+            for(unsigned int i=0; i<words_found.size(); i++)
+            {
+                Wt::log("info") << "===== suggestion:"
+                                << std::get<std::string>(words_found[i]);
+                count++;
+                if(count > 10)
+                {
+                    break;
+                }
+            }
+        });
+    */
+
+    w_sugggestion_box = container->addNew<Wt::WSelectionBox>();
+    // w_sugggestion_box->setHidden(true);
+    // w_sugggestion_box->setPositionScheme(Wt::PositionScheme::Absolute);
+    // w_sugggestion_box->setPositionScheme(Wt::PositionScheme::Relative);
+    // w_sugggestion_box->setOffsets(150, Wt::Side::Left);
+    w_sugggestion_box->setMaximumSize(500, 600);
+    // w_sugggestion_box->setPopup(true);
+    w_sugggestion_box->positionAt(input);
+    // w_sugggestion_box->addItem("Heavy");
+    // w_sugggestion_box->addItem("Medium");
+    // w_sugggestion_box->addItem("Light");
+    // w_sugggestion_box->setCurrentIndex(1); // Select 'medium' by default.
+    // w_sugggestion_box->setMargin(10, Wt::Side::Right);
+    w_sugggestion_box->keyWentUp().connect(
+        this, &Trokam::SearchPage::suggestionBoxKeyWentUp);
+    w_sugggestion_box->enterPressed().connect(
+        this, &Trokam::SearchPage::suggestionBoxEnterPressed);
+    w_sugggestion_box->escapePressed().connect(
+        this, &Trokam::SearchPage::suggestionBoxEscapePressed);
 
     auto button = header->bindWidget(
         "button",
@@ -232,6 +293,8 @@ Trokam::SearchPage::SearchPage(
         language_options.push_back(language_item);
     }
     language_options = user_settings.getLanguages();
+
+    w_sugggestion_box->setHidden(true);
 
     Wt::log("info") << "current path:" << application->internalPath();
 }
@@ -424,6 +487,7 @@ void Trokam::SearchPage::createFooter(
         });
 }
 
+/**
 void Trokam::SearchPage::serverSideFilteringPopups(
     WContainerWidget *parent)
 {
@@ -440,6 +504,7 @@ void Trokam::SearchPage::serverSideFilteringPopups(
 
     popup->forEdit(input, Wt::PopupTrigger::Editing);
 }
+**/
 
 void Trokam::SearchPage::filter(const Wt::WString& input)
 {
@@ -665,23 +730,10 @@ bool Trokam::SearchPage::savePreferences()
     return true;
 }
 
+/**
 Wt::WSuggestionPopup* Trokam::SearchPage::createAliasesMatchingPopup(
     WContainerWidget *parent)
 {
-/*
-    * This matcher JavaScript function matches the input against the
-    * name of a product, or one or more aliases.
-    *
-    * A match is indicated by product name and optionally matching aliases
-    * between brackets.
-    */
-
-/*
-    * Note!
-    *
-    * INLINE_JAVASCRIPT is a macro which allows entry of JavaScript
-    * directly in a C++ file.
-    */
 std::string matcherJS = INLINE_JAVASCRIPT
     (
     function (edit) {
@@ -747,4 +799,89 @@ std::string replacerJS = INLINE_JAVASCRIPT
 
     return parent->addChild(
         std::make_unique<Wt::WSuggestionPopup>(matcherJS, replacerJS));
+}
+*/
+
+void Trokam::SearchPage::inputKeyWentUp(
+    const Wt::WKeyEvent &kEvent)
+{
+    std::string user_input= input->text().toUTF8();
+    if(user_input.length() <= 3)
+    {
+        w_sugggestion_box->setHidden(true);
+        return;
+    }
+
+    if((kEvent.key() == Wt::Key::Down) && (w_sugggestion_box->isVisible()))
+    {
+        w_sugggestion_box->setFocus();
+        w_sugggestion_box->setCurrentIndex(0);
+    }
+    if(kEvent.key() == Wt::Key::Enter)
+    {
+
+    }
+    else
+    {
+        w_sugggestion_box->setHidden(false);
+        w_sugggestion_box->positionAt(input);
+
+        Wt::log("info") << "----- user_input:" << user_input;
+        std::string low_case_terms= Xapian::Unicode::tolower(user_input);
+
+        // Xapian::doccount results_requested = 24;
+
+        shared_resources->getNewDB();
+
+        std::vector<std::pair<std::string, Xapian::doccount>> words_found =
+            shared_resources->
+                readable_content_db.lookUp(
+                    low_case_terms);
+
+        w_sugggestion_box->clear();
+
+        int count = 0;
+        for(unsigned int i=0; i<words_found.size(); i++)
+        {
+            Wt::log("info") << "===== suggestion:"
+                            << std::get<std::string>(words_found[i]);
+
+            w_sugggestion_box->addItem(std::get<std::string>(words_found[i]));
+
+            count++;
+            if(count > 10)
+            {
+                break;
+            }
+        }
+    }
+}
+
+void Trokam::SearchPage::suggestionBoxKeyWentUp(
+    const Wt::WKeyEvent &kEvent)
+{
+    if((kEvent.key() == Wt::Key::Up) && (w_sugggestion_box->currentIndex() == 0))
+    {
+        input->setFocus();
+    }
+}
+
+void Trokam::SearchPage::suggestionBoxEnterPressed()
+{
+    std::string user_input= w_sugggestion_box->currentText().toUTF8();
+    // user_input = Xapian::Unicode::tolower(user_input);
+    const std::string encoded_terms = Wt::Utils::urlEncode(user_input);
+    input->setText(user_input);
+    input->setFocus();
+    w_sugggestion_box->setHidden(true);
+
+    std::string internal_url = "/";
+    internal_url+= encoded_terms;
+    application->setInternalPath(internal_url, true);
+}
+
+void Trokam::SearchPage::suggestionBoxEscapePressed()
+{
+    input->setFocus();
+    w_sugggestion_box->setHidden(true);
 }

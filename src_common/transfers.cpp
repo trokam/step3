@@ -25,28 +25,7 @@
 #include "transfers.h"
 
 /**
- * transfers=> \d crawlers
- *               Table "public.crawlers"
- *  Column |  Type   | Collation | Nullable | Default
- * --------+---------+-----------+----------+---------
- *  id     | integer |           | not null |
- *  extra  | text    |           |          |
- * Indexes:
- *     "crawlers_pkey" PRIMARY KEY, btree (id)
  *
- * transfers=> \d directories
- *                          Table "public.directories"
- *    Column    |            Type             | Collation | Nullable | Default
- * -------------+-----------------------------+-----------+----------+---------
- *  id          | integer                     |           | not null |
- *  crawlers_id | integer                     |           |          |
- *  date        | timestamp without time zone |           |          |
- *  path        | text                        |           |          |
- *  extra       | text                        |           |          |
- * Indexes:
- *     "directories_pkey" PRIMARY KEY, btree (id)
- * Foreign-key constraints:
- *     "fk_crawlers" FOREIGN KEY (crawlers_id) REFERENCES crawlers(id)
  **/
 
 Trokam::Transfers::Transfers(nlohmann::json &config)
@@ -59,6 +38,7 @@ Trokam::Transfers::Transfers(nlohmann::json &config)
     m_db.reset(new Trokam::Postgresql(host, port, name, user));
 }
 
+/*
 std::vector<int> Trokam::Transfers::getCrawlersId()
 {
     std::string sql_select;
@@ -78,39 +58,30 @@ std::vector<int> Trokam::Transfers::getCrawlersId()
 
     return result;
 }
+*/
 
-int Trokam::Transfers::getMaxIndex(const int &crawlers_id)
+std::vector<int> Trokam::Transfers::getIndex()
 {
-    /*
     std::string sql_select;
-    sql_select=  "SELECT MAX(id) ";
-    sql_select+= "FROM package ";
-    pqxx::result answer;
-    m_db->execAnswer(sql_select, answer);
-    */
-
-    std::string sql_select;
-    sql_select=  "SELECT MAX(id) ";
-    sql_select+= "FROM directories ";
-    sql_select+= "WHERE crawlers_id=" + std::to_string(crawlers_id) + " ";
+    sql_select=  "SELECT crawler_id ";
+    sql_select+= "FROM dbcontent ";
+    sql_select+= "WHERE enabled=true ";
     pqxx::result answer;
     m_db->execAnswer(sql_select, answer);
 
-    int result = -1;
+    std::vector<int> result;
     pqxx::result::iterator row= answer.begin();
-    if(row != answer.end())
+    while(row != answer.end())
     {
-        result= row[0].as(int());
-    }
-    else
-    {
-        // No answer.
-        std::cout << "Fail, no answer to get max id\n";
+        const int crawler_id = row[0].as(int());
+        result.push_back(crawler_id);
+        row++;
     }
 
     return result;
 }
 
+/*
 std::vector<int> Trokam::Transfers::getMaxIndex(
     const std::vector<int> &crawlers_id)
 {
@@ -122,23 +93,16 @@ std::vector<int> Trokam::Transfers::getMaxIndex(
     }
     return result;
 }
+*/
 
 std::string Trokam::Transfers::getPath(
-    const int &index,
     const int &crawlers_id)
 {
-    /*
-    std::string sql_select;
-    sql_select=  "SELECT MAX(id) ";
-    sql_select+= "FROM directories ";
-    sql_select+= "WHERE crawlers_id='" + std::to_string(crawlers_id) + "'";
-    */
-
     std::string sql_select;
     sql_select=  "SELECT path ";
-    sql_select+= "FROM directories ";
-    sql_select+= "WHERE id=" + std::to_string(index) + " ";
-    sql_select+= "AND crawlers_id=" + std::to_string(crawlers_id) + " ";
+    sql_select+= "FROM dbcontent ";
+    sql_select+= "WHERE crawler_id=" + std::to_string(crawlers_id) + " ";
+    sql_select+= "AND enabled=true ";
 
     std::cout << "sql_select=" << sql_select << "\n";
 
@@ -151,27 +115,42 @@ std::string Trokam::Transfers::getPath(
     {
         result= row[0].as(std::string());
     }
-    else
-    {
-        // No answer.
-        std::cout << "Fail, no answer to get path\n";
-    }
 
     return result;
 }
 
+void Trokam::Transfers::enable(
+    const int &node_id)
+{
+    std::string sql_update;
+    sql_update=  "UPDATE dbcontent ";
+    sql_update+= "SET date=NOW(), enabled=true ";
+    sql_update+= "WHERE crawler_id=" + std::to_string(node_id) + " ";
+
+    std::cout << "sql_update:" << sql_update << "\n";
+
+    m_db->execNoAnswer(sql_update);
+}
+
+void Trokam::Transfers::disable(
+    const int &node_id)
+{
+    std::string sql_update;
+    sql_update=  "UPDATE dbcontent ";
+    sql_update+= "SET date=NOW(), enabled=false ";
+    sql_update+= "WHERE crawler_id=" + std::to_string(node_id) + " ";
+
+    std::cout << "sql_update:" << sql_update << "\n";
+
+    m_db->execNoAnswer(sql_update);
+}
+
+/**
 void Trokam::Transfers::insert(
     const int &node_id,
     const std::string &path,
     const std::string &volume_id)
 {
-    /*
-    std::string sql_insert;
-    sql_insert=  "INSERT INTO package(id, date, node_volume_id, in_use) ";
-    sql_insert+= "VALUES(" + std::to_string(index) + ", NOW(), '" + volume_id + "', false)";
-    m_db->execNoAnswer(sql_insert);
-    */
-
     std::string sql_insert;
     sql_insert=  "INSERT INTO directories(crawlers_id, date, path, extra) ";
     sql_insert+= "VALUES(" + std::to_string(node_id) + ", NOW(), '" + path + "', '" + volume_id + "')";
@@ -185,14 +164,6 @@ pqxx::result Trokam::Transfers::getPrevious(
     const int &crawler_index)
 {
     const int max_id = getMaxIndex(crawler_index);
-
-    /*
-    std::string sql_select;
-    sql_select=  "SELECT id, path, extra ";
-    sql_select+= "FROM directories ";
-    sql_select+= "WHERE id<" + std::to_string(max_id) + " ";
-    sql_select+= "AND date < (NOW() - INTERVAL '2m') ";
-    */
 
     std::string sql_select;
     sql_select=  "SELECT id, path, extra ";
@@ -216,3 +187,4 @@ void Trokam::Transfers::remove(
     sql_delete+= "WHERE id=" + std::to_string(index);
     m_db->execNoAnswer(sql_delete);
 }
+**/

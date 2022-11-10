@@ -43,17 +43,26 @@ namespace Trokam
 
             Transfers(nlohmann::json &config);
 
+            std::vector<int> getIndex();
+
+            /**
             int getMaxIndex(const int &crawlers_id);
 
             std::vector<int> getMaxIndex(
                 const std::vector<int> &crawlers_id);
 
             std::vector<int> getCrawlersId();
+            **/
 
             std::string getPath(
-                const int &index,
                 const int &crawlers_id);
 
+            void enable(const int &node_id);
+
+            void disable(
+                const int &node_id);
+
+            /**
             void insert(
                 const int &node_id,
                 const std::string &path,
@@ -64,6 +73,7 @@ namespace Trokam
 
             void remove(
                 const int &index);
+            **/
 
         private:
 

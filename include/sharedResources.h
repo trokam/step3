@@ -49,7 +49,7 @@ namespace Trokam
 
             // std::unique_ptr<Trokam::Postgresql> db;
             // int current_transfer = -1;
-            std::vector<int> current_transfer;
+            std::vector<int> current_id;
             nlohmann::json &settings;
             // Trokam::Transfers &transfers;
             std::unique_ptr<Trokam::Transfers> transfers;

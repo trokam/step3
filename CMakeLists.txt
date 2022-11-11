@@ -49,28 +49,24 @@ if((SUBSYSTEM STREQUAL "CRAWLER") OR (SUBSYSTEM STREQUAL "ALL"))
 
 endif()
 
-if((SUBSYSTEM STREQUAL "CONVEYOR") OR (SUBSYSTEM STREQUAL "ALL"))
+if((SUBSYSTEM STREQUAL "PUMP") OR (SUBSYSTEM STREQUAL "ALL"))
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3 -pthread")
     include_directories(include)
 
-    #file(GLOB SOURCES_CONVEYOR  "src_conveyor/*.cpp")
-    file(GLOB SOURCES_TRANSPORT "src_transport/*.cpp")
-    file(GLOB SOURCES_COMMON    "src_common/*.cpp")
+    file(GLOB SOURCES_CONVEYOR   "src_pump/*.cpp")
+    file(GLOB SOURCES_COMMON     "src_common/*.cpp")
 
-    add_executable(conveyor src_conveyor/main.cpp       ${SOURCES_TRANSPORT} ${SOURCES_COMMON})
-    add_executable(prime    src_conveyor/main_prime.cpp ${SOURCES_TRANSPORT} ${SOURCES_COMMON})
+    add_executable(pump src_pump/main.cpp  ${SOURCES_TRANSPORT} ${SOURCES_COMMON})
 
     ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 
     find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread log)
     find_package(fmt)
 
-    target_link_libraries(conveyor curl pqxx xapian Boost::system Boost::regex Boost::filesystem Boost::program_options Boost::log fmt::fmt)
-    target_link_libraries(prime curl pqxx xapian Boost::system Boost::regex Boost::filesystem Boost::program_options Boost::log fmt::fmt)
+    target_link_libraries(pump pqxx xapian Boost::system Boost::regex Boost::filesystem Boost::program_options Boost::log fmt::fmt)
 
-    install(TARGETS conveyor DESTINATION /usr/local/bin)
-    install(TARGETS prime DESTINATION /usr/local/bin)
+    install(TARGETS pump DESTINATION /usr/local/bin)
 
 endif()
 

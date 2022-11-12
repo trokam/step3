@@ -81,6 +81,27 @@ std::vector<int> Trokam::Transfers::getIndex()
     return result;
 }
 
+std::vector<std::string> Trokam::Transfers::getTimeStamps()
+{
+    std::string sql_select;
+    sql_select=  "SELECT date ";
+    sql_select+= "FROM dbcontent ";
+    sql_select+= "WHERE enabled=true ";
+    pqxx::result answer;
+    m_db->execAnswer(sql_select, answer);
+
+    std::vector<std::string> result;
+    pqxx::result::iterator row= answer.begin();
+    while(row != answer.end())
+    {
+        const std::string date = row[0].as(std::string());
+        result.push_back(date);
+        row++;
+    }
+
+    return result;
+}
+
 /*
 std::vector<int> Trokam::Transfers::getMaxIndex(
     const std::vector<int> &crawlers_id)

@@ -45,6 +45,8 @@ namespace Trokam
 
             std::vector<int> getIndex();
 
+            std::vector<std::string> getTimeStamps();
+
             /**
             int getMaxIndex(const int &crawlers_id);
 

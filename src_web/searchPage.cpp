@@ -301,6 +301,9 @@ void Trokam::SearchPage::search(
 {
     Wt::log("info") << "+++++++ search() -- terms:" << terms;
 
+    w_sugggestion_box->setHidden(true);
+    application->processEvents();
+
     std::string low_case_terms= Xapian::Unicode::tolower(terms);
 
     Xapian::doccount results_requested = 24;
@@ -906,6 +909,7 @@ void Trokam::SearchPage::suggestionBoxEnterPressed()
     input->setText(user_input);
     input->setFocus();
     w_sugggestion_box->setHidden(true);
+    application->processEvents();
 
     std::string internal_url = "/";
     internal_url+= encoded_terms;
@@ -916,4 +920,5 @@ void Trokam::SearchPage::suggestionBoxEscapePressed()
 {
     input->setFocus();
     w_sugggestion_box->setHidden(true);
+    application->processEvents();
 }

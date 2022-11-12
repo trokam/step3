@@ -53,21 +53,24 @@ void Trokam::SharedResources::getNewDB()
     // const int crawlers_id = 0;
     // const int max_id = transfers->getMaxIndex(crawlers_id);
 
-    const std::vector<int> crawlers_id = transfers->getIndex();
+    // const std::vector<int> crawlers_id = transfers->getIndex();
     // const std::vector<int> max_id = transfers->getMaxIndex(crawlers_id);
+    const std::vector<std::string> db_dates = transfers->getTimeStamps();
 
-    for(unsigned int i=0; i<crawlers_id.size(); i++)
+    for(unsigned int i=0; i<db_dates.size(); i++)
     {
-        Wt::log("info") << "crawlers_id[" << i << "]=" << crawlers_id[i];
+        Wt::log("info") << "db_dates[" << i << "]=" << db_dates[i];
     }
 
     // If there is a new transfer available, then use this one.
     // if(max_id > current_transfer)
-    if(crawlers_id != current_id)
+    // if(crawlers_id != current_id)
+    if(db_dates != current_dates)
     {
         readable_content_db.close();
 
         Wt::log("info") << "Opening the latest content databases";
+        const std::vector<int> crawlers_id = transfers->getIndex();
         for(unsigned int i=0; i<crawlers_id.size(); i++)
         {
             std::string path = transfers->getPath(crawlers_id[i]);
@@ -84,7 +87,8 @@ void Trokam::SharedResources::getNewDB()
                 }
             }
         }
-        current_id = crawlers_id;
+        // current_id = crawlers_id;
+        current_dates = db_dates;
     }
     else
     {

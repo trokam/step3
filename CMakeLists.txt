@@ -40,8 +40,9 @@ if((SUBSYSTEM STREQUAL "CRAWLER") OR (SUBSYSTEM STREQUAL "ALL"))
     add_executable(trokam ${SOURCES_CMD} ${SOURCES_COMMON})
 
     find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread)
+    find_package(fmt)
 
-    target_link_libraries(trokam curl pqxx xapian Boost::regex Boost::program_options exttextcat)
+    target_link_libraries(trokam curl pqxx xapian Boost::regex Boost::program_options exttextcat fmt::fmt)
 
     install(TARGETS trokam DESTINATION /usr/local/bin)
     install(FILES etc/language.conf DESTINATION /usr/local/etc/trokam)

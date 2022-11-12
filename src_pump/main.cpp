@@ -108,33 +108,20 @@ void show_state(const int &state, std::string &command)
 
 int main(int argc, char *argv[])
 {
-    std::cout << "start conveyor" << std::endl;
+    std::cout << "start pump" << std::endl;
 
     // Get the configuration file
     const std::string config_path = "/usr/local/etc/trokam/trokam.config";
     std::string text = Trokam::FileOps::read(config_path);
     nlohmann::json config = nlohmann::json::parse(text);
 
-    // Get current user name
-    uid_t uid = geteuid();
-    struct passwd *pw = getpwuid(uid);
-    if(!pw)
-    {
-        std::cout << "fail to get current username" << std::endl;
-        exit(1);
-    }
-
-    const std::string node_user = pw->pw_name;
     const int THIS_NODE_INDEX =          config["this_node_index"];
     const int REINIT_DB_DAY =            config["reinit_db_day"];
-    const std::string AUTH_TOKEN =       config["auth_token"];
-    const std::string NODE_ID =          config["node_id"];
-    const std::string WEBSERVER_ID =     config["webserver_id"];
+    const std::string LOCAL_DIRECTORY  = config["local_directory"];
+    const std::string SERVER_DIRECTORY = config["server_directory"];
     const std::string WEBSERVER_ADDR =   config["webserver_addr"];
+    const std::string WEBSERVER_USER =   config["webserver_user"];
     const unsigned int INDEXING_CYCLES = config["indexing_cycles"];
-
-    const std::string local_directory = "/home/nicolas/xxxxxxxxxx";
-    const std::string server_directory = "/home/nicolas/xxxxxxxxxx";
 
     Trokam::Transfers transfers(config);
 
@@ -164,14 +151,17 @@ int main(int argc, char *argv[])
                 // std::string command = "prime > /tmp/trokam_prime_" + date + ".log";
                 // state = system(command.c_str());
                 // show_state(state, command);
+
+                // trokam --action clean --db-content /some_directory/content/
+                // trokam --action init --seeds-file /usr/local/etc/trokam/seeds.config
             }
         }
 
         /**************************************
-        * Index pages in current location of database
+        * Index pages
         *************************************/
 
-        std::cout << "local_directory=" << local_directory << std::endl;
+        std::cout << "LOCAL_DIRECTORY=" << LOCAL_DIRECTORY << std::endl;
 
         for(unsigned int i=0; i<INDEXING_CYCLES; i++)
         {
@@ -180,7 +170,7 @@ int main(int argc, char *argv[])
             std::string date= current_datetime();
             std::string command =
                 "trokam --action index --cycles 1 --db-content " +
-                local_directory + "/content > /tmp/trokam_indexing_" + date + ".log";
+                LOCAL_DIRECTORY + " > /tmp/trokam_indexing_" + date + ".log";
 
             state = system(command.c_str());
             show_state(state, command);
@@ -206,8 +196,8 @@ int main(int argc, char *argv[])
         std::string command;
 
         std::cout << "Transfer the database to the server" << std::endl;
-        // command = "scp -r /home/nicolas/crawlerdb/content nicolas@10.10.10.10:/home/nicolas/db/00";
-        command = "scp -r " + local_directory + " nicolas@10.10.10.10:" + server_directory;
+        command = "scp -r " + LOCAL_DIRECTORY + " " +
+                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
         state = std::system(command.c_str());
         verify(state, command);
 

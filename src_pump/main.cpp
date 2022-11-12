@@ -214,8 +214,10 @@ int main(int argc, char *argv[])
         std::string command;
 
         std::cout << "Transfer the database to the server" << std::endl;
-        command = "scp -r " + LOCAL_DIRECTORY + " " +
-                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
+        // command = "scp -r " + LOCAL_DIRECTORY + " " +
+        //           WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
+        command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +
+                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/";
         state = std::system(command.c_str());
         verify(state, command);
 

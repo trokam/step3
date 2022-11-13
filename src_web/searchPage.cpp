@@ -190,7 +190,7 @@ Trokam::SearchPage::SearchPage(
     */
 
     w_sugggestion_box = container->addNew<Wt::WSelectionBox>();
-    // w_sugggestion_box->setHidden(true);
+    w_sugggestion_box->setHidden(true);
     // w_sugggestion_box->setPositionScheme(Wt::PositionScheme::Absolute);
     // w_sugggestion_box->setPositionScheme(Wt::PositionScheme::Relative);
     // w_sugggestion_box->setOffsets(150, Wt::Side::Left);
@@ -292,6 +292,7 @@ Trokam::SearchPage::SearchPage(
     language_options = user_settings.getLanguages();
 
     w_sugggestion_box->setHidden(true);
+    // suggestionBoxEscapePressed();
 
     Wt::log("info") << "current path:" << application->internalPath();
 }
@@ -301,8 +302,8 @@ void Trokam::SearchPage::search(
 {
     Wt::log("info") << "+++++++ search() -- terms:" << terms;
 
-    w_sugggestion_box->setHidden(true);
-    application->processEvents();
+    // w_sugggestion_box->setHidden(true);
+    // application->processEvents();
 
     std::string low_case_terms= Xapian::Unicode::tolower(terms);
 
@@ -337,6 +338,11 @@ void Trokam::SearchPage::search(
 
     Wt::log("info") << "+++++++ total results:" << items_found.size();
     createFooter(container);
+
+    suggestionBoxEscapePressed();
+
+    // w_sugggestion_box->setHidden(true);
+    // application->processEvents();
 
     // current_page = 1;
 }
@@ -907,9 +913,12 @@ void Trokam::SearchPage::suggestionBoxEnterPressed()
     user_input = Xapian::Unicode::tolower(user_input);
     const std::string encoded_terms = Wt::Utils::urlEncode(user_input);
     input->setText(user_input);
-    input->setFocus();
-    w_sugggestion_box->setHidden(true);
-    application->processEvents();
+
+    suggestionBoxEscapePressed();
+
+    // input->setFocus();
+    // w_sugggestion_box->setHidden(true);
+    // application->processEvents();
 
     std::string internal_url = "/";
     internal_url+= encoded_terms;

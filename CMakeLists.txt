@@ -23,8 +23,8 @@ if((SUBSYSTEM STREQUAL "WEB") OR (SUBSYSTEM STREQUAL "ALL"))
 
     target_link_libraries(search.wt xapian Boost::system Boost::regex Boost::program_options pqxx wt wtfcgi fmt::fmt)
 
-    install(TARGETS search.wt DESTINATION /var/www/html/bin/)
-    install(DIRECTORY etc/style DESTINATION /var/www/html)
+    install(TARGETS search.wt DESTINATION /var/www/trokam/bin/)
+    install(DIRECTORY etc/style DESTINATION /var/www/trokam)
     install(DIRECTORY etc/approot DESTINATION /usr/local/etc/trokam)
 
 endif()

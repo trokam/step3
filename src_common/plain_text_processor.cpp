@@ -189,6 +189,14 @@ std::string Trokam::PlainTextProcessor::formatUrl(
         {
             url.clear();
         }
+
+        // These URLs are equivalent
+        // https://www.trokam.com
+        // https://www.trokam.com/
+        // Hence, the trailing / is trimmed, otherwise
+        // it would be possible to save both as different URLs.
+        boost::algorithm::trim_right_if(
+            url, boost::algorithm::is_any_of("/"));
     }
     catch(const std::exception& e)
     {

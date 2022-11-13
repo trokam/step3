@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
 
     const int THIS_NODE_INDEX =          config["this_node_index"];
     const int REINIT_DB_DAY =            config["reinit_db_day"];
+    const int DB_SIZE_LIMIT =            config["db_size_limit"];
     const std::string LOCAL_DIRECTORY  = config["local_directory"];
     const std::string SERVER_DIRECTORY = config["server_directory"];
     const std::string WEBSERVER_ADDR =   config["webserver_addr"];
@@ -135,6 +136,9 @@ int main(int argc, char *argv[])
         std::cout << "\n-----------------------------------------" << std::endl;
         today = current_day();
 
+        int db_size_gb = getSize(LOCAL_DIRECTORY);
+        std::cout << "db size is:" << db_size_gb << std::endl;
+
         /**************************************
         * Check if today correspond to start
         * with a clean database.
@@ -143,17 +147,31 @@ int main(int argc, char *argv[])
         std::cout << "today is:" << today << " previous day:" << previous_day << std::endl;
         if(today != previous_day)
         {
-            if(today == REINIT_DB_DAY)
+            if((today == REINIT_DB_DAY) || (db_size_gb > DB_SIZE_LIMIT))
             {
-                std::cout << "today correspond a reinit of the database" << std::endl;
+                std::cout << "reinit of the database" << std::endl;
 
-                std::string date= current_datetime();
+                // std::string date= current_datetime();
                 // std::string command = "prime > /tmp/trokam_prime_" + date + ".log";
                 // state = system(command.c_str());
                 // show_state(state, command);
 
                 // trokam --action clean --db-content /some_directory/content/
                 // trokam --action init --seeds-file /usr/local/etc/trokam/seeds.config
+
+                std::string command;
+
+                command = "trokam --action clean --db-content " + LOCAL_DIRECTORY;
+                state = system(command.c_str());
+                show_state(state, command);
+
+                command = "trokam --action init --seeds-file /usr/local/etc/trokam/seeds.config";
+                state = system(command.c_str());
+                show_state(state, command);
+
+                command = "mkdir -p " + LOCAL_DIRECTORY;
+                state = system(command.c_str());
+                show_state(state, command);
             }
         }
 
@@ -196,8 +214,10 @@ int main(int argc, char *argv[])
         std::string command;
 
         std::cout << "Transfer the database to the server" << std::endl;
-        command = "scp -r " + LOCAL_DIRECTORY + " " +
-                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
+        // command = "scp -r " + LOCAL_DIRECTORY + " " +
+        //           WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
+        command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +
+                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/";
         state = std::system(command.c_str());
         verify(state, command);
 

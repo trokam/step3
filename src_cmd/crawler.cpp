@@ -27,6 +27,7 @@
 #include <vector>
 
 /// Boost
+#include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 
 // Trokam
@@ -297,6 +298,12 @@ void Trokam::Crawler::initialise(
 
     // Read the file and put the URLs in 'seed_urls'.
     Trokam::FileOps::readNoComment(filename, seed_urls);
+
+    for(size_t i=0; i<seed_urls.size(); i++)
+    {
+        boost::algorithm::trim_right_if(
+            seed_urls[i], boost::algorithm::is_any_of("/"));
+    }
 
     for(const auto &e: seed_urls)
     {

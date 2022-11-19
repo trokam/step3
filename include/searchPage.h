@@ -19,11 +19,11 @@
 
 #pragma once
 
-/// C++
+// C++
 #include <memory>
 #include <string>
 
-/// Wt
+// Wt
 #include <Wt/WApplication.h>
 #include <Wt/WContainerWidget.h>
 #include <Wt/WNavigationBar.h>
@@ -33,8 +33,9 @@
 #include <Wt/WSelectionBox.h>
 #include <Wt/WStringListModel.h>
 #include <Wt/WSuggestionPopup.h>
+#include <Wt/WTimer.h>
 
-/// Trokam
+// Trokam
 #include "bundle.h"
 #include "data.h"
 #include "pageWidget.h"
@@ -53,6 +54,7 @@ namespace Trokam
 
         private:
 
+            // bool suggestionNotNeeded = false;
             Wt::WApplication *application;
             boost::shared_ptr<Trokam::SharedResources> shared_resources;
 
@@ -75,6 +77,7 @@ namespace Trokam
             Wt::WPushButton *w_button_preferences = nullptr;
             Wt::WPushButton *w_about = nullptr;
             Wt::WSelectionBox *w_sugggestion_box = nullptr;
+            Wt::WTimer *timer = nullptr;
 
             void search(const std::string &terms);
             void show_search_results();
@@ -89,7 +92,7 @@ namespace Trokam
             void showLanguageOptions();
             bool savePreferences();
 
-            void filter(const Wt::WString& input);
+            // void filter(const Wt::WString& input);
 
             void inputKeyWentUp(
                 const Wt::WKeyEvent &kEvent);
@@ -99,7 +102,18 @@ namespace Trokam
 
             void suggestionBoxEnterPressed();
 
-            void suggestionBoxEscapePressed();
+            // void suggestionBoxEscapePressed();
+
+            // void appEsc(const Wt::WKeyEvent &kEvent);
+
+            void timeout();
+
+            void textInput();
+
+            void showSuggestions();
+
+            void createSuggestionBox();
+            void destroySuggestionBox();
 
             // Wt::WSuggestionPopup* createAliasesMatchingPopup(
             //    Wt::WContainerWidget *parent);

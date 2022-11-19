@@ -149,6 +149,9 @@ int main(int argc, char *argv[])
         {
             if((today == REINIT_DB_DAY) || (db_size_gb > DB_SIZE_LIMIT))
             {
+                std::cout << "bye!" << std::endl;
+                exit(0);
+
                 std::cout << "reinit of the database" << std::endl;
 
                 // std::string date= current_datetime();
@@ -235,6 +238,7 @@ int main(int argc, char *argv[])
     }
 
     boost::filesystem::remove(STOP_PUPM);
+    std::cout << "bye!" << std::endl;
     return 0;
 }
 

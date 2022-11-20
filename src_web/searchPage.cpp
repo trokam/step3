@@ -40,6 +40,7 @@
 // #include <Wt/WNavigationBar.h>
 // #include <Wt/WLineEdit.h>
 // #include <Wt/WStackedWidget.h>
+#include <Wt/WLabel.h>
 #include <Wt/WLink.h>
 #include <Wt/WRadioButton.h>
 #include <Wt/WString.h>
@@ -61,8 +62,6 @@
 #include "plain_text_processor.h"
 #include "searchPage.h"
 #include "sharedResources.h"
-
-// #define INLINE_JAVASCRIPT(...) #__VA_ARGS__
 
 Trokam::SearchPage::SearchPage(
     boost::shared_ptr<Trokam::SharedResources> &sr,
@@ -157,7 +156,11 @@ Trokam::SearchPage::SearchPage(
         });
 
     input->keyWentUp().connect(this, &Trokam::SearchPage::inputKeyWentUp);
-    input->textInput().connect(this, &Trokam::SearchPage::textInput);
+
+    if(!isAgentMobile())
+    {
+        input->textInput().connect(this, &Trokam::SearchPage::textInput);
+    }
 
     /*
     w_sugggestion_box = container->addNew<Wt::WSelectionBox>();
@@ -197,7 +200,7 @@ Trokam::SearchPage::SearchPage(
     w_button_preferences->setTextFormat(Wt::TextFormat::XHTML);
     w_button_preferences->setText("<span class=\"paging-text\">Preferences</span>");
     w_button_preferences->
-        clicked().connect(this, &Trokam::SearchPage::showLanguageOptions);
+        clicked().connect(this, &Trokam::SearchPage::showUserOptions);
 
     w_about = header->bindWidget(
         "button_about",
@@ -419,35 +422,9 @@ void Trokam::SearchPage::createFooter(
         });
 }
 
-void Trokam::SearchPage::showLanguageOptions()
+void Trokam::SearchPage::showUserOptions()
 {
-    /**
-    std::string cookie_preferences;
-
-    const Wt::WEnvironment& env = application->environment();
-    if(env.getCookie("preferences"))
-    {
-        cookie_preferences= *(env.getCookie("preferences"));
-        Wt::log("info") << "showLanguageOptions -- cookie -- preferences:" << cookie_preferences;
-    }
-    else
-    {
-        Wt::log("info") << "cookie -- preferences = NULL";
-    }
-
-    preferences.generate(cookie_preferences);
-    language_options = preferences.getLanguages();
-    **/
-
-    /**
-    for(unsigned int i=0; i<language_options.size(); i++)
-    {
-        std::cout << "--- element:" << i << " -- " << std::get<bool>(language_options[i]) << '\n';
-    }
-    **/
-
     auto preferences_box = addChild(std::make_unique<Wt::WDialog>("Preferences"));
-    // auto header = std::make_unique<Wt::WText>(Wt::WString("Search Languages"));
 
     auto language_choices = std::make_unique<Wt::WTable>();
     language_choices->addStyleClass("table");
@@ -475,56 +452,21 @@ void Trokam::SearchPage::showLanguageOptions()
     wt_show_analysis->setInline(false);
     wt_show_analysis->setChecked(true);
 
-    // wt_show_analysis->checked().connect(  [=] { std::get<bool>(language_options[i])= true; });
-    // wt_show_analysis->unChecked().connect([=] { std::get<bool>(language_options[i])= false; });
+    auto w_theme = std::make_unique<Wt::WContainerWidget>();
 
-    /*
-    auto change_style = std::make_unique<Wt::WPushButton>("Change style");
-    change_style->clicked().connect(
-        [=] {
-            const Wt::WEnvironment& env = application->environment();
-            std::string page_style = "light";
-            if(env.getCookie("page_style") != nullptr)
-            {
-                page_style= *(env.getCookie("page_style"));
-            }
+    group = std::make_shared<Wt::WButtonGroup>();
+    Wt::WRadioButton *button;
 
-            if(page_style == "light")
-            {
-                application->setCookie("page_style", "dark", 10000000);
-            }
-            else
-            {
-                application->setCookie("page_style", "light", 10000000);
-            }
-            // application->refresh();
-        });
-    */
+    button = w_theme->addNew<Wt::WRadioButton>("Light");
+    button->setInline(false);
+    group->addButton(button);
 
-            // const Wt::WEnvironment& env = application->environment();
-            // int page_style = 0;
-            /*
-            if(env.getCookie("theme") != nullptr)
-            {
-                page_style= *(env.getCookie("theme"));
-            }
-            */
+    button = w_theme->addNew<Wt::WRadioButton>("Dark");
+    button->setInline(false);
+    group->addButton(button);
 
-auto w_theme = std::make_unique<Wt::WContainerWidget>();
-
-group = std::make_shared<Wt::WButtonGroup>();
-Wt::WRadioButton *button;
-
-button = w_theme->addNew<Wt::WRadioButton>("Light");
-button->setInline(false);
-group->addButton(button);
-
-button = w_theme->addNew<Wt::WRadioButton>("Dark");
-button->setInline(false);
-group->addButton(button);
-
-Wt::log("info") << "user_settings.getTheme()=" << user_settings.getTheme();
-group->setSelectedButtonIndex(user_settings.getTheme());
+    Wt::log("info") << "user_settings.getTheme()=" << user_settings.getTheme();
+    group->setSelectedButtonIndex(user_settings.getTheme());
 
     auto tabW = std::make_unique<Wt::WTabWidget>();
 
@@ -546,13 +488,6 @@ group->setSelectedButtonIndex(user_settings.getTheme());
             "Theme",
             Wt::ContentLoading::Eager);
 
-    /*
-    tabW.get()->addTab(std::make_unique<Wt::WTextArea>("You could change any other style attribute of the"
-                                " tab widget by modifying the style class."
-                                " The style class 'trhead' is applied to this tab."),
-                "Style", Wt::ContentLoading::Eager)->setStyleClass("trhead");
-    */
-
     tabW.get()->setStyleClass("tabwidget");
 
     auto closeButton = std::make_unique<Wt::WPushButton>("Close");
@@ -572,9 +507,10 @@ group->setSelectedButtonIndex(user_settings.getTheme());
                                             }
                                         });
 
-    // preferences_box->titleBar()->addWidget(std::move(header));
-    // preferences_box->contents()->addWidget(std::move(language_choices));
+    auto explanation = std::make_unique<Wt::WLabel>("Reload Trokam page after changing your settings.");
+
     preferences_box->contents()->addWidget(std::move(tabW));
+    preferences_box->footer()->addWidget(std::move(explanation));
     preferences_box->footer()->addWidget(std::move(closeButton));
     preferences_box->rejectWhenEscapePressed();
     preferences_box->setModal(false);
@@ -742,6 +678,8 @@ void Trokam::SearchPage::showSuggestions()
 
     if(words_found.size() > 0)
     {
+        // w_sugggestion_box may not be created in createSuggestionBox()
+        // and the next line will fail.
         createSuggestionBox();
         w_sugggestion_box->clear();
 
@@ -767,12 +705,15 @@ void Trokam::SearchPage::createSuggestionBox()
     if(w_sugggestion_box == nullptr)
     {
         w_sugggestion_box = container->addNew<Wt::WSelectionBox>();
+        // w_sugggestion_box->addStyleClass("dropdown-menu");
         w_sugggestion_box->setHidden(false);
         w_sugggestion_box->setMaximumSize(500, 600);
         w_sugggestion_box->positionAt(input);
         w_sugggestion_box->keyWentUp().connect(
             this, &Trokam::SearchPage::suggestionBoxKeyWentUp);
         w_sugggestion_box->enterPressed().connect(
+            this, &Trokam::SearchPage::suggestionBoxEnterPressed);
+        w_sugggestion_box->clicked().connect(
             this, &Trokam::SearchPage::suggestionBoxEnterPressed);
         // w_sugggestion_box->escapePressed().connect(
         //    this, &Trokam::SearchPage::suggestionBoxEscapePressed);
@@ -799,3 +740,29 @@ void Trokam::SearchPage::destroySuggestionBox()
     }
 }
 
+bool Trokam::SearchPage::isAgentMobile()
+{
+    const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
+    std::string user_agent = env.headerValue("User-Agent");
+
+    Wt::log("info") << "User-Agent:'" << user_agent << "'";
+
+    size_t pos =
+        Trokam::PlainTextProcessor::caseInsensitiveFind(user_agent, "android");
+
+    if(pos != std::string::npos)
+    {
+        Wt::log("info") << "~~~~~~~~~~~~~~ MOBILE ~~~~~~~~~~~~~";
+        return true;
+    }
+
+    if(env.agentIsMobileWebKit())
+    {
+        Wt::log("info") << "~~~~~~~~~~~~~~ MOBILE ~~~~~~~~~~~~~";
+        return true;
+    }
+
+    Wt::log("info") << "~~~~~~~~~~~~~~ DESKTOP ~~~~~~~~~~~~~";
+
+    return false;
+}

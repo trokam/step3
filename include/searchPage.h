@@ -89,7 +89,7 @@ namespace Trokam
             // void serverSideFilteringPopups(
             //    Wt::WContainerWidget *parent);
 
-            void showLanguageOptions();
+            void showUserOptions();
             bool savePreferences();
 
             // void filter(const Wt::WString& input);
@@ -114,6 +114,8 @@ namespace Trokam
 
             void createSuggestionBox();
             void destroySuggestionBox();
+
+            bool isAgentMobile();
 
             // Wt::WSuggestionPopup* createAliasesMatchingPopup(
             //    Wt::WContainerWidget *parent);

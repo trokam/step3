@@ -96,8 +96,8 @@ void show_state(const int &state, std::string &command)
 {
     if(state != 0)
     {
-        std::cout
-            << "failure during execution of command:'" << command << "'" << std::endl;
+        std::cout << "failure during execution of command:'" << command << "'\n";
+        std::cout << "exit status:'" << state << "'" << std::endl;
     }
     else
     {
@@ -149,8 +149,8 @@ int main(int argc, char *argv[])
         {
             if((today == REINIT_DB_DAY) || (db_size_gb > DB_SIZE_LIMIT))
             {
-                std::cout << "bye!" << std::endl;
-                exit(0);
+                // std::cout << "bye!" << std::endl;
+                // exit(0);
 
                 std::cout << "reinit of the database" << std::endl;
 
@@ -223,6 +223,11 @@ int main(int argc, char *argv[])
                   WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/";
         state = std::system(command.c_str());
         verify(state, command);
+        if(state != 0)
+        {
+            std::cout << "bye!" << std::endl;
+            exit(1);
+        }
 
         /**************************************
         * Tell the server use the database.

@@ -52,6 +52,19 @@ std::unique_ptr<Wt::WApplication>
 {
     Wt::log("info") << "WApplication -- constructor";
 
+    // std::string app_path = env.headerValue("APP_PATH");
+    // std::string app_path = env.internalPath();
+    std::string internal_path = env.headerValue("INTERNAL_PATH");
+    Wt::log("info") << "internal_path='" << internal_path << "'";
+
+    const std::string *parameter = env.getParameter("INTERNAL_PATH");
+    Wt::log("info") << "---------------------------------------";
+    if(parameter != nullptr)
+    {
+        Wt::log("info") << "parameter='" << *parameter << "'";
+    }
+    Wt::log("info") << "---------------------------------------";
+
     std::string cookie_preferences;
 
     if(env.getCookie("preferences"))

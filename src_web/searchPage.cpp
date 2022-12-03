@@ -202,12 +202,21 @@ Trokam::SearchPage::SearchPage(
     w_button_preferences->
         clicked().connect(this, &Trokam::SearchPage::showUserOptions);
 
+    w_button_sponsors = header->bindWidget(
+        "button_sponsors",
+        std::make_unique<Wt::WPushButton>());
+    w_button_sponsors->addStyleClass("paging-button");
+    w_button_sponsors->setTextFormat(Wt::TextFormat::XHTML);
+    w_button_sponsors->setText("<span class=\"paging-text\">Sponsors</span>");
+    w_button_sponsors->setLink(Wt::WLink(Wt::LinkType::Url, "/about.html"));
+
     w_about = header->bindWidget(
         "button_about",
         std::make_unique<Wt::WPushButton>());
     w_about->addStyleClass("paging-button");
     w_about->setTextFormat(Wt::TextFormat::XHTML);
     w_about->setText("<span class=\"paging-text\">About</span>");
+    w_about->setLink(Wt::WLink(Wt::LinkType::Url, "/about.html"));
 
     userFindings =
         container->addWidget(std::make_unique<Wt::WTable>());

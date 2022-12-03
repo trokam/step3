@@ -75,6 +75,7 @@ namespace Trokam
             Wt::WTable *userFindings = nullptr;
             Wt::WContainerWidget *w_footer = nullptr;
             Wt::WPushButton *w_button_preferences = nullptr;
+            Wt::WPushButton *w_button_sponsors = nullptr;
             Wt::WPushButton *w_about = nullptr;
             Wt::WSelectionBox *w_sugggestion_box = nullptr;
             Wt::WTimer *timer = nullptr;

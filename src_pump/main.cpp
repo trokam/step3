@@ -24,11 +24,15 @@
 #include <stdio.h>
 
 // C++
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <ctime>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <thread>
 
@@ -48,6 +52,28 @@
 #include "file_ops.h"
 #include "postgresql.h"
 #include "transfers.h"
+
+int transfer_file(
+    const std::string &origin_path,
+    const std::string &dest_user,
+    const std::string &dest_host,
+    const std::string &dest_path);
+
+std::string execute(const char* cmd)
+{
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe)
+    {
+        throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    {
+        result += buffer.data();
+    }
+    return result;
+}
 
 int getSize(const std::string &path)
 {
@@ -106,6 +132,25 @@ void show_state(const int &state, std::string &command)
     }
 }
 
+std::vector<std::string> get_file_list(const std::string& path)
+{
+    std::vector<std::string> result;
+    if (!path.empty())
+    {
+        namespace fs = boost::filesystem;
+
+        fs::path apk_path(path);
+        fs::recursive_directory_iterator end;
+
+        for(fs::recursive_directory_iterator i(apk_path); i != end; ++i)
+        {
+            const fs::path cp = (*i);
+            result.push_back(cp.string());
+        }
+    }
+    return result;
+}
+
 int main(int argc, char *argv[])
 {
     std::cout << "start pump" << std::endl;
@@ -123,6 +168,15 @@ int main(int argc, char *argv[])
     const std::string WEBSERVER_ADDR =   config["webserver_addr"];
     const std::string WEBSERVER_USER =   config["webserver_user"];
     const unsigned int INDEXING_CYCLES = config["indexing_cycles"];
+
+    std::cout << "THIS_NODE_INDEX:"  << THIS_NODE_INDEX << "\n";
+    std::cout << "REINIT_DB_DAY:"    << REINIT_DB_DAY << "\n";
+    std::cout << "DB_SIZE_LIMIT:"    << DB_SIZE_LIMIT << "\n";
+    std::cout << "LOCAL_DIRECTORY:"  << LOCAL_DIRECTORY << "\n";
+    std::cout << "SERVER_DIRECTORY:" << SERVER_DIRECTORY << "\n";
+    std::cout << "WEBSERVER_ADDR:"   << WEBSERVER_ADDR << "\n";
+    std::cout << "WEBSERVER_USER:"   << WEBSERVER_USER << "\n";
+    std::cout << "INDEXING_CYCLES:"  << INDEXING_CYCLES << "\n";
 
     Trokam::Transfers transfers(config);
 
@@ -216,11 +270,32 @@ int main(int argc, char *argv[])
 
         std::string command;
 
-        std::cout << "Transfer the database to the server" << std::endl;
+        std::cout << "Transfering the database to the server" << std::endl;
         // command = "scp -r " + LOCAL_DIRECTORY + " " +
         //           WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
+
+        /*
         command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +
                   WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/";
+        std::cout << "command:" << command << std::endl;
+        std::string output = execute(command.c_str());
+        std::cout << "output:" << output << std::endl;
+        */
+
+        std::vector<std::string> file_list = get_file_list(LOCAL_DIRECTORY);
+        for(const auto &file_origin: file_list)
+        {
+            std::cout << "Copying file:" << file_origin << std::endl;
+            int state = transfer_file(file_origin, WEBSERVER_USER, WEBSERVER_ADDR, SERVER_DIRECTORY);
+            if(state != 0)
+            {
+                std::cout << "Failure during transfer.\n";
+                std::cout << "bye!\n";
+                exit(1);
+            }
+        }
+
+        /**
         state = std::system(command.c_str());
         verify(state, command);
         if(state != 0)
@@ -228,6 +303,7 @@ int main(int argc, char *argv[])
             std::cout << "bye!" << std::endl;
             exit(1);
         }
+        **/
 
         /**************************************
         * Tell the server use the database.

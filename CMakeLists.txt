@@ -62,10 +62,30 @@ if((SUBSYSTEM STREQUAL "PUMP") OR (SUBSYSTEM STREQUAL "ALL"))
 
     ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 
-    find_package(Boost 1.67 COMPONENTS filesystem regex program_options signals system thread log)
+    find_package(
+        Boost 1.67 COMPONENTS
+        filesystem
+        regex
+        program_options
+        signals
+        system
+        thread
+        log)
+
     find_package(fmt)
 
-    target_link_libraries(pump pqxx xapian Boost::system Boost::regex Boost::filesystem Boost::program_options Boost::log fmt::fmt)
+    target_link_libraries(
+        pump
+        pqxx
+        xapian
+        Boost::system
+        Boost::regex
+        Boost::filesystem
+        Boost::program_options
+        Boost::log
+        fmt::fmt
+        ssh
+        trk_transfer)
 
     install(TARGETS pump DESTINATION /usr/local/bin)
 

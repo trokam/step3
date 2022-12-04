@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
     const std::string SERVER_DIRECTORY = config["server_directory"];
     const std::string WEBSERVER_ADDR =   config["webserver_addr"];
     const std::string WEBSERVER_USER =   config["webserver_user"];
+    const std::string WEBSERVER_PASS =   config["webserver_pass"];
     const unsigned int INDEXING_CYCLES = config["indexing_cycles"];
 
     std::cout << "THIS_NODE_INDEX:"  << THIS_NODE_INDEX << "\n";
@@ -199,37 +200,34 @@ int main(int argc, char *argv[])
         *************************************/
 
         std::cout << "today is:" << today << " previous day:" << previous_day << std::endl;
-        if(today != previous_day)
+        if(((today != previous_day) && (today == REINIT_DB_DAY)) || (db_size_gb > DB_SIZE_LIMIT))
         {
-            if((today == REINIT_DB_DAY) || (db_size_gb > DB_SIZE_LIMIT))
-            {
-                // std::cout << "bye!" << std::endl;
-                // exit(0);
+            // std::cout << "bye!" << std::endl;
+            // exit(0);
 
-                std::cout << "reinit of the database" << std::endl;
+            std::cout << "reinit of the database" << std::endl;
 
-                // std::string date= current_datetime();
-                // std::string command = "prime > /tmp/trokam_prime_" + date + ".log";
-                // state = system(command.c_str());
-                // show_state(state, command);
+            // std::string date= current_datetime();
+            // std::string command = "prime > /tmp/trokam_prime_" + date + ".log";
+            // state = system(command.c_str());
+            // show_state(state, command);
 
-                // trokam --action clean --db-content /some_directory/content/
-                // trokam --action init --seeds-file /usr/local/etc/trokam/seeds.config
+            // trokam --action clean --db-content /some_directory/content/
+            // trokam --action init --seeds-file /usr/local/etc/trokam/seeds.config
 
-                std::string command;
+            std::string command;
 
-                command = "trokam --action clean --db-content " + LOCAL_DIRECTORY;
-                state = system(command.c_str());
-                show_state(state, command);
+            command = "trokam --action clean --db-content " + LOCAL_DIRECTORY;
+            state = system(command.c_str());
+            show_state(state, command);
 
-                command = "trokam --action init --seeds-file /usr/local/etc/trokam/seeds.config";
-                state = system(command.c_str());
-                show_state(state, command);
+            command = "trokam --action init --seeds-file /usr/local/etc/trokam/seeds.config";
+            state = system(command.c_str());
+            show_state(state, command);
 
-                command = "mkdir -p " + LOCAL_DIRECTORY;
-                state = system(command.c_str());
-                show_state(state, command);
-            }
+            command = "mkdir -p " + LOCAL_DIRECTORY;
+            state = system(command.c_str());
+            show_state(state, command);
         }
 
         /**************************************
@@ -274,6 +272,17 @@ int main(int argc, char *argv[])
         // command = "scp -r " + LOCAL_DIRECTORY + " " +
         //           WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
 
+        command = "sshpass -p \"" + WEBSERVER_PASS + "\" scp -r " + LOCAL_DIRECTORY + " " +
+                   WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
+
+        state = system(command.c_str());
+        verify(state, command);
+        if(state != 0)
+        {
+            std::cout << "bye!" << std::endl;
+            exit(1);
+        }
+
         /*
         command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +
                   WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/";
@@ -282,6 +291,7 @@ int main(int argc, char *argv[])
         std::cout << "output:" << output << std::endl;
         */
 
+        /*
         std::vector<std::string> file_list = get_file_list(LOCAL_DIRECTORY);
         for(const auto &file_origin: file_list)
         {
@@ -294,16 +304,7 @@ int main(int argc, char *argv[])
                 exit(1);
             }
         }
-
-        /**
-        state = std::system(command.c_str());
-        verify(state, command);
-        if(state != 0)
-        {
-            std::cout << "bye!" << std::endl;
-            exit(1);
-        }
-        **/
+        */
 
         /**************************************
         * Tell the server use the database.

@@ -276,12 +276,14 @@ int main(int argc, char *argv[])
                    WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
 
         state = system(command.c_str());
-        verify(state, command);
+        show_state(state, command);
+        /*
         if(state != 0)
         {
             std::cout << "bye!" << std::endl;
             exit(1);
         }
+        */
 
         /*
         command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +

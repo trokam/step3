@@ -269,29 +269,25 @@ int main(int argc, char *argv[])
         std::string command;
 
         std::cout << "Transfering the database to the server" << std::endl;
-        // command = "scp -r " + LOCAL_DIRECTORY + " " +
+        command = "scp -v -B -r " + LOCAL_DIRECTORY + " " +
+                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
+
+        // command = "sshpass -p \"" + WEBSERVER_PASS + "\" scp -r " + LOCAL_DIRECTORY + " " +
         //           WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
 
-        command = "sshpass -p \"" + WEBSERVER_PASS + "\" scp -r " + LOCAL_DIRECTORY + " " +
-                   WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
+        // command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +
+        //          WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/";
+        std::cout << "command:" << command << std::endl;
+        // std::string output = execute(command.c_str());
+        // std::cout << "output:" << output << std::endl;
 
         state = system(command.c_str());
         show_state(state, command);
-        /*
         if(state != 0)
         {
             std::cout << "bye!" << std::endl;
             exit(1);
         }
-        */
-
-        /*
-        command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +
-                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/";
-        std::cout << "command:" << command << std::endl;
-        std::string output = execute(command.c_str());
-        std::cout << "output:" << output << std::endl;
-        */
 
         /*
         std::vector<std::string> file_list = get_file_list(LOCAL_DIRECTORY);

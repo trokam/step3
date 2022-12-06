@@ -167,7 +167,6 @@ int main(int argc, char *argv[])
     const std::string SERVER_DIRECTORY = config["server_directory"];
     const std::string WEBSERVER_ADDR =   config["webserver_addr"];
     const std::string WEBSERVER_USER =   config["webserver_user"];
-    const std::string WEBSERVER_PASS =   config["webserver_pass"];
     const unsigned int INDEXING_CYCLES = config["indexing_cycles"];
 
     std::cout << "THIS_NODE_INDEX:"  << THIS_NODE_INDEX << "\n";
@@ -267,22 +266,28 @@ int main(int argc, char *argv[])
         *************************************/
 
         std::string command;
-
         std::cout << "Transfering the database to the server" << std::endl;
+
+        /**
+        std::string date = current_datetime();
         command = "scp -v -B -r " + LOCAL_DIRECTORY + " " +
-                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
+                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY +
+                  " > /tmp/scp_" + date + ".log";
 
-        // command = "sshpass -p \"" + WEBSERVER_PASS + "\" scp -r " + LOCAL_DIRECTORY + " " +
-        //           WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY;
-
-        // command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +
-        //          WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/";
         std::cout << "command:" << command << std::endl;
-        // std::string output = execute(command.c_str());
-        // std::cout << "output:" << output << std::endl;
-
         state = system(command.c_str());
         show_state(state, command);
+        **/
+
+        std::string date = current_datetime();
+        command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +
+                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/" +
+                  " > /tmp/rsync_" + date + ".log";
+
+        std::cout << "command:" << command << std::endl;
+        state = system(command.c_str());
+        show_state(state, command);
+
         if(state != 0)
         {
             std::cout << "bye!" << std::endl;

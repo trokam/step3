@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
         **/
 
         std::string date = current_datetime();
-        command = "rsync -ravt --progress " + LOCAL_DIRECTORY + " " +
+        command = "rsync -ravt " + LOCAL_DIRECTORY + " " +
                   WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/" +
                   " > /tmp/rsync_" + date + ".log";
 

@@ -53,22 +53,16 @@
 #include "postgresql.h"
 #include "transfers.h"
 
-int transfer_file(
-    const std::string &origin_path,
-    const std::string &dest_user,
-    const std::string &dest_host,
-    const std::string &dest_path);
-
 std::string execute(const char* cmd)
 {
     std::array<char, 128> buffer;
     std::string result;
     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-    if (!pipe)
+    if(!pipe)
     {
         throw std::runtime_error("popen() failed!");
     }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    while(fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
     {
         result += buffer.data();
     }
@@ -132,6 +126,7 @@ void show_state(const int &state, std::string &command)
     }
 }
 
+/**
 std::vector<std::string> get_file_list(const std::string& path)
 {
     std::vector<std::string> result;
@@ -150,6 +145,7 @@ std::vector<std::string> get_file_list(const std::string& path)
     }
     return result;
 }
+**/
 
 int main(int argc, char *argv[])
 {
@@ -167,6 +163,7 @@ int main(int argc, char *argv[])
     const std::string SERVER_DIRECTORY = config["server_directory"];
     const std::string WEBSERVER_ADDR =   config["webserver_addr"];
     const std::string WEBSERVER_USER =   config["webserver_user"];
+    const std::string MNT_SERVER_DB =    config["mnt_server_db"];
     const unsigned int INDEXING_CYCLES = config["indexing_cycles"];
 
     std::cout << "THIS_NODE_INDEX:"  << THIS_NODE_INDEX << "\n";
@@ -176,6 +173,7 @@ int main(int argc, char *argv[])
     std::cout << "SERVER_DIRECTORY:" << SERVER_DIRECTORY << "\n";
     std::cout << "WEBSERVER_ADDR:"   << WEBSERVER_ADDR << "\n";
     std::cout << "WEBSERVER_USER:"   << WEBSERVER_USER << "\n";
+    std::cout << "MNT_SERVER_DB:"    << MNT_SERVER_DB << "\n";
     std::cout << "INDEXING_CYCLES:"  << INDEXING_CYCLES << "\n";
 
     Trokam::Transfers transfers(config);
@@ -187,7 +185,7 @@ int main(int argc, char *argv[])
 
     while(!boost::filesystem::exists(STOP_PUPM))
     {
-        std::cout << "\n-----------------------------------------" << std::endl;
+        std::cout << "\n---------- new cycle ----------" << std::endl;
         today = current_day();
 
         int db_size_gb = getSize(LOCAL_DIRECTORY);
@@ -201,18 +199,7 @@ int main(int argc, char *argv[])
         std::cout << "today is:" << today << " previous day:" << previous_day << std::endl;
         if(((today != previous_day) && (today == REINIT_DB_DAY)) || (db_size_gb > DB_SIZE_LIMIT))
         {
-            // std::cout << "bye!" << std::endl;
-            // exit(0);
-
             std::cout << "reinit of the database" << std::endl;
-
-            // std::string date= current_datetime();
-            // std::string command = "prime > /tmp/trokam_prime_" + date + ".log";
-            // state = system(command.c_str());
-            // show_state(state, command);
-
-            // trokam --action clean --db-content /some_directory/content/
-            // trokam --action init --seeds-file /usr/local/etc/trokam/seeds.config
 
             std::string command;
 
@@ -259,55 +246,38 @@ int main(int argc, char *argv[])
         *************************************/
         std::cout << "disable database and wait" << std::endl;
         transfers.disable(THIS_NODE_INDEX);
-        std::this_thread::sleep_for(std::chrono::seconds(30));
+        std::this_thread::sleep_for(std::chrono::seconds(20));
 
         /**************************************
         * Transfer the database to the server
         *************************************/
 
+        /**
+        command = "rsync -Wravt " + LOCAL_DIRECTORY + " " +
+                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/" +
+                  " 2>&1 1>/tmp/rsync_" + date + ".log";
+        **/
+
+        /**
+        boost::filesystem::copy_file(
+            LOCAL_DIRECTORY,
+            "/home/nicolas/website",
+            boost::filesystem::copy_option::overwrite_if_exists);
+        **/
+
         std::string command;
         std::cout << "Transfering the database to the server" << std::endl;
 
-        /**
         std::string date = current_datetime();
-        command = "scp -v -B -r " + LOCAL_DIRECTORY + " " +
-                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY +
-                  " > /tmp/scp_" + date + ".log";
-
+        command = "cp -v -a -r " + LOCAL_DIRECTORY + " " + MNT_SERVER_DB + " 2>&1 1>/tmp/copy_" + date + ".log";
         std::cout << "command:" << command << std::endl;
-        state = system(command.c_str());
+        state = std::system(command.c_str());
         show_state(state, command);
-        **/
-
-        std::string date = current_datetime();
-        command = "rsync -ravt " + LOCAL_DIRECTORY + " " +
-                  WEBSERVER_USER + "@" + WEBSERVER_ADDR + ":" + SERVER_DIRECTORY + "/content/" +
-                  " > /tmp/rsync_" + date + ".log";
-
-        std::cout << "command:" << command << std::endl;
-        state = system(command.c_str());
-        show_state(state, command);
-
         if(state != 0)
         {
             std::cout << "bye!" << std::endl;
             exit(1);
         }
-
-        /*
-        std::vector<std::string> file_list = get_file_list(LOCAL_DIRECTORY);
-        for(const auto &file_origin: file_list)
-        {
-            std::cout << "Copying file:" << file_origin << std::endl;
-            int state = transfer_file(file_origin, WEBSERVER_USER, WEBSERVER_ADDR, SERVER_DIRECTORY);
-            if(state != 0)
-            {
-                std::cout << "Failure during transfer.\n";
-                std::cout << "bye!\n";
-                exit(1);
-            }
-        }
-        */
 
         /**************************************
         * Tell the server use the database.

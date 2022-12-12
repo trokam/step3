@@ -148,8 +148,6 @@ void Trokam::Transfers::enable(
     sql_update+= "SET date=NOW(), enabled=true ";
     sql_update+= "WHERE crawler_id=" + std::to_string(node_id) + " ";
 
-    std::cout << "sql_update:" << sql_update << "\n";
-
     m_db->execNoAnswer(sql_update);
 }
 
@@ -160,8 +158,6 @@ void Trokam::Transfers::disable(
     sql_update=  "UPDATE dbcontent ";
     sql_update+= "SET date=NOW(), enabled=false ";
     sql_update+= "WHERE crawler_id=" + std::to_string(node_id) + " ";
-
-    std::cout << "sql_update:" << sql_update << "\n";
 
     m_db->execNoAnswer(sql_update);
 }

@@ -31,6 +31,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -126,27 +127,6 @@ void show_state(const int &state, std::string &command)
     }
 }
 
-/**
-std::vector<std::string> get_file_list(const std::string& path)
-{
-    std::vector<std::string> result;
-    if (!path.empty())
-    {
-        namespace fs = boost::filesystem;
-
-        fs::path apk_path(path);
-        fs::recursive_directory_iterator end;
-
-        for(fs::recursive_directory_iterator i(apk_path); i != end; ++i)
-        {
-            const fs::path cp = (*i);
-            result.push_back(cp.string());
-        }
-    }
-    return result;
-}
-**/
-
 int main(int argc, char *argv[])
 {
     std::cout << "start pump" << std::endl;
@@ -191,10 +171,10 @@ int main(int argc, char *argv[])
         int db_size_gb = getSize(LOCAL_DIRECTORY);
         std::cout << "db size is:" << db_size_gb << std::endl;
 
-        /**************************************
-        * Check if today correspond to start
-        * with a clean database.
-        *************************************/
+        /**
+         * Check if today correspond to start
+         * with a clean database.
+         **/
 
         std::cout << "today is:" << today << " previous day:" << previous_day << std::endl;
         if(((today != previous_day) && (today == REINIT_DB_DAY)) || (db_size_gb > DB_SIZE_LIMIT))
@@ -216,9 +196,9 @@ int main(int argc, char *argv[])
             show_state(state, command);
         }
 
-        /**************************************
-        * Index pages
-        *************************************/
+        /**
+         * Index pages.
+         **/
 
         std::cout << "LOCAL_DIRECTORY=" << LOCAL_DIRECTORY << std::endl;
 
@@ -240,17 +220,48 @@ int main(int argc, char *argv[])
             }
         }
 
-        /**************************************
-        * Tell the server don't use this database
-        * and wait a moment for any active query to complete
-        *************************************/
+        /**
+         * Perform a search on common words for each language.
+         * This creates indexes to speed up the search mechanism.
+         **/
+
+        const std::string words_path = "/usr/local/etc/trokam/words.json";
+        std::string words_content = Trokam::FileOps::read(words_path);
+        nlohmann::json words_json = nlohmann::json::parse(words_content);
+
+        std::map<std::string, std::vector<std::string>> words =
+            words_json["words"].get<std::map<std::string, std::vector<std::string>>>();
+
+        for(auto iter= words.begin(); iter != words.end(); ++iter)
+        {
+            const std::string language = iter->first;
+            const std::vector<std::string> term_collection = iter->second;
+            for(const auto &term: term_collection)
+            {
+                std::string command =
+                    "trokam --action search "
+                    "--languages " + language + " "
+                    "--db-content " + LOCAL_DIRECTORY + " "
+                    "--terms " + term + " "
+                    "> /tmp/word_prime.log";
+                int state = system(command.c_str());
+                show_state(state, command);
+                std::cout << std::endl;
+            }
+        }
+
+        /**
+         * Tell the server don't use this database
+         * and wait a moment for any active query to complete
+         **/
+
         std::cout << "disable database and wait" << std::endl;
         transfers.disable(THIS_NODE_INDEX);
         std::this_thread::sleep_for(std::chrono::seconds(20));
 
-        /**************************************
-        * Transfer the database to the server
-        *************************************/
+        /**
+         * Transfer the database to the server
+         **/
 
         /**
         command = "rsync -Wravt " + LOCAL_DIRECTORY + " " +
@@ -279,16 +290,16 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        /**************************************
-        * Tell the server use the database.
-        *************************************/
+        /**
+         * Tell the server use the database.
+         **/
         std::cout << "enable database" << std::endl;
         transfers.enable(THIS_NODE_INDEX);
 
-        /**************************************
-        * Save today's number to check in the next iteration
-        * if there is a change.
-        *************************************/
+        /**
+         * Keep today's number to check in the next iteration
+         * if there is a change.
+         **/
         previous_day = today;
     }
 

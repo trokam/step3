@@ -2,9 +2,6 @@
  *                            T R O K A M
  *                       Internet Search Engine
  *
- * Copyright (C) 2022, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
- *
  * This file is part of Trokam.
  *
  * Trokam is free software: you can redistribute it and/or modify
@@ -57,7 +54,6 @@ namespace Trokam
     {
         public:
 
-            // ReadableContentDB();
             void open(const std::string &path);
             void add(const std::string &path);
 
@@ -75,8 +71,8 @@ namespace Trokam
 
         private:
 
-            const int SLOT_URL   = 0;
-            const int SLOT_TITLE = 1;
+            const int SLOT_URL       = 0;
+            const int SLOT_TITLE     = 1;
             const int SLOT_RELEVANCE = 2;
 
             std::unique_ptr<Xapian::Database> db;

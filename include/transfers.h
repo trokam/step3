@@ -37,6 +37,13 @@
 
 namespace Trokam
 {
+    /**
+    * This is a mechanism that tells the webserver which
+    * page-databases are enabled to perform the search. In general,
+    * the webserver has several page-databases on which to perform
+    * the query, but some of them may be disabled temporarily while
+    * a crawler updates it.
+    **/
     class Transfers
     {
         public:
@@ -47,35 +54,14 @@ namespace Trokam
 
             std::vector<std::string> getTimeStamps();
 
-            /**
-            int getMaxIndex(const int &crawlers_id);
-
-            std::vector<int> getMaxIndex(
-                const std::vector<int> &crawlers_id);
-
-            std::vector<int> getCrawlersId();
-            **/
-
             std::string getPath(
                 const int &crawlers_id);
 
-            void enable(const int &node_id);
+            void enable(
+                const int &node_id);
 
             void disable(
                 const int &node_id);
-
-            /**
-            void insert(
-                const int &node_id,
-                const std::string &path,
-                const std::string &volume_id);
-
-            pqxx::result getPrevious(
-                const int &crawler_index);
-
-            void remove(
-                const int &index);
-            **/
 
         private:
 

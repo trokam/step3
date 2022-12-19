@@ -1,9 +1,6 @@
 /***********************************************************************
  *                            T R O K A M
- *                       Internet Search Engine
- *
- * Copyright (C) 2018, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
+ *                      trokam.com / trokam.org
  *
  * This file is part of Trokam.
  *
@@ -26,7 +23,6 @@
 #include <Wt/WBootstrapTheme.h>
 #include <Wt/WEnvironment.h>
 #include <Wt/WHBoxLayout.h>
-// #include <Wt/WBootstrapTheme.h>
 #include <Wt/WBootstrap5Theme.h>
 #include <Wt/WCssTheme.h>
 #include <Wt/WLink.h>
@@ -41,7 +37,6 @@
 #include "searchPage.h"
 #include "topWindow.h"
 
-// Trokam::AppGenerator::AppGenerator(Trokam::Options &opt)
 Trokam::AppGenerator::AppGenerator(nlohmann::json &opt)
     :commonResources(new Trokam::SharedResources(opt))
 {}
@@ -50,43 +45,17 @@ std::unique_ptr<Wt::WApplication>
     Trokam::AppGenerator::createApplication(
         const Wt::WEnvironment& env)
 {
-    Wt::log("info") << "WApplication -- constructor";
-
-    // std::string app_path = env.headerValue("APP_PATH");
-    // std::string app_path = env.internalPath();
-    std::string internal_path = env.headerValue("INTERNAL_PATH");
-    Wt::log("info") << "internal_path='" << internal_path << "'";
-
-    const std::string *parameter = env.getParameter("INTERNAL_PATH");
-    Wt::log("info") << "---------------------------------------";
-    if(parameter != nullptr)
-    {
-        Wt::log("info") << "parameter='" << *parameter << "'";
-    }
-    Wt::log("info") << "---------------------------------------";
-
     std::string cookie_preferences;
-
     if(env.getCookie("preferences"))
     {
         cookie_preferences= *(env.getCookie("preferences"));
-        Wt::log("info") << "createApplication -- cookie -- preferences:" << cookie_preferences;
     }
-    else
-    {
-        Wt::log("info") << "cookie -- preferences = NULL";
-    }
-
-    // Trokam::Preferences preferences(cookie_preferences);
     Trokam::Preferences user_settings(cookie_preferences);
-    Wt::log("info") << "preferences.getTheme()=" << user_settings.getTheme();
 
     /**
-     * Instantiate the application. object.
+     * Instantiate the application object.
      **/
     auto app = std::make_unique<Wt::WApplication>(env);
-
-    Wt::log("info") << "appRoot: '" << app->appRoot() << "'";
 
     /**
      * Verifying approot directory.
@@ -96,7 +65,9 @@ std::unique_ptr<Wt::WApplication>
         Wt::log("error") << WARNING_APPROOT_EMPTY;
     }
 
-    // Using Bootstrap CSS version 5.
+    /**
+     * Using Bootstrap CSS version 5.
+     **/
     auto bootstrapTheme = std::make_shared<Wt::WBootstrap5Theme>();
     app->setTheme(bootstrapTheme);
 
@@ -104,7 +75,6 @@ std::unique_ptr<Wt::WApplication>
      * Additional stylesheet.
      **/
     app->useStyleSheet("/style/trokam_common.css");
-
     if(user_settings.getTheme() == Trokam::Theme::LIGHT)
     {
         app->useStyleSheet("/style/trokam_light.css");
@@ -117,21 +87,7 @@ std::unique_ptr<Wt::WApplication>
     /**
      * Load text bundles.
      **/
-    // app->messageResourceBundle().use(app->appRoot() + "report");
     app->messageResourceBundle().use(app->appRoot() + "text");
-    // app->messageResourceBundle().use(app->appRoot() + "src");
-
-    /**
-     * Add the only one widget in the application layout.
-     **/
-    /*
-    auto layout = app->root()->setLayout(std::make_unique<Wt::WHBoxLayout>());
-    layout->setPreferredImplementation(Wt::LayoutImplementation::JavaScript);
-    layout->setContentsMargins(0, 0, 0, 0);
-    // layout->addWidget(std::make_unique<Trokam::TopWindow>(commonResources, app.get()));
-    layout->addWidget(std::make_unique<Trokam::SearchPage>(commonResources, app.get()));
-    */
-
     app->root()->addWidget(
         std::make_unique<Trokam::SearchPage>(
             commonResources, app.get()));
@@ -139,7 +95,7 @@ std::unique_ptr<Wt::WApplication>
     /**
      * Set web site title.
      **/
-    app->setTitle("Trokam");
+    app->setTitle("Trokam - Internet Search Engine");
 
     return app;
 }

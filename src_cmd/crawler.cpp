@@ -2,9 +2,6 @@
  *                            T R O K A M
  *                       Internet Search Engine
  *
- * Copyright (C) 2022, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
- *
  * This file is part of Trokam.
  *
  * Trokam is free software: you can redistribute it and/or modify

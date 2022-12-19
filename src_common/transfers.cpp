@@ -25,9 +25,10 @@
 #include "transfers.h"
 
 /**
- *
+ * A PostgreSQL database keep the state of each
+ * page-database. In general it could be located
+ * in a different machine than the webserver.
  **/
-
 Trokam::Transfers::Transfers(nlohmann::json &config)
 {
     const std::string host = config["transfers"]["host"];
@@ -37,28 +38,6 @@ Trokam::Transfers::Transfers(nlohmann::json &config)
 
     m_db.reset(new Trokam::Postgresql(host, port, name, user));
 }
-
-/*
-std::vector<int> Trokam::Transfers::getCrawlersId()
-{
-    std::string sql_select;
-    sql_select=  "SELECT id ";
-    sql_select+= "FROM crawlers ";
-    pqxx::result answer;
-    m_db->execAnswer(sql_select, answer);
-
-    std::vector<int> result;
-    pqxx::result::iterator row= answer.begin();
-    while(row != answer.end())
-    {
-        const int id = row[0].as(int());
-        result.push_back(id);
-        row++;
-    }
-
-    return result;
-}
-*/
 
 std::vector<int> Trokam::Transfers::getIndex()
 {
@@ -102,20 +81,6 @@ std::vector<std::string> Trokam::Transfers::getTimeStamps()
     return result;
 }
 
-/*
-std::vector<int> Trokam::Transfers::getMaxIndex(
-    const std::vector<int> &crawlers_id)
-{
-    std::vector<int> result;
-    for(unsigned int i=0; i<crawlers_id.size(); i++)
-    {
-        int index = getMaxIndex(crawlers_id[i]);
-        result.push_back(index);
-    }
-    return result;
-}
-*/
-
 std::string Trokam::Transfers::getPath(
     const int &crawlers_id)
 {
@@ -124,8 +89,6 @@ std::string Trokam::Transfers::getPath(
     sql_select+= "FROM dbcontent ";
     sql_select+= "WHERE crawler_id=" + std::to_string(crawlers_id) + " ";
     sql_select+= "AND enabled=true ";
-
-    std::cout << "sql_select=" << sql_select << "\n";
 
     pqxx::result answer;
     m_db->execAnswer(sql_select, answer);
@@ -161,47 +124,3 @@ void Trokam::Transfers::disable(
 
     m_db->execNoAnswer(sql_update);
 }
-
-/**
-void Trokam::Transfers::insert(
-    const int &node_id,
-    const std::string &path,
-    const std::string &volume_id)
-{
-    std::string sql_insert;
-    sql_insert=  "INSERT INTO directories(crawlers_id, date, path, extra) ";
-    sql_insert+= "VALUES(" + std::to_string(node_id) + ", NOW(), '" + path + "', '" + volume_id + "')";
-
-    std::cout << "sql_insert:" << sql_insert << "\n";
-
-    m_db->execNoAnswer(sql_insert);
-}
-
-pqxx::result Trokam::Transfers::getPrevious(
-    const int &crawler_index)
-{
-    const int max_id = getMaxIndex(crawler_index);
-
-    std::string sql_select;
-    sql_select=  "SELECT id, path, extra ";
-    sql_select+= "FROM directories ";
-    sql_select+= "WHERE id<" + std::to_string(max_id) + " ";
-    sql_select+= "AND crawlers_id=" + std::to_string(crawler_index) + " ";
-    sql_select+= "AND date < (NOW() - INTERVAL '2m') ";
-
-    std::cout << "sql_select:" << sql_select << "\n";
-
-    pqxx::result answer;
-    m_db->execAnswer(sql_select, answer);
-    return answer;
-}
-
-void Trokam::Transfers::remove(
-    const int &index)
-{
-    std::string sql_delete;
-    sql_delete=  "DELETE FROM directories ";
-    sql_delete+= "WHERE id=" + std::to_string(index);
-    m_db->execNoAnswer(sql_delete);
-}
-**/

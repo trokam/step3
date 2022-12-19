@@ -34,17 +34,10 @@
 #include <Wt/WEnvironment.h>
 #include <Wt/WPopupMenu.h>
 #include <Wt/WPushButton.h>
-// #include <Wt/WHBoxLayout.h>
-// #include <Wt/WImage.h>
-// #include <Wt/WMenu.h>
-// #include <Wt/WNavigationBar.h>
-// #include <Wt/WLineEdit.h>
-// #include <Wt/WStackedWidget.h>
 #include <Wt/WLabel.h>
 #include <Wt/WLink.h>
 #include <Wt/WRadioButton.h>
 #include <Wt/WString.h>
-// #include <Wt/WVBoxLayout.h>
 #include <Wt/WStringListModel.h>
 #include <Wt/WTabWidget.h>
 #include <Wt/WTemplate.h>
@@ -70,55 +63,35 @@ Trokam::SearchPage::SearchPage(
         application(app),
         shared_resources(sr)
 {
-    Wt::log("info") << "SearchPage constructor";
-
     const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
 
     std::string cookie_preferences;
     if(env.getCookie("preferences"))
     {
         cookie_preferences= *(env.getCookie("preferences"));
-        Wt::log("info") << "createApplication -- cookie -- preferences:" << cookie_preferences;
     }
     else
     {
-        Wt::log("info") << "cookie -- preferences = NULL";
+        Wt::log("info") << "cookie preferences = NULL";
     }
 
     user_settings.generate(cookie_preferences);
-    Wt::log("info") << "user_settings.getTheme()=" << user_settings.getTheme();
-
     application->internalPathChanged().connect(
         [=] {
-            // handlePathChange();
-            Wt::log("info") << "current path:" << application->internalPath();
-            // const std::string internalPath= application->internalPath();
-            // std::string::size_type loc= internalPath.find("search?terms=");
-            // if(loc != std::string::npos)
-
             std::string internal_path= application->internalPath();
             boost::algorithm::trim_if(
                 internal_path, boost::algorithm::is_any_of("/ \n\r\t\\\""));
-
-            // const std::string search_terms = internalPath.substr(loc + 13);
-            // const std::string search_terms=
-            //     Trokam::PlainTextProcessor::urlDecode(internal_path);
-
             const std::string search_terms=
                 Wt::Utils::urlDecode(internal_path);
-
-            Wt::log("info") << "decoded search_terms:" << search_terms;
             search(search_terms);
             show_search_results();
         });
 
     addStyleClass("d-flex");
     addStyleClass("h-100");
-    // addStyleClass("text-bg-dark");
     addStyleClass("text-bg-primary");
 
     container = addWidget(std::make_unique<Wt::WContainerWidget>());
-
     container->addStyleClass("cover-container");
     container->addStyleClass("d-flex");
     container->addStyleClass("w-100");
@@ -134,22 +107,14 @@ Trokam::SearchPage::SearchPage(
     input = header->bindWidget(
         "input",
         std::make_unique<Wt::WLineEdit>());
-    // input = container->addWidget(std::make_unique<Wt::WLineEdit>());
-    // input->addStyleClass("form-control");
     input->setPlaceholderText("Search for ...");
     input->enterPressed().connect(
         [=] {
-            Wt::log("info") << "*************** " << __PRETTY_FUNCTION__;
-
             timer->stop();
             destroySuggestionBox();
-
             std::string user_input= input->text().toUTF8();
-            Wt::log("info") << "user_input:" << user_input;
             user_input = Xapian::Unicode::tolower(user_input);
-            Wt::log("info") << "user_input:" << user_input;
             const std::string encoded_terms= Wt::Utils::urlEncode(user_input);
-            Wt::log("info") << "encoded terms:" << encoded_terms;
             std::string internal_url = "/";
             internal_url+= encoded_terms;
             application->setInternalPath(internal_url, true);
@@ -162,19 +127,6 @@ Trokam::SearchPage::SearchPage(
         input->textInput().connect(this, &Trokam::SearchPage::textInput);
     }
 
-    /*
-    w_sugggestion_box = container->addNew<Wt::WSelectionBox>();
-    w_sugggestion_box->setHidden(true);
-    w_sugggestion_box->setMaximumSize(500, 600);
-    w_sugggestion_box->positionAt(input);
-    w_sugggestion_box->keyWentUp().connect(
-        this, &Trokam::SearchPage::suggestionBoxKeyWentUp);
-    w_sugggestion_box->enterPressed().connect(
-        this, &Trokam::SearchPage::suggestionBoxEnterPressed);
-    w_sugggestion_box->escapePressed().connect(
-        this, &Trokam::SearchPage::suggestionBoxEscapePressed);
-    */
-
     auto button = header->bindWidget(
         "button",
         std::make_unique<Wt::WPushButton>("search"));
@@ -183,11 +135,8 @@ Trokam::SearchPage::SearchPage(
     button->clicked().connect(
         [=] {
             std::string user_input= input->text().toUTF8();
-            Wt::log("info") << "user_input:" << user_input;
             user_input = Xapian::Unicode::tolower(user_input);
-            Wt::log("info") << "user_input:" << user_input;
             const std::string encoded_terms= Wt::Utils::urlEncode(user_input);
-            Wt::log("info") << "encoded terms:" << encoded_terms;
             std::string internal_url = "/";
             internal_url+= encoded_terms;
             application->setInternalPath(internal_url, true);
@@ -237,19 +186,12 @@ Trokam::SearchPage::SearchPage(
     timer->setInterval(std::chrono::milliseconds(750));
     timer->timeout().connect(this, &Trokam::SearchPage::timeout);
 
-    // application->globalKeyWentDown().connect(
-    //    this, &Trokam::SearchPage::appEsc);
-
-    Wt::log("info") << "current path:" << application->internalPath();
-
     input->setFocus();
 }
 
 void Trokam::SearchPage::search(
     const std::string &terms)
 {
-    Wt::log("info") << "+++++++++++++++++++++++ search() -- terms:" << terms;
-
     std::string low_case_terms= Xapian::Unicode::tolower(terms);
 
     Xapian::doccount results_requested = 24;
@@ -281,14 +223,11 @@ void Trokam::SearchPage::search(
                 language_selected,
                 results_requested);
 
-    Wt::log("info") << "+++++++ total results:" << items_found.size();
     createFooter(container);
 }
 
 void Trokam::SearchPage::show_search_results()
 {
-    Wt::log("info") << "+++++++ show_search_results()";
-
     int total_results = items_found.size();
     auto dv = std::div(total_results, results_per_page);
     int total_pages = dv.quot;
@@ -296,9 +235,6 @@ void Trokam::SearchPage::show_search_results()
     {
         total_pages++;
     }
-
-    Wt::log("info") << "dv.quot:" << dv.quot;
-    Wt::log("info") << "dv.rem:" << dv.rem;
 
     userFindings->clear();
     if(items_found.size() != 0)
@@ -326,7 +262,6 @@ void Trokam::SearchPage::show_search_results()
             out+= "</strong></span><br/>";
             out+= "</p>";
 
-            // auto oneRow = std::make_unique<Wt::WTemplate>(out);
             auto oneRow = std::make_unique<Wt::WTemplate>();
             oneRow->setTemplateText(out, Wt::TextFormat::UnsafeXHTML);
             userFindings->elementAt(i, 0)->addWidget(std::move(oneRow));
@@ -473,8 +408,6 @@ void Trokam::SearchPage::showUserOptions()
     button = w_theme->addNew<Wt::WRadioButton>("Dark");
     button->setInline(false);
     group->addButton(button);
-
-    Wt::log("info") << "user_settings.getTheme()=" << user_settings.getTheme();
     group->setSelectedButtonIndex(user_settings.getTheme());
 
     auto tabW = std::make_unique<Wt::WTabWidget>();
@@ -528,48 +461,20 @@ void Trokam::SearchPage::showUserOptions()
 
 bool Trokam::SearchPage::savePreferences()
 {
-    /**
-    std::string language_selected;
-    for(unsigned int i=0; i<language_options.size(); i++)
-    {
-        if(std::get<bool>(language_options[i]))
-        {
-            language_selected += std::to_string(i) + ",";
-        }
-    }
-
-    application->setCookie("languages", language_selected, 10000000);
-    **/
-    // application->setCookie("theme", group->selectedButtonIndex(), 10000000);
-
     Wt::log("info") << "group->selectedButtonIndex():" << group->selectedButtonIndex();
     unsigned int theme = group->selectedButtonIndex();
     user_settings.setTheme(theme);
     user_settings.setLanguages(language_options);
-
     std::string cookie_preferences = user_settings.serialize();
-    Wt::log("info") << "cookie_preferences:" << cookie_preferences;
     application->setCookie("preferences", cookie_preferences, 10000000);
-
     return true;
 }
 
 void Trokam::SearchPage::inputKeyWentUp(
     const Wt::WKeyEvent &kEvent)
 {
-    /*
-    if(kEvent.key() == Wt::Key::Escape)
-    {
-        suggestionBoxEscapePressed();
-        return;
-    }
-    */
-
     if(kEvent.key() == Wt::Key::Down)
     {
-        Wt::log("info") << "*************** " << __PRETTY_FUNCTION__;
-        Wt::log("info") << "*************** w_sugggestion_box=" << w_sugggestion_box;
-
         if(w_sugggestion_box != nullptr)
         {
             w_sugggestion_box->setHidden(false);
@@ -577,14 +482,6 @@ void Trokam::SearchPage::inputKeyWentUp(
             w_sugggestion_box->setCurrentIndex(0);
         }
     }
-
-    /*
-    if(kEvent.key() == Wt::Key::Enter)
-    {
-        suggestionNotNeeded = true;
-        return;
-    }
-    */
 }
 
 void Trokam::SearchPage::suggestionBoxKeyWentUp(
@@ -598,8 +495,6 @@ void Trokam::SearchPage::suggestionBoxKeyWentUp(
 
 void Trokam::SearchPage::suggestionBoxEnterPressed()
 {
-    Wt::log("info") << "*************** " << __PRETTY_FUNCTION__;
-
     std::string partial_input = input->text().toUTF8();
 
     std::vector<std::string> parts =
@@ -614,9 +509,6 @@ void Trokam::SearchPage::suggestionBoxEnterPressed()
         user_input += parts[i] + " ";
     }
     user_input += w_sugggestion_box->currentText().toUTF8();
-
-    Wt::log("info") << "++++ searching for:" << user_input;
-
     user_input = Xapian::Unicode::tolower(user_input);
     const std::string encoded_terms = Wt::Utils::urlEncode(user_input);
     input->setText(user_input);
@@ -631,21 +523,17 @@ void Trokam::SearchPage::suggestionBoxEnterPressed()
 
 void Trokam::SearchPage::timeout()
 {
-    Wt::log("info") << "*************** " << __PRETTY_FUNCTION__;
     timer->stop();
     showSuggestions();
 }
 
 void Trokam::SearchPage::textInput()
 {
-    Wt::log("info") << __PRETTY_FUNCTION__;
     timer->start();
 }
 
 void Trokam::SearchPage::showSuggestions()
 {
-    Wt::log("info") << "*************** " << __PRETTY_FUNCTION__;
-
     std::string user_input= input->text().toUTF8();
     if(user_input.length() <= 3)
     {
@@ -658,25 +546,13 @@ void Trokam::SearchPage::showSuggestions()
     unsigned int total = parts.size();
     unsigned int last = total - 1;
 
-    for(unsigned int i=0; i<parts.size(); i++)
-    {
-        Wt::log("info") << "parts[" << i << "]=" << parts[i];
-    }
-
     if(parts[last].size() <= 3)
     {
         return;
     }
 
     user_input = parts[last];
-
-    // w_sugggestion_box->setHidden(false);
-    // w_sugggestion_box->positionAt(input);
-
-    Wt::log("info") << "----- user_input:" << user_input;
     std::string low_case_terms= Xapian::Unicode::tolower(user_input);
-
-    // Xapian::doccount results_requested = 24;
 
     shared_resources->getNewDB();
 
@@ -687,19 +563,18 @@ void Trokam::SearchPage::showSuggestions()
 
     if(words_found.size() > 0)
     {
-        // w_sugggestion_box may not be created in createSuggestionBox()
-        // and the next line will fail.
+        /**
+         * DESIGN REVIEW
+         * w_sugggestion_box may not be created in createSuggestionBox()
+         * and the next line will fail.
+         **/
         createSuggestionBox();
         w_sugggestion_box->clear();
 
         int count = 0;
         for(unsigned int i=0; i<words_found.size(); i++)
         {
-            Wt::log("info") << "===== suggestion:"
-                            << std::get<std::string>(words_found[i]);
-
             w_sugggestion_box->addItem(std::get<std::string>(words_found[i]));
-
             count++;
             if(count > 12)
             {
@@ -714,7 +589,6 @@ void Trokam::SearchPage::createSuggestionBox()
     if(w_sugggestion_box == nullptr)
     {
         w_sugggestion_box = container->addNew<Wt::WSelectionBox>();
-        // w_sugggestion_box->addStyleClass("dropdown-menu");
         w_sugggestion_box->setHidden(false);
         w_sugggestion_box->setMaximumSize(500, 600);
         w_sugggestion_box->positionAt(input);
@@ -724,28 +598,15 @@ void Trokam::SearchPage::createSuggestionBox()
             this, &Trokam::SearchPage::suggestionBoxEnterPressed);
         w_sugggestion_box->clicked().connect(
             this, &Trokam::SearchPage::suggestionBoxEnterPressed);
-        // w_sugggestion_box->escapePressed().connect(
-        //    this, &Trokam::SearchPage::suggestionBoxEscapePressed);
-    }
-    else
-    {
-        Wt::log("info") << "==================== suggestion box already EXIST ==================";
     }
 }
 
 void Trokam::SearchPage::destroySuggestionBox()
 {
-    Wt::log("info") << "*************** " << __PRETTY_FUNCTION__;
-
     if(w_sugggestion_box != nullptr)
     {
-        // delete w_sugggestion_box;
         container->removeWidget(w_sugggestion_box);
         w_sugggestion_box = nullptr;
-    }
-    else
-    {
-        Wt::log("info") << "==================== suggestion box already DESTROYED ==================";
     }
 }
 
@@ -754,24 +615,19 @@ bool Trokam::SearchPage::isAgentMobile()
     const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
     std::string user_agent = env.headerValue("User-Agent");
 
-    Wt::log("info") << "User-Agent:'" << user_agent << "'";
-
     size_t pos =
         Trokam::PlainTextProcessor::caseInsensitiveFind(user_agent, "android");
 
     if(pos != std::string::npos)
     {
-        Wt::log("info") << "~~~~~~~~~~~~~~ MOBILE ~~~~~~~~~~~~~";
         return true;
     }
 
     if(env.agentIsMobileWebKit())
     {
-        Wt::log("info") << "~~~~~~~~~~~~~~ MOBILE ~~~~~~~~~~~~~";
         return true;
     }
 
-    Wt::log("info") << "~~~~~~~~~~~~~~ DESKTOP ~~~~~~~~~~~~~";
-
+    // It seems that the User-Agent is a desktop browser.
     return false;
 }

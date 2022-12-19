@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
         /**
          * DESIGN REVIEW
          * The crawler uses two databases: a page-database and a link-database.
-         * This mechanism is measuring only the page-database.
+         * This mechanism is measuring only the size of the page-database.
          **/
         int db_size_gb = getSize(LOCAL_DIRECTORY);
         std::cout << "db size is:" << db_size_gb << std::endl;

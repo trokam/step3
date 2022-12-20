@@ -233,57 +233,6 @@ std::vector<std::string> Trokam::PlainTextProcessor::tokenize(
 }
 
 /**
-std::string Trokam::PlainTextProcessor::snippet(
-    const std::string &block_text,
-    const std::string &search_text,
-    const size_t &snippet_length)
-{
-    const std::vector<std::string> search_tokens =
-        Trokam::PlainTextProcessor::tokenize(search_text);
-
-    if(search_tokens.size() > 0)
-    {
-        size_t loc = caseInsensitiveFind(block_text, search_tokens[0]);
-        if(loc == std::string::npos)
-        {
-            std::cout << "<not found>\n";
-            if(snippet_length < block_text.length())
-            {
-                std::string result = block_text.substr(0, snippet_length);
-                return result;
-            }
-            else
-            {
-                return block_text;
-            }
-        }
-        else
-        {
-            int begin = loc - snippet_length/2;
-            if(begin < 0)
-            {
-                begin = 0;
-            }
-
-            int end = loc + snippet_length/2;
-            if(size_t(end) > block_text.length())
-            {
-                end = block_text.length();
-            }
-
-            std::string result = block_text.substr(begin, end-begin);
-            return result;
-        }
-    }
-    else
-    {
-        std::string result = block_text.substr(0, snippet_length);
-        return result;
-    }
-}
-**/
-
-/**
  * @brief It returns a contiguous part of block_text of snippet_length
  *        lentgth where at least the first term of search_text appears.
  *

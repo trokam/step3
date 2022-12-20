@@ -44,7 +44,7 @@ if((SUBSYSTEM STREQUAL "CRAWLER") OR (SUBSYSTEM STREQUAL "ALL"))
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3")
     include_directories(include)
-    file(GLOB SOURCES_CMD    "src_cmd/*.cpp")
+    file(GLOB SOURCES_CMD    "src_crawler/*.cpp")
     file(GLOB SOURCES_COMMON "src_common/*.cpp")
     add_executable(trokam ${SOURCES_CMD} ${SOURCES_COMMON})
 

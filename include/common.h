@@ -34,31 +34,8 @@ struct web_doc
     std::string content_type;
 };
 
-/*
-struct PageData
-{
-    int  id = -1;
-    std::string text;
-    std::string title;
-    std::string lang;
-    std::string url;
-};
-*/
-
 /**
  * Warnings
  **/
 
 const std::string WARNING_APPROOT_EMPTY = "warning: the approot is empty, it looks suspect.";
-
-/**
- * Object reference.
- **/
-
-const int GENERAL_INFO =    0;
-const int SMALL_LOGO =      1;
-const int BIG_LOGO =        2;
-const int BRIEF_INTRO =     4;
-const int LANG_SEARCHED =   5;
-const int SEARCH_STATE =    6;
-const int FOOTER =          7;

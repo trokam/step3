@@ -35,10 +35,10 @@
 #include <nlohmann/json.hpp>
 
 // Trokam
-#include "appGenerator.h"
+#include "app_generator.h"
 #include "common.h"
 #include "preferences.h"
-#include "searchPage.h"
+#include "search_page.h"
 
 Trokam::AppGenerator::AppGenerator(nlohmann::json &opt)
     :commonResources(new Trokam::SharedResources(opt))

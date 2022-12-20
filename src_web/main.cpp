@@ -33,7 +33,7 @@
 #include <Wt/WEnvironment.h>
 
 // Trokam
-#include "appGenerator.h"
+#include "app_generator.h"
 #include "common.h"
 #include "file_ops.h"
 #include "options.h"

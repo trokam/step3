@@ -42,7 +42,7 @@
 
 // Trokam
 #include "preferences.h"
-#include "sharedResources.h"
+#include "shared_resources.h"
 
 namespace Trokam
 {

@@ -34,7 +34,7 @@
 // Trokam
 #include "common.h"
 #include "file_ops.h"
-#include "sharedResources.h"
+#include "shared_resources.h"
 
 Trokam::SharedResources::SharedResources(
     nlohmann::json &value):

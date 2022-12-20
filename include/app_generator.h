@@ -2,7 +2,7 @@
  *                            T R O K A M
  *                       Internet Search Engine
  *
- * Copyright (C) 2017, Nicolas Slusarenko
+ * Copyright (C) 2018, Nicolas Slusarenko
  *                     nicolas.slusarenko@trokam.com
  *
  * This file is part of Trokam.
@@ -21,42 +21,33 @@
  * along with Trokam. If not, see <http://www.gnu.org/licenses/>.
  **********************************************************************/
 
-#ifndef TROKAM_PAGE_WIDGET_H
-#define TROKAM_PAGE_WIDGET_H
+#pragma once
 
-/// C++
-#include <string>
+// Wt
+#include <Wt/WApplication.h>
 
-/// Boost
+// Json
+#include <nlohmann/json.hpp>
+
+// Boost
 #include <boost/shared_ptr.hpp>
 
-/// Wt
-#include <Wt/WApplication.h>
-#include <Wt/WContainerWidget.h>
-#include <Wt/WMenu.h>
-#include <Wt/WString.h>
-
-/// Trokam
-#include "sharedResources.h"
+// Trokam
+#include "app_generator.h"
+#include "options.h"
+#include "preferences.h"
+#include "shared_resources.h"
 
 namespace Trokam
 {
-    class PageWidget : public Wt::WContainerWidget
+    class AppGenerator
     {
         public:
+            AppGenerator(nlohmann::json &opt);
+            std::unique_ptr<Wt::WApplication>
+                createApplication(const Wt::WEnvironment& env);
 
-            PageWidget(boost::shared_ptr<Trokam::SharedResources> &sr, Wt::WApplication* app);
-
-            virtual void populateSubMenu(Wt::WMenu *menu);
-
-        protected:
-
-            Wt::WApplication* application;
-            boost::shared_ptr<Trokam::SharedResources> resources;
-
-            static Wt::WText *addText(const Wt::WString& s, Wt::WContainerWidget *parent);
-
+        private:
+            boost::shared_ptr<Trokam::SharedResources> commonResources;
     };
 }
-
-#endif /// TROKAM_PAGE_WIDGET_H

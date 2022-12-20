@@ -55,8 +55,8 @@
 
 // Trokam
 #include "plain_text_processor.h"
-#include "searchPage.h"
-#include "sharedResources.h"
+#include "search_page.h"
+#include "shared_resources.h"
 
 Trokam::SearchPage::SearchPage(
     boost::shared_ptr<Trokam::SharedResources> &sr,

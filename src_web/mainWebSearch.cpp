@@ -1,6 +1,10 @@
 /***********************************************************************
  *                            T R O K A M
  *                       Internet Search Engine
+ *                       trokam.com / trokam.org
+ *
+ * Copyright (C) Nicolas Slusarenko
+ *               nicolas.slusarenko@trokam.com
  *
  * This file is part of Trokam.
  *
@@ -21,17 +25,14 @@
 // C++
 #include <functional>
 
-/// Boost
-//#include <boost/bind.hpp>
-
 // Json
 #include <nlohmann/json.hpp>
 
-/// Wt
+// Wt
 #include <Wt/WApplication.h>
 #include <Wt/WEnvironment.h>
 
-/// Trokam
+// Trokam
 #include "appGenerator.h"
 #include "common.h"
 #include "file_ops.h"
@@ -42,45 +43,29 @@ int main(int argc, char **argv)
     /**
      * Program settings.
      **/
-    // Trokam::Options opt;
-    // opt.readSettings(CONFIG_FILE);
-
     const std::string config_path = "/usr/local/etc/trokam/trokam.config";
     std::string text = Trokam::FileOps::read(config_path);
     nlohmann::json config = nlohmann::json::parse(text);
-
-    std::cout << "***** main *****\n";
 
     try
     {
         /**
          * 'AppGenerator' take the settings in the constructor.
          **/
-
-        // Trokam::AppGenerator ag(opt);
         Trokam::AppGenerator ag(config);
 
         /**
-         * This line block the execution, upon its return
+         * This call block the execution, on its return
          * the program exits.
          **/
-
-        /*
-        return Wt::WRun(
-            argc, argv, boost::bind(
-                &Trokam::AppGenerator::createApplication, &ag, _1));
-        */
-
         return Wt::WRun(
             argc, argv, std::bind(
                 &Trokam::AppGenerator::createApplication,
                 &ag,
                 std::placeholders::_1));
-
-        // return Wt::WRun(argc, argv, &createApplication);
     }
     catch(const int &e)
     {
-        // Trokam::Reporting::showGeneralError(e);
+        // TODO: Report the exception.
     }
 }

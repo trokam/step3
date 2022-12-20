@@ -1,6 +1,10 @@
 /***********************************************************************
  *                            T R O K A M
  *                       Internet Search Engine
+ *                       trokam.com / trokam.org
+ *
+ * Copyright (C) Nicolas Slusarenko
+ *               nicolas.slusarenko@trokam.com
  *
  * This file is part of Trokam.
  *
@@ -36,9 +40,11 @@
 #include <Wt/WPushButton.h>
 #include <Wt/WLabel.h>
 #include <Wt/WLink.h>
+#include <Wt/WLineEdit.h>
 #include <Wt/WRadioButton.h>
 #include <Wt/WString.h>
 #include <Wt/WStringListModel.h>
+#include <Wt/WTable.h>
 #include <Wt/WTabWidget.h>
 #include <Wt/WTemplate.h>
 #include <Wt/WText.h>
@@ -48,10 +54,6 @@
 #include <xapian.h>
 
 // Trokam
-#include "aboutWidget.h"
-#include "searchWidget.h"
-#include "ackWidget.h"
-#include "donWidget.h"
 #include "plain_text_processor.h"
 #include "searchPage.h"
 #include "sharedResources.h"

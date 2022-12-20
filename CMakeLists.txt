@@ -104,47 +104,8 @@ if((SUBSYSTEM STREQUAL "PUMP") OR (SUBSYSTEM STREQUAL "ALL"))
         Boost::filesystem
         Boost::program_options
         Boost::log
-        fmt::fmt
-        ssh
-        trk_transfer)
-
-    install(TARGETS pump DESTINATION /usr/local/bin)
-
-endif()
-
-if((SUBSYSTEM STREQUAL "CLEANER") OR (SUBSYSTEM STREQUAL "ALL"))
-
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -O3 -pthread")
-    include_directories(include)
-    file(GLOB SOURCES_CLEANER   "src_cleaner/*.cpp")
-    file(GLOB SOURCES_TRANSPORT "src_transport/*.cpp")
-    file(GLOB SOURCES_COMMON    "src_common/*.cpp")
-    add_executable(cleaner ${SOURCES_CLEANER} ${SOURCES_TRANSPORT} ${SOURCES_COMMON})
-    ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
-
-    find_package(
-        Boost 1.67 COMPONENTS
-        filesystem
-        regex
-        program_options
-        signals
-        system
-        thread
-        log)
-    find_package(fmt)
-
-    target_link_libraries(
-        cleaner
-        curl
-        pqxx
-        xapian
-        Boost::system
-        Boost::regex
-        Boost::filesystem
-        Boost::program_options
-        Boost::log
         fmt::fmt)
 
-    install(TARGETS cleaner DESTINATION /usr/local/bin)
+    install(TARGETS pump DESTINATION /usr/local/bin)
 
 endif()

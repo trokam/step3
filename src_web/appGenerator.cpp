@@ -1,6 +1,10 @@
 /***********************************************************************
  *                            T R O K A M
- *                      trokam.com / trokam.org
+ *                       Internet Search Engine
+ *                       trokam.com / trokam.org
+ *
+ * Copyright (C) Nicolas Slusarenko
+ *               nicolas.slusarenko@trokam.com
  *
  * This file is part of Trokam.
  *
@@ -35,7 +39,6 @@
 #include "common.h"
 #include "preferences.h"
 #include "searchPage.h"
-#include "topWindow.h"
 
 Trokam::AppGenerator::AppGenerator(nlohmann::json &opt)
     :commonResources(new Trokam::SharedResources(opt))

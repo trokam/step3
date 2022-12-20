@@ -1,6 +1,10 @@
 /***********************************************************************
  *                            T R O K A M
  *                       Internet Search Engine
+ *                       trokam.com / trokam.org
+ *
+ * Copyright (C) Nicolas Slusarenko
+ *               nicolas.slusarenko@trokam.com
  *
  * This file is part of Trokam.
  *
@@ -30,8 +34,6 @@
 #include "file_ops.h"
 #include "plain_text_processor.h"
 
-// void Trokam::ReadableContentDB::ReadableContentDB(){}
-
 void Trokam::ReadableContentDB::open(const std::string &path)
 {
     db.reset(new Xapian::Database(path));
@@ -57,9 +59,8 @@ std::vector<Trokam::Finding>
         results_requested = max_requested;
     }
 
-    // Set up a QueryParser with a stemmer and suitable prefixes.
+    // Set up a QueryParser.
     Xapian::QueryParser queryparser;
-    // -- queryparser.set_stemmer(Xapian::Stem("en"));
     queryparser.set_stemming_strategy(queryparser.STEM_SOME);
 
     // And parse the query.
@@ -109,7 +110,7 @@ std::vector<Trokam::Finding>
         finding.relevance_title = Trokam::PlainTextProcessor::howMuchOf(title, querystring);
         finding.relevance_total =
             finding.relevance_body +
-            finding.relevance_url * 24.0 +  // 18.5 +
+            finding.relevance_url * 24.0 +
             finding.relevance_title * 3.5;
         finding.snippet =
             mset.snippet(
@@ -153,67 +154,6 @@ std::vector<Trokam::Finding>
     }
 
     return result;
-
-
-/**
-    std::vector<Trokam::DocData> search_results;
-
-    for(Xapian::MSetIterator m = mset.begin(); m != mset.end(); ++m)
-    {
-        std::string title = m.get_document().get_value(SLOT_TITLE);
-        std::string url = m.get_document().get_value(SLOT_URL);
-
-        float title_weight =
-            Trokam::PlainTextProcessor::howMuchOf(title, querystring) + 1.0;
-
-        float url_weight =
-            Trokam::PlainTextProcessor::howMuchOf(url, querystring) + 1.0;
-
-        float relevance =
-            m.get_weight() + 100.0 * title_weight + 100.0 * url_weight;
-            // m.get_weight() * title_weight * title_weight * url_weight * url_weight;
-            // m.get_document().add_value(SLOT_RELEVANCE, std::to_string(relevance));
-
-        Trokam::DocData doc;
-        doc.it = m;
-        doc.relevance = relevance;
-        search_results.push_back(doc);
-    }
-
-    std::sort(
-        search_results.begin(),
-        search_results.end(),
-        [](Trokam::DocData a, Trokam::DocData b)
-        {
-            return a.relevance > b.relevance;
-        });
-
-    std::vector<Trokam::Finding> result;
-    for(auto it= search_results.begin(); it!=search_results.end(); ++it)
-    {
-        Trokam::Finding finding;
-
-        finding.title     = it->it.get_document().get_value(SLOT_TITLE);
-        finding.url       = it->it.get_document().get_value(SLOT_URL);
-        finding.relevance = it->relevance;
-
-        const std::string &data = it->it.get_document().get_data();
-        // finding.snippet =
-        //    Trokam::PlainTextProcessor::snippet(data, querystring, 250);
-
-        finding.snippet =
-            mset.snippet(
-                data,
-                500,
-                Xapian::Stem(),
-                Xapian::MSet::SNIPPET_BACKGROUND_MODEL | Xapian::MSet::SNIPPET_EXHAUSTIVE,
-                std::string("<strong>"),
-                std::string("</strong>"),
-                std::string("..."));
-
-        result.push_back(finding);
-    }
-    **/
 }
 
 std::vector<std::pair<std::string, Xapian::doccount>>

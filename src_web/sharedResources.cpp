@@ -1,8 +1,12 @@
 /***********************************************************************
  *                            T R O K A M
- *                      trokam.com / trokam.org
+ *                       Internet Search Engine
+ *                       trokam.com / trokam.org
  *
- * This file is part of Trokam::.
+ * Copyright (C) Nicolas Slusarenko
+ *               nicolas.slusarenko@trokam.com
+ *
+ * This file is part of Trokam.
  *
  * Trokam:: is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,11 +36,6 @@
 #include "file_ops.h"
 #include "sharedResources.h"
 
-/*
-Trokam::SharedResources::SharedResources(
-    Trokam::Options &value):
-        settings(value)
-*/
 Trokam::SharedResources::SharedResources(
     nlohmann::json &value):
         settings(value)
@@ -50,11 +49,6 @@ Trokam::SharedResources::~SharedResources()
 
 void Trokam::SharedResources::getNewDB()
 {
-    // const int crawlers_id = 0;
-    // const int max_id = transfers->getMaxIndex(crawlers_id);
-
-    // const std::vector<int> crawlers_id = transfers->getIndex();
-    // const std::vector<int> max_id = transfers->getMaxIndex(crawlers_id);
     const std::vector<std::string> db_dates = transfers->getTimeStamps();
 
     for(unsigned int i=0; i<db_dates.size(); i++)
@@ -62,19 +56,14 @@ void Trokam::SharedResources::getNewDB()
         Wt::log("info") << "db_dates[" << i << "]=" << db_dates[i];
     }
 
-    // If there is a new transfer available, then use this one.
-    // if(max_id > current_transfer)
-    // if(crawlers_id != current_id)
     if(db_dates != current_dates)
     {
+        Wt::log("info") << "getting the latest page-databases.";
         readable_content_db.close();
-
-        Wt::log("info") << "Opening the latest content databases";
         const std::vector<int> crawlers_id = transfers->getIndex();
         for(unsigned int i=0; i<crawlers_id.size(); i++)
         {
             std::string path = transfers->getPath(crawlers_id[i]);
-            Wt::log("info") << "db content path:" << path;
             if(!path.empty())
             {
                 if(i == 0)
@@ -87,11 +76,10 @@ void Trokam::SharedResources::getNewDB()
                 }
             }
         }
-        // current_id = crawlers_id;
         current_dates = db_dates;
     }
     else
     {
-        Wt::log("info") << "Using latest databases already.";
+        Wt::log("info") << "using latest page-databases already.";
     }
 }

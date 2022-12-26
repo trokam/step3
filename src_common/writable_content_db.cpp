@@ -36,7 +36,7 @@ Trokam::WritableContentDB::WritableContentDB(
     Trokam::Options &opt)
     : options(opt)
 {
-    db_path = options.db_content();
+    db_path = options.dbContent();
 
     db.reset(
         new Xapian::WritableDatabase(

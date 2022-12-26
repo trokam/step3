@@ -1,9 +1,10 @@
 /***********************************************************************
  *                            T R O K A M
  *                       Internet Search Engine
+ *                       trokam.com / trokam.org
  *
- * Copyright (C) 2022, Nicolas Slusarenko
- *                     nicolas.slusarenko@trokam.com
+ * Copyright (C) Nicolas Slusarenko
+ *               nicolas.slusarenko@trokam.com
  *
  * This file is part of Trokam.
  *
@@ -41,7 +42,7 @@ namespace Trokam
             std::string seedsFile() const;
             std::string terms() const;
             std::string languages() const;
-            std::string db_content() const;
+            std::string dbContent() const;
             unsigned int offset() const;
             unsigned int pageSize() const;
             unsigned maxResults() const;

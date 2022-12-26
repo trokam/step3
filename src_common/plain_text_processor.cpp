@@ -241,6 +241,8 @@ std::vector<std::string> Trokam::PlainTextProcessor::tokenize(
  * @param snippet_length The lenght of the snippet returned.
  * @return std::string A part of the block_text.
  */
+
+/**
 std::string Trokam::PlainTextProcessor::snippet(
     const std::string &block_text,
     const std::string &search_text,
@@ -266,17 +268,6 @@ std::string Trokam::PlainTextProcessor::snippet(
             // or block_text entirely.
 
             result = block_text.substr(0, snippet_length);
-
-            /*
-            if(snippet_length < block_text.length())
-            {
-                result = block_text.substr(0, snippet_length);
-            }
-            else
-            {
-                result = block_text;
-            }
-            */
         }
         else
         {
@@ -305,6 +296,7 @@ std::string Trokam::PlainTextProcessor::snippet(
 
     return result;
 }
+**/
 
 size_t Trokam::PlainTextProcessor::caseInsensitiveFind(
     const std::string &text_block,
@@ -349,19 +341,12 @@ float Trokam::PlainTextProcessor::howMuchOf(
     {
         size_t pos = caseInsensitiveFind(text_block, element);
 
-        /**
-        while(pos != std::string::npos)
-        {
-            text_block.erase(pos, element.length());
-            pos = caseInsensitiveFind(text_block, element);
-        }
-        **/
-
         if(pos != std::string::npos)
         {
             text_block.erase(pos, element.length());
         }
     }
+
     boost::algorithm::trim_if(
         text_block, boost::algorithm::is_any_of(" "));
     float remaining_length = text_block.length();

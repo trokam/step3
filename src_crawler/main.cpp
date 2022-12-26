@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
             exit(1);
         }
         Trokam::ReadableContentDB readable_content_db;
-        readable_content_db.open(opt.db_content());
+        readable_content_db.open(opt.dbContent());
         auto data = readable_content_db.lookUp(prefix);
 
         unsigned int max_results = opt.maxResults();
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
         // unsigned int pagesize = opt.pageSize();
         Xapian::doccount results_requested = 24;
         Trokam::ReadableContentDB readable_content_db;
-        readable_content_db.open(opt.db_content());
+        readable_content_db.open(opt.dbContent());
 
         for(auto e: languages)
         {

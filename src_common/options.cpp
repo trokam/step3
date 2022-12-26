@@ -134,7 +134,7 @@ std::string Trokam::Options::languages() const
     return opt_languages;
 }
 
-std::string Trokam::Options::db_content() const
+std::string Trokam::Options::dbContent() const
 {
     return opt_db_content;
 }

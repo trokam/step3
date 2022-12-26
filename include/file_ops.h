@@ -59,6 +59,9 @@ namespace Trokam
             static void rmDir(
                 const std::string &dirname);
 
+            static void cleanDir(
+                const std::string &dirname);
+
             static std::string generateDirName(
                 const std::string &stem,
                 const int &index,

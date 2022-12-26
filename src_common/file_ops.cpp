@@ -110,11 +110,22 @@ void Trokam::FileOps::save(
 void Trokam::FileOps::rmDir(
     const std::string &dirname)
 {
-    std::string command= "rm -rf " +  dirname;
+    std::string command= "rm -rf " + dirname;
     const int status= system(command.c_str());
     if(status != 0)
     {
         std::cerr << "failure on deleting directory: " << dirname << "\n";
+    }
+}
+
+void Trokam::FileOps::cleanDir(
+    const std::string &dirname)
+{
+    std::string command= "rm -rf " + dirname + "/*";
+    const int status= system(command.c_str());
+    if(status != 0)
+    {
+        std::cerr << "failure on cleaning directory: " << dirname << "\n";
     }
 }
 

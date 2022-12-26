@@ -108,6 +108,26 @@ void show_state(const int &state, std::string &command)
     }
 }
 
+void check_disk_space(
+    const std::string &file_system,
+    const int &min_disk_space)
+{
+    boost::filesystem::space_info space_info = boost::filesystem::space(file_system);
+
+    const float GIGABYTE = std::pow(2.0, 30.0);
+    const int file_system_capacity = float(space_info.capacity)/GIGABYTE;
+    const int file_system_available = float(space_info.available)/GIGABYTE;
+    std::cout << "File system available:" << file_system_available
+              << "[Gb] capacity:" << file_system_capacity << "[Gb]\n";
+
+    if(file_system_available < min_disk_space)
+    {
+        std::cout << "disk space bellow threshold: " << min_disk_space << '\n';
+        std::cout << "bye!" << std::endl;
+        exit(0);
+    }
+}
+
 /**
  * This command 'pump' got its name because it is pumping data to the
  * webserver. The outline of execution,
@@ -137,19 +157,23 @@ int main(int argc, char *argv[])
     std::string text = Trokam::FileOps::read(config_path);
     nlohmann::json config = nlohmann::json::parse(text);
 
-    const int THIS_NODE_INDEX =          config["this_node_index"];
-    const int REINIT_DB_DAY =            config["reinit_db_day"];
-    const int DB_SIZE_LIMIT =            config["db_size_limit"];
-    const std::string LOCAL_DIRECTORY  = config["local_directory"];
-    const std::string MNT_SERVER_DB =    config["mnt_server_db"];
-    const unsigned int INDEXING_CYCLES = config["indexing_cycles"];
+    const int THIS_NODE_INDEX =           config["this_node_index"];
+    const int REINIT_DB_DAY =             config["reinit_db_day"];
+    const int DB_SIZE_LIMIT =             config["db_size_limit"];
+    const int MIN_DISK_SPACE =            3;
+    const std::string LOCAL_DIRECTORY  =  config["local_directory"];
+    const std::string MNT_SERVER_DB =     config["mnt_server_db"];
+    const std::string CHECK_FILE_SYSTEM = "/";
+    const unsigned int INDEXING_CYCLES =  config["indexing_cycles"];
 
-    std::cout << "THIS_NODE_INDEX:"  << THIS_NODE_INDEX << "\n";
-    std::cout << "REINIT_DB_DAY:"    << REINIT_DB_DAY << "\n";
-    std::cout << "DB_SIZE_LIMIT:"    << DB_SIZE_LIMIT << "\n";
-    std::cout << "LOCAL_DIRECTORY:"  << LOCAL_DIRECTORY << "\n";
-    std::cout << "MNT_SERVER_DB:"    << MNT_SERVER_DB << "\n";
-    std::cout << "INDEXING_CYCLES:"  << INDEXING_CYCLES << "\n";
+    std::cout << "THIS_NODE_INDEX:"   << THIS_NODE_INDEX << '\n';
+    std::cout << "REINIT_DB_DAY:"     << REINIT_DB_DAY << '\n';
+    std::cout << "DB_SIZE_LIMIT:"     << DB_SIZE_LIMIT << '\n';
+    std::cout << "MIN_DISK_SPACE:"    << MIN_DISK_SPACE << '\n';
+    std::cout << "LOCAL_DIRECTORY:"   << LOCAL_DIRECTORY << '\n';
+    std::cout << "MNT_SERVER_DB:"     << MNT_SERVER_DB << '\n';
+    std::cout << "CHECK_FILE_SYSTEM:" << CHECK_FILE_SYSTEM << '\n';
+    std::cout << "INDEXING_CYCLES:"   << INDEXING_CYCLES << '\n';
 
     /**
      * 'transfers' is a mechanism that tells the webserver which
@@ -168,7 +192,11 @@ int main(int argc, char *argv[])
     while(!boost::filesystem::exists(STOP_PUPM))
     {
         std::cout << "\n---------- new cycle ----------" << std::endl;
-        today = current_day();
+
+        /**
+         * Check disk space available.
+         **/
+        check_disk_space(CHECK_FILE_SYSTEM, MIN_DISK_SPACE);
 
         /**
          * DESIGN REVIEW
@@ -182,6 +210,7 @@ int main(int argc, char *argv[])
          * Check if today correspond to start
          * with a clean database.
          **/
+        today = current_day();
         std::cout << "today is:" << today << " previous day:" << previous_day << std::endl;
         if(((today != previous_day) && (today == REINIT_DB_DAY)) || (db_size_gb > DB_SIZE_LIMIT))
         {
@@ -194,10 +223,6 @@ int main(int argc, char *argv[])
             show_state(state, command);
 
             command = "trokam --action init --seeds-file /usr/local/etc/trokam/seeds.config";
-            state = system(command.c_str());
-            show_state(state, command);
-
-            command = "mkdir -p " + LOCAL_DIRECTORY;
             state = system(command.c_str());
             show_state(state, command);
         }

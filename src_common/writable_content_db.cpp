@@ -79,13 +79,9 @@ void Trokam::WritableContentDB::insert(
 }
 
 /**
- * DESIGN REVIEW
- * This method efectively deletes the database, but
- * it would be more practical remove all its contents
- * and keep the directory empty. The constructor of the
- * database fails if the directory does not exist.
+ * This method deletes everything under db_path.
  **/
 void Trokam::WritableContentDB::clean()
 {
-    Trokam::FileOps::rmDir(db_path);
+    Trokam::FileOps::cleanDir(db_path);
 }

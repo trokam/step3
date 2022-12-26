@@ -136,15 +136,16 @@ void check_disk_space(
  * 2 - If the file '/tmp/stop_pump' exists, then it quits as soon as
  *     possible. The user execute 'touch /tmp/stop_pump' to gracefully
  *     stop 'pump'.
- * 3 - Verify if the database has grow beyond the allowed size or
+ * 3 - Check disk space.
+ * 4 - Verify if the database has grow beyond the allowed size or
  *     is the specific day to reinit. In both cases it cleans up the
  *     page-database and the link-database; then it initialises the
  *     the links-database with the links seeds.
- * 4 - Perform the indexing of pages. Here is spend most of the time.
- * 5 - Disable the database in the webserver that correspond to this
+ * 5 - Perform the indexing of pages. Here is spend most of the time.
+ * 6 - Disable the database in the webserver that correspond to this
  *     crawling node.
- * 6 - Transfer the local copy of the database to the webserver.
- * 7 - Enable the database in the webserver that correspond to this
+ * 7 - Transfer the local copy of the database to the webserver.
+ * 8 - Enable the database in the webserver that correspond to this
  *     crawling node.
  **/
 
@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
     const int THIS_NODE_INDEX =           config["this_node_index"];
     const int REINIT_DB_DAY =             config["reinit_db_day"];
     const int DB_SIZE_LIMIT =             config["db_size_limit"];
-    const int MIN_DISK_SPACE =            3;
+    const int MIN_DISK_SPACE =            3; // [Gb]
     const std::string LOCAL_DIRECTORY  =  config["local_directory"];
     const std::string MNT_SERVER_DB =     config["mnt_server_db"];
     const std::string CHECK_FILE_SYSTEM = "/";

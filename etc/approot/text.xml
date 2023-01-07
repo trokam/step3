@@ -61,8 +61,6 @@
           <nav class="nav nav-masthead justify-content-center float-md-end">
               ${button_preferences}
               &nbsp;
-              ${button_sponsors}
-              &nbsp;
               ${button_about}
           </nav>
 

@@ -153,21 +153,20 @@ Trokam::SearchPage::SearchPage(
     w_button_preferences->
         clicked().connect(this, &Trokam::SearchPage::showUserOptions);
 
-    w_button_sponsors = header->bindWidget(
-        "button_sponsors",
-        std::make_unique<Wt::WPushButton>());
-    w_button_sponsors->addStyleClass("paging-button");
-    w_button_sponsors->setTextFormat(Wt::TextFormat::XHTML);
-    w_button_sponsors->setText("<span class=\"paging-text\">Sponsors</span>");
-    w_button_sponsors->setLink(Wt::WLink(Wt::LinkType::Url, "/about.html"));
+    auto popup =
+        std::make_unique<Wt::WPopupMenu>();
+
+    // Create some menu items for the popup menu
+    popup->addItem("About")->setLink(Wt::WLink("/info/about"));
+    popup->addItem("Donate")->setLink(Wt::WLink("/info/donate"));
 
     w_about = header->bindWidget(
         "button_about",
         std::make_unique<Wt::WPushButton>());
     w_about->addStyleClass("paging-button");
     w_about->setTextFormat(Wt::TextFormat::XHTML);
-    w_about->setText("<span class=\"paging-text\">About</span>");
-    w_about->setLink(Wt::WLink(Wt::LinkType::Url, "/about.html"));
+    w_about->setText("<span class=\"paging-text\">Info</span>");
+    w_about->setMenu(std::move(popup));
 
     userFindings =
         container->addWidget(std::make_unique<Wt::WTable>());
@@ -420,11 +419,13 @@ void Trokam::SearchPage::showUserOptions()
             "Languages",
             Wt::ContentLoading::Eager);
 
+    /*
     tabW.get()->
         addTab(
             std::move(wt_show_analysis),
             "Analysis",
             Wt::ContentLoading::Eager);
+    */
 
     tabW.get()->
         addTab(

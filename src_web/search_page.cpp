@@ -86,7 +86,7 @@ Trokam::SearchPage::SearchPage(
             const std::string search_terms=
                 Wt::Utils::urlDecode(internal_path);
             search(search_terms);
-            show_search_results();
+            showSearchResults();
         });
 
     addStyleClass("d-flex");
@@ -227,7 +227,7 @@ void Trokam::SearchPage::search(
     createFooter(container);
 }
 
-void Trokam::SearchPage::show_search_results()
+void Trokam::SearchPage::showSearchResults()
 {
     int total_results = items_found.size();
     auto dv = std::div(total_results, results_per_page);
@@ -315,7 +315,7 @@ void Trokam::SearchPage::createFooter(
             if(current_page > 1)
             {
                 current_page--;
-                show_search_results();
+                showSearchResults();
                 createFooter(base);
             }
         });
@@ -330,7 +330,7 @@ void Trokam::SearchPage::createFooter(
     button_1->clicked().connect(
         [=] {
             current_page = 1;
-            show_search_results();
+            showSearchResults();
             createFooter(base);
         });
 
@@ -344,7 +344,7 @@ void Trokam::SearchPage::createFooter(
     button_2->clicked().connect(
         [=] {
             current_page = 2;
-            show_search_results();
+            showSearchResults();
             createFooter(base);
         });
 
@@ -361,7 +361,7 @@ void Trokam::SearchPage::createFooter(
             if(current_page < total_pages)
             {
                 current_page++;
-                show_search_results();
+                showSearchResults();
                 createFooter(base);
             }
         });

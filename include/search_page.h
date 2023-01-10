@@ -78,7 +78,7 @@ namespace Trokam
             std::vector<std::pair<int, bool>> language_options;
 
             void search(const std::string &terms);
-            void show_search_results();
+            void showSearchResults();
             void handlePathChange();
             void createFooter(Wt::WContainerWidget *base);
             void showUserOptions();

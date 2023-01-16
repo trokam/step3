@@ -84,6 +84,14 @@ int current_day()
     return result;
 }
 
+int current_hour()
+{
+    std::time_t tt = std::time(nullptr);
+    std::tm *tm = std::localtime(&tt);
+    int result = tm->tm_hour;
+    return result;
+}
+
 void verify(const int &state, std::string &command)
 {
     if(state != 0)
@@ -117,7 +125,7 @@ void check_disk_space(
     const float GIGABYTE = std::pow(2.0, 30.0);
     const int file_system_capacity = float(space_info.capacity)/GIGABYTE;
     const int file_system_available = float(space_info.available)/GIGABYTE;
-    std::cout << "File system available:" << file_system_available
+    std::cout << "file system available:" << file_system_available
               << "[Gb] capacity:" << file_system_capacity << "[Gb]\n";
 
     if(file_system_available < min_disk_space)
@@ -162,10 +170,13 @@ int main(int argc, char *argv[])
     const int REINIT_DB_DAY =             config["reinit_db_day"];
     const int DB_SIZE_LIMIT =             config["db_size_limit"];
     const int MIN_DISK_SPACE =            3; // [Gb]
+    const int HOUR_TO_TRANSFER_DB =       4;
+    const int CYCLE_PERIOD =              8;
+    const int CYCLE_OFFSET =              0;
     const std::string LOCAL_DIRECTORY  =  config["local_directory"];
     const std::string MNT_SERVER_DB =     config["mnt_server_db"];
     const std::string CHECK_FILE_SYSTEM = "/";
-    const unsigned int INDEXING_CYCLES =  config["indexing_cycles"];
+    const unsigned int INDEXING_CYCLES =  10;  // config["indexing_cycles"];
 
     std::cout << "THIS_NODE_INDEX:"   << THIS_NODE_INDEX << '\n';
     std::cout << "REINIT_DB_DAY:"     << REINIT_DB_DAY << '\n';
@@ -188,7 +199,9 @@ int main(int argc, char *argv[])
     int state = 0;
     const std::string STOP_PUPM = "/tmp/stop_pump";
     int today = current_day();
+    int curr_hour = current_hour();
     int previous_day = today;
+    int previous_hour = curr_hour;
 
     while(!boost::filesystem::exists(STOP_PUPM))
     {
@@ -205,17 +218,20 @@ int main(int argc, char *argv[])
          * This mechanism is measuring only the size of the page-database.
          **/
         int db_size_gb = getSize(LOCAL_DIRECTORY);
-        std::cout << "db size is:" << db_size_gb << std::endl;
+        std::cout << "db size is:" << db_size_gb << "[Gb]" << std::endl;
 
         /**
          * Check if today correspond to start
          * with a clean database.
          **/
         today = current_day();
+        int remainder = (today + CYCLE_OFFSET) % CYCLE_PERIOD;
         std::cout << "today is:" << today << " previous day:" << previous_day << std::endl;
-        if(((today != previous_day) && (today == REINIT_DB_DAY)) || (db_size_gb > DB_SIZE_LIMIT))
+        std::cout << "remainder:" << remainder << std::endl;
+        // if(((today != previous_day) && (today == REINIT_DB_DAY)) || (db_size_gb > DB_SIZE_LIMIT))
+        if(((today != previous_day) && (remainder == 0)) || (db_size_gb > DB_SIZE_LIMIT))
         {
-            std::cout << "reinit of the database" << std::endl;
+            std::cout << current_datetime() << " -- reinit of the database" << std::endl;
 
             std::string command;
 
@@ -263,59 +279,69 @@ int main(int argc, char *argv[])
         }
 
         /**
-         * Tell the server don't use this database
-         * and wait a moment for any active query to complete
+         * Check if is the time to transfer the database.
          **/
-        std::cout << "disable database and wait" << std::endl;
-        transfers.disable(THIS_NODE_INDEX);
-        std::this_thread::sleep_for(std::chrono::seconds(20));
-
-        /**
-         * Transfer the database to the server
-         * If the transfer command report an error, then it quits.
-         * This database will remain as 'disabled' to avoid
-         * the webserver to use a possibly corrupted database.
-         **/
-
-        /**
-         * DESIGN REVIEW
-         * The transfer of the content-database from the crawler node to
-         * the webserver is done with the comand 'cp'. The origin is a
-         * local directory and the destination is a directory of the
-         * webserver mounted in a local directory. I wish not to mount
-         * any directory and execute the command 'rsync' or 'scp', but
-         * both fails. I tried the library 'libssh' but it fails with the
-         * same error. Instead of the command 'cp' I tried
-         * 'boost::filesystem::copy_file(..)' but it also fails.
-         **/
-        std::string command;
-        std::cout << "Transfering the database to the server" << std::endl;
-
-        std::string date = current_datetime();
-        command = "cp -v -a -r " +
-                LOCAL_DIRECTORY + " " +
-                MNT_SERVER_DB + "  " +
-                "2>&1 1>/tmp/copy_" + date + ".log";
-        std::cout << "command:" << command << std::endl;
-        state = std::system(command.c_str());
-        show_state(state, command);
-        if(state != 0)
+        curr_hour = current_hour();
+        std::cout << "current hour is:" << curr_hour
+                  << " previous hour:" << previous_hour << std::endl;
+        if((curr_hour != previous_hour) && (curr_hour == HOUR_TO_TRANSFER_DB))
         {
-            std::cout << "bye!" << std::endl;
-            exit(1);
-        }
+            /**
+            * Tell the server don't use this database
+            * and wait a moment for any active query to complete
+            **/
+            std::cout << current_datetime() << " -- disable database and wait" << std::endl;
+            transfers.disable(THIS_NODE_INDEX);
+            std::this_thread::sleep_for(std::chrono::seconds(20));
 
-        /**
-         * Tell the server this database is enabled.
-         **/
-        std::cout << "enable database" << std::endl;
-        transfers.enable(THIS_NODE_INDEX);
+            /**
+            * Transfer the database to the server
+            * If the transfer command report an error, then it quits.
+            * This database will remain as 'disabled' to avoid
+            * the webserver to use a possibly corrupted database.
+            **/
+
+            /**
+            * DESIGN REVIEW
+            * The transfer of the content-database from the crawler node to
+            * the webserver is done with the comand 'cp'. The origin is a
+            * local directory and the destination is a directory of the
+            * webserver mounted in a local directory. I wish not to mount
+            * any directory and execute the command 'rsync' or 'scp', but
+            * both fails. I tried the library 'libssh' but it fails with the
+            * same error. Instead of the command 'cp' I tried
+            * 'boost::filesystem::copy_file(..)' but it also fails.
+            **/
+            std::string command;
+            std::cout << current_datetime() << " -- transfering the database to the server" << std::endl;
+
+            std::string date = current_datetime();
+            command = "cp -v -a -r " +
+                    LOCAL_DIRECTORY + " " +
+                    MNT_SERVER_DB + "  " +
+                    "2>&1 1>/tmp/copy_" + date + ".log";
+            std::cout << "command:" << command << std::endl;
+            state = std::system(command.c_str());
+            show_state(state, command);
+            if(state != 0)
+            {
+                std::cout << "bye!" << std::endl;
+                exit(1);
+            }
+
+            /**
+            * Tell the server this database is enabled.
+            **/
+            std::cout << current_datetime() << " -- enable database" << std::endl;
+            transfers.enable(THIS_NODE_INDEX);
+        }
 
         /**
          * Keep today's number to check in the next iteration
          * if there is a change.
          **/
         previous_day = today;
+        previous_hour = curr_hour;
     }
 
     boost::filesystem::remove(STOP_PUPM);

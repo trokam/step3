@@ -35,6 +35,7 @@ if((SUBSYSTEM STREQUAL "WEB") OR (SUBSYSTEM STREQUAL "ALL"))
         fmt::fmt)
 
     install(TARGETS search.wt DESTINATION /var/www/trokam/bin/)
+    install(DIRECTORY etc/info DESTINATION /var/www/trokam)
     install(DIRECTORY etc/style DESTINATION /var/www/trokam)
     install(DIRECTORY etc/approot DESTINATION /usr/local/etc/trokam)
 

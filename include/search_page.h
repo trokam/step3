@@ -92,5 +92,8 @@ namespace Trokam
             void createSuggestionBox();
             void destroySuggestionBox();
             bool isAgentMobile();
+            void checkTraining();
+            // void training(const std::string &lang_value);
+            void training();
     };
 }

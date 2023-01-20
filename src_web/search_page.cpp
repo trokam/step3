@@ -24,6 +24,7 @@
 
 // C++
 #include <chrono>
+#include <thread>
 
 // Boost
 #include <boost/algorithm/string.hpp>
@@ -54,6 +55,7 @@
 #include <xapian.h>
 
 // Trokam
+#include "file_ops.h"
 #include "plain_text_processor.h"
 #include "search_page.h"
 #include "shared_resources.h"
@@ -188,6 +190,9 @@ Trokam::SearchPage::SearchPage(
     timer->timeout().connect(this, &Trokam::SearchPage::timeout);
 
     input->setFocus();
+
+    // training();
+    checkTraining();
 }
 
 void Trokam::SearchPage::search(
@@ -464,7 +469,7 @@ void Trokam::SearchPage::showUserOptions()
 
 bool Trokam::SearchPage::savePreferences()
 {
-    Wt::log("info") << "group->selectedButtonIndex():" << group->selectedButtonIndex();
+    // Wt::log("info") << "group->selectedButtonIndex():" << group->selectedButtonIndex();
     unsigned int theme = group->selectedButtonIndex();
     user_settings.setTheme(theme);
     user_settings.setLanguages(language_options);
@@ -633,4 +638,54 @@ bool Trokam::SearchPage::isAgentMobile()
 
     // It seems that the User-Agent is a desktop browser.
     return false;
+}
+
+void Trokam::SearchPage::checkTraining()
+{
+    const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
+    const std::string *training_value = env.getParameter("training");
+    // const std::string *pass_value = env.getParameter("pass");
+    if(training_value)
+    {
+        if(*training_value == "true")
+        {
+            std::thread t(&Trokam::SearchPage::training, this);
+            t.detach();
+        }
+    }
+}
+
+void Trokam::SearchPage::training()
+{
+    const std::string words_path = "/usr/local/etc/trokam/words.json";
+    std::string words_content = Trokam::FileOps::read(words_path);
+    nlohmann::json words_json = nlohmann::json::parse(words_content);
+
+    std::map<std::string, std::vector<std::string>> words =
+        words_json["words"].get<std::map<std::string, std::vector<std::string>>>();
+
+    for(auto iter= words.begin(); iter != words.end(); ++iter)
+    {
+        const std::string language = iter->first;
+        const std::vector<std::string> term_collection = iter->second;
+        for(const auto &term: term_collection)
+        {
+            Wt::log("info") << "language:" << language << " -- term:" << term;
+
+            std::string low_case_terms= Xapian::Unicode::tolower(term);
+
+            Xapian::doccount results_requested = 2;
+
+            std::vector<std::string> language_selected;
+            language_selected.push_back(language);
+
+            shared_resources->getNewDB();
+
+            shared_resources->
+                readable_content_db.search(
+                    low_case_terms,
+                    language_selected,
+                    results_requested);
+        }
+    }
 }

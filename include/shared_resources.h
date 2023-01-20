@@ -44,6 +44,7 @@ namespace Trokam
 
             Trokam::ReadableContentDB readable_content_db;
             void getNewDB();
+            std::string getPassword();
 
         private:
 
@@ -54,5 +55,6 @@ namespace Trokam
             nlohmann::json &settings;
             // Trokam::Transfers &transfers;
             std::unique_ptr<Trokam::Transfers> transfers;
+            std::string password;
     };
 }

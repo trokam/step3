@@ -13,6 +13,10 @@ if((SUBSYSTEM STREQUAL "WEB") OR (SUBSYSTEM STREQUAL "ALL"))
     file(GLOB SOURCES_COMMON "src_common/*.cpp")
     add_executable(search.wt ${SOURCES_WEB} ${SOURCES_COMMON})
 
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+    #target_link_libraries(search.wt PRIVATE Threads::Threads)
+
     find_package(
         Boost 1.67 COMPONENTS
         filesystem
@@ -32,12 +36,14 @@ if((SUBSYSTEM STREQUAL "WEB") OR (SUBSYSTEM STREQUAL "ALL"))
         pqxx
         wt
         wtfcgi
-        fmt::fmt)
+        fmt::fmt
+        Threads::Threads)
 
     install(TARGETS search.wt DESTINATION /var/www/trokam/bin/)
     install(DIRECTORY etc/info DESTINATION /var/www/trokam)
     install(DIRECTORY etc/style DESTINATION /var/www/trokam)
     install(DIRECTORY etc/approot DESTINATION /usr/local/etc/trokam)
+    install(FILES etc/words.json DESTINATION /usr/local/etc/trokam)
 
 endif()
 

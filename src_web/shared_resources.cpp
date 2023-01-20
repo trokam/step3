@@ -83,3 +83,8 @@ void Trokam::SharedResources::getNewDB()
         Wt::log("info") << "using latest page-databases already.";
     }
 }
+
+std::string Trokam::SharedResources::getPassword()
+{
+    return password;
+}

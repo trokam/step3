@@ -64,6 +64,7 @@ void Trokam::SharedResources::getNewDB()
         for(unsigned int i=0; i<crawlers_id.size(); i++)
         {
             std::string path = transfers->getPath(crawlers_id[i]);
+            Wt::log("info") << "path[" << i << "]=" << path;
             if(!path.empty())
             {
                 if(i == 0)

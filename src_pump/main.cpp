@@ -138,23 +138,29 @@ void check_disk_space(
 
 /**
  * This command 'pump' got its name because it is pumping data to the
- * webserver. The outline of execution,
- * 1 - Read the configuration file: this command do not have command
- *     line arguments. All is specified in the configuration file.
- * 2 - If the file '/tmp/stop_pump' exists, then it quits as soon as
- *     possible. The user execute 'touch /tmp/stop_pump' to gracefully
- *     stop 'pump'.
- * 3 - Check disk space.
- * 4 - Verify if the database has grow beyond the allowed size or
- *     is the specific day to reinit. In both cases it cleans up the
- *     page-database and the link-database; then it initialises the
- *     the links-database with the links seeds.
- * 5 - Perform the indexing of pages. Here is spend most of the time.
- * 6 - Disable the database in the webserver that correspond to this
- *     crawling node.
- * 7 - Transfer the local copy of the database to the webserver.
- * 8 - Enable the database in the webserver that correspond to this
- *     crawling node.
+ * webserver. The outline of its execution,
+ *  1 - Read the configuration file: this command do not have command
+ *      line arguments. All is specified in the configuration file.
+ *  2 - If the file '/tmp/stop_pump' exists, then it quits as soon as
+ *      possible. The user execute 'touch /tmp/stop_pump' to gracefully
+ *      stop 'pump'.
+ *  3 - Check disk space.
+ *  4 - Verify if the database has grow beyond the allowed size or
+ *      is the specific day to reinit. In both cases it cleans up the
+ *      page-database and the link-database; then it initialises the
+ *      the links-database with the links seeds.
+ *  5 - Perform the indexing of pages. Here is spend most of the time.
+ *  6 - Check if it is the time to transfer the database to the webserver.
+ *      If it is not yet the time, then jump to step 11. Otherwise continue
+ *      with the following step.
+ *  7 - Disable the database in the webserver that correspond to this
+ *      crawling node.
+ *  8 - Transfer the local copy of the database to the webserver.
+ *  9 - Enable the database in the webserver that correspond to this
+ *      crawling node.
+ * 10 - Trigger word training in the webserver.
+ * 11 - Save the current day and current hour in two variables to check
+ *      in the next iteration if these values have changed.
  **/
 
 int main(int argc, char *argv[])
@@ -167,19 +173,19 @@ int main(int argc, char *argv[])
     nlohmann::json config = nlohmann::json::parse(text);
 
     const int THIS_NODE_INDEX =           config["this_node_index"];
-    const int REINIT_DB_DAY =             config["reinit_db_day"];
     const int DB_SIZE_LIMIT =             config["db_size_limit"];
-    const int MIN_DISK_SPACE =            3; // [Gb]
-    const int HOUR_TO_TRANSFER_DB =       4;
-    const int CYCLE_PERIOD =              8;
-    const int CYCLE_OFFSET =              0;
+    const int MIN_DISK_SPACE =            config["min_disk_space"];    // 3 [Gb]
+    const int HOUR_TO_TRANSFER_DB =       config["hour_to_transfer_db"];
+    const int CYCLE_PERIOD =              config["cycle_period"];
+    const int CYCLE_OFFSET =              config["cycle_offset"];
+    const std::string SERVER_ADDRESS =    config["server_address"];    // "https://trokam.com"
+    const std::string TRAINING_PASSWORD = config["training_password"];
     const std::string LOCAL_DIRECTORY  =  config["local_directory"];
     const std::string MNT_SERVER_DB =     config["mnt_server_db"];
-    const std::string CHECK_FILE_SYSTEM = "/";
-    const unsigned int INDEXING_CYCLES =  10;  // config["indexing_cycles"];
+    const std::string CHECK_FILE_SYSTEM = config["check_file_system"]; // "/"
+    const unsigned int INDEXING_CYCLES =  config["indexing_cycles"];
 
     std::cout << "THIS_NODE_INDEX:"   << THIS_NODE_INDEX << '\n';
-    std::cout << "REINIT_DB_DAY:"     << REINIT_DB_DAY << '\n';
     std::cout << "DB_SIZE_LIMIT:"     << DB_SIZE_LIMIT << '\n';
     std::cout << "MIN_DISK_SPACE:"    << MIN_DISK_SPACE << '\n';
     std::cout << "LOCAL_DIRECTORY:"   << LOCAL_DIRECTORY << '\n';
@@ -228,7 +234,6 @@ int main(int argc, char *argv[])
         int remainder = (today + CYCLE_OFFSET) % CYCLE_PERIOD;
         std::cout << "today is:" << today << " previous day:" << previous_day << std::endl;
         std::cout << "remainder:" << remainder << std::endl;
-        // if(((today != previous_day) && (today == REINIT_DB_DAY)) || (db_size_gb > DB_SIZE_LIMIT))
         if(((today != previous_day) && (remainder == 0)) || (db_size_gb > DB_SIZE_LIMIT))
         {
             std::cout << current_datetime() << " -- reinit of the database" << std::endl;
@@ -287,31 +292,31 @@ int main(int argc, char *argv[])
         if((curr_hour != previous_hour) && (curr_hour == HOUR_TO_TRANSFER_DB))
         {
             /**
-            * Tell the server don't use this database
-            * and wait a moment for any active query to complete
-            **/
+             * Tell the server don't use this database
+             * and wait a moment for any active query to complete
+             **/
             std::cout << current_datetime() << " -- disable database and wait" << std::endl;
             transfers.disable(THIS_NODE_INDEX);
             std::this_thread::sleep_for(std::chrono::seconds(20));
 
             /**
-            * Transfer the database to the server
-            * If the transfer command report an error, then it quits.
-            * This database will remain as 'disabled' to avoid
-            * the webserver to use a possibly corrupted database.
-            **/
+             * Transfer the database to the server
+             * If the transfer command report an error, then it quits.
+             * This database will remain as 'disabled' to avoid
+             * the webserver to use a possibly corrupted database.
+             **/
 
             /**
-            * DESIGN REVIEW
-            * The transfer of the content-database from the crawler node to
-            * the webserver is done with the comand 'cp'. The origin is a
-            * local directory and the destination is a directory of the
-            * webserver mounted in a local directory. I wish not to mount
-            * any directory and execute the command 'rsync' or 'scp', but
-            * both fails. I tried the library 'libssh' but it fails with the
-            * same error. Instead of the command 'cp' I tried
-            * 'boost::filesystem::copy_file(..)' but it also fails.
-            **/
+             * DESIGN REVIEW
+             * The transfer of the content-database from the crawler node to
+             * the webserver is done with the comand 'cp'. The origin is a
+             * local directory and the destination is a directory of the
+             * webserver mounted in a local directory. I wish not to mount
+             * any directory and execute the command 'rsync' or 'scp', but
+             * both fails. I tried the library 'libssh' but it fails with the
+             * same error. Instead of the command 'cp' I tried
+             * 'boost::filesystem::copy_file(..)' but it also fails.
+             **/
             std::string command;
             std::cout << current_datetime() << " -- transfering the database to the server" << std::endl;
 
@@ -330,15 +335,27 @@ int main(int argc, char *argv[])
             }
 
             /**
-            * Tell the server this database is enabled.
-            **/
+             * Tell the server this database is enabled.
+             **/
             std::cout << current_datetime() << " -- enable database" << std::endl;
             transfers.enable(THIS_NODE_INDEX);
+
+            /**
+             * Trigger word training in the webserver.
+             */
+            command =
+                "curl -s --stderr - '" +
+                SERVER_ADDRESS +
+                "/search?training=true&pass=" +
+                TRAINING_PASSWORD +
+                "' 1>/dev/null";
+            state = system(command.c_str());
+            show_state(state, command);
         }
 
         /**
-         * Keep today's number to check in the next iteration
-         * if there is a change.
+         * Keep today's number and current hour to check in
+         * the next iteration if there is a change.
          **/
         previous_day = today;
         previous_hour = curr_hour;

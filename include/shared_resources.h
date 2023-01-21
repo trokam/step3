@@ -28,6 +28,7 @@
 #include <nlohmann/json.hpp>
 
 // Trokam
+#include "events.h"
 #include "options.h"
 #include "readable_content_db.h"
 #include "postgresql.h"
@@ -45,11 +46,13 @@ namespace Trokam
             Trokam::ReadableContentDB readable_content_db;
             void getNewDB();
             std::string getPassword();
+            void insertOccurrence();
 
         private:
 
             std::vector<std::string> current_dates;
             nlohmann::json &settings;
+            std::unique_ptr<Trokam::Events> events;
             std::unique_ptr<Trokam::Transfers> transfers;
             std::string password;
     };

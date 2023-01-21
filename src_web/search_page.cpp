@@ -82,6 +82,7 @@ Trokam::SearchPage::SearchPage(
     user_settings.generate(cookie_preferences);
     application->internalPathChanged().connect(
         [=] {
+            shared_resources->insertOccurrence();
             std::string internal_path= application->internalPath();
             boost::algorithm::trim_if(
                 internal_path, boost::algorithm::is_any_of("/ \n\r\t\\\""));

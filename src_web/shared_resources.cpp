@@ -41,6 +41,7 @@ Trokam::SharedResources::SharedResources(
         settings(value)
 {
     transfers.reset(new Trokam::Transfers(settings));
+    events.reset(new Trokam::Events(settings));
     getNewDB();
     password = settings["training_password"];
 }
@@ -89,4 +90,9 @@ void Trokam::SharedResources::getNewDB()
 std::string Trokam::SharedResources::getPassword()
 {
     return password;
+}
+
+void Trokam::SharedResources::insertOccurrence()
+{
+    events->insertOccurrence();
 }

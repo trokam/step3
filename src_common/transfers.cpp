@@ -73,8 +73,6 @@ std::vector<std::string> Trokam::Transfers::getTimeStamps()
     pqxx::result answer;
     m_db->execAnswer(sql_select, answer);
 
-    std::cout << "sql_select:" << sql_select << "\n";
-
     std::vector<std::string> result;
     pqxx::result::iterator row= answer.begin();
     while(row != answer.end())

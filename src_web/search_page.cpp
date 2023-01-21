@@ -644,10 +644,11 @@ void Trokam::SearchPage::checkTraining()
 {
     const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
     const std::string *training_value = env.getParameter("training");
-    // const std::string *pass_value = env.getParameter("pass");
-    if(training_value)
+    const std::string *pass_value = env.getParameter("pass");
+    if(training_value && pass_value)
     {
-        if(*training_value == "true")
+        const std::string correct_pass = shared_resources->getPassword();
+        if((*training_value == "true") && (*pass_value == correct_pass))
         {
             std::thread t(&Trokam::SearchPage::training, this);
             t.detach();

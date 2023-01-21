@@ -42,6 +42,7 @@ Trokam::SharedResources::SharedResources(
 {
     transfers.reset(new Trokam::Transfers(settings));
     getNewDB();
+    password = settings["training_password"];
 }
 
 Trokam::SharedResources::~SharedResources()
@@ -51,10 +52,10 @@ void Trokam::SharedResources::getNewDB()
 {
     const std::vector<std::string> db_dates = transfers->getTimeStamps();
 
-    for(unsigned int i=0; i<db_dates.size(); i++)
+    /* for(unsigned int i=0; i<db_dates.size(); i++)
     {
         Wt::log("info") << "db_dates[" << i << "]=" << db_dates[i];
-    }
+    } */
 
     if(db_dates != current_dates)
     {

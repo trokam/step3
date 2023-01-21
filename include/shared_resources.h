@@ -48,12 +48,8 @@ namespace Trokam
 
         private:
 
-            // std::unique_ptr<Trokam::Postgresql> db;
-            // int current_transfer = -1;
-            // std::vector<int> current_id;
             std::vector<std::string> current_dates;
             nlohmann::json &settings;
-            // Trokam::Transfers &transfers;
             std::unique_ptr<Trokam::Transfers> transfers;
             std::string password;
     };

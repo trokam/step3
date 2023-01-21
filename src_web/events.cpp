@@ -36,16 +36,9 @@
 Trokam::Events::Events(nlohmann::json &config)
 {
     const std::string host = config["events"]["host"];
-    std::cout << "A" << std::endl;
-
     const std::string port = config["events"]["port"];
-    std::cout << "B" << std::endl;
-
     const std::string name = config["events"]["name"];
-    std::cout << "C" << std::endl;
-
     const std::string user = config["events"]["user"];
-    std::cout << "D" << std::endl;
 
     m_db.reset(new Trokam::Postgresql(host, port, name, user));
 }

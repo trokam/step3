@@ -36,7 +36,7 @@
 Trokam::Transfers::Transfers(nlohmann::json &config)
 {
     const std::string host = config["transfers"]["host"];
-    const std::string port = config["transfers"]["post"];
+    const std::string port = config["transfers"]["port"];
     const std::string name = config["transfers"]["name"];
     const std::string user = config["transfers"]["user"];
 

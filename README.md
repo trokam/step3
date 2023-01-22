@@ -69,11 +69,14 @@ Download the latest sources of the library [Wt](https://www.webtoolkit.eu/wt/dow
 
 #### Configure PostgreSQL
 
-The web server uses three types of databases.
-The page databases store the content being searched by users. They are implemented with [Xapian](https://xapian.org/). There could be any number of them.
+The web server uses three types of databases. The page databases store the content being searched by users. They are implemented with [Xapian](https://xapian.org/). There could be any number of them.
+
 Also, two [PostgreSQL](https://www.postgresql.org/) databases: `transfers` and `events`. One instance of each one.
+
 The `transfer` database tells the web server which page databases are enabled and where they are located to perform the search. The web server generally has several page databases to perform the query, but some of them may be disabled temporarily while the `pump` updates it.
+
 The `events` database saves the timestamp every time a user does a new search. It is used to know the server usage.
+
 Postgresql allows quite flexible settings, but these instructions will explain the most basic one: `transfers` and `events` will be in the same machine as the web server, and access will be allowed to every machine in the same private network.
 
     $ sudo su - postgres
@@ -108,11 +111,15 @@ With this one:
 
     listen_addresses = '*'			# what IP address(es) to listen on;
 
-If you are just getting acquainted with Trokam's code and testing it with two virtual machines on a desktop computer, the web server, the crawlers, and the host will be in the same network. There is no distinction between private and public networks. And it does not matter in this case.
+If you are just getting acquainted with Trokam's code and testing it with virtual machines on a desktop computer, the web server, the crawlers, and the host will be in the same network. There is no distinction between private and public networks. And it does not matter in this case.
 
 However, if you are setting Trokam in the cloud or your organisation's intranet, ensure that the IP mask corresponds to the private network used by the web server and crawlers, not the public network.
 
 Accordingly, the web server should have at least two IPs, one that belongs to the public network and another to the private network. The private IP should be like aaa.bbb.xxx.yyy.
+
+[PostgreSQL security settings](https://www.postgresql.org/docs/12/auth-pg-hba-conf.html) allow you several other possibilities. Read the documentation and feel confident with these settings. Learning about PostgreSQL is time well spent.
+
+Finally,
 
     [postgres] $ exit
     $ sudo systemctl restart postgresql
@@ -120,6 +127,7 @@ Accordingly, the web server should have at least two IPs, one that belongs to th
     $ psql -U web_user events < events.postgresql
 
 #### Configure Apache
+
 
 
 #### Build the web server

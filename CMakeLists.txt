@@ -15,7 +15,6 @@ if((SUBSYSTEM STREQUAL "WEB") OR (SUBSYSTEM STREQUAL "ALL"))
 
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
-    #target_link_libraries(search.wt PRIVATE Threads::Threads)
 
     find_package(
         Boost 1.67 COMPONENTS

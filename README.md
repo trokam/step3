@@ -99,9 +99,9 @@ And replace this line:
 
 by this one:
 
-    host    all             all         aaa.bbb.0.0/24      trust
+    host    all             all         aaa.bbb.ccc.0/24    trust
 
-`aaa.bbb.0.0` is a IP mask of the private network.
+`aaa.bbb.ccc.0` is a IP mask of the private network.
 
 Also edit the file `postgresql.conf`. Replace this line:
 
@@ -115,16 +115,48 @@ If you are just getting acquainted with Trokam's code and testing it with virtua
 
 However, if you are setting Trokam in the cloud or your organisation's intranet, ensure that the IP mask corresponds to the private network used by the web server and crawlers, not the public network.
 
-Accordingly, the web server should have at least two IPs, one that belongs to the public network and another to the private network. The private IP should be like aaa.bbb.xxx.yyy.
+Accordingly, the web server should have at least two IPs, one that belongs to the public network and another to the private network. The private IP should be like aaa.bbb.ccc.yyy.
 
 [PostgreSQL security settings](https://www.postgresql.org/docs/12/auth-pg-hba-conf.html) allow you several other possibilities. Read the documentation and feel confident with these settings. Learning about PostgreSQL is time well spent.
 
-Finally,
+Restart PostgreSQL engine,
 
     [postgres] $ exit
     $ sudo systemctl restart postgresql
+
+Create the database schema,
+
     $ psql -U web_user transfers < transfers.postgresql
     $ psql -U web_user events < events.postgresql
+
+Finally, test the access to these databases from the web server. Here is the example for `transfers`,
+
+    $ psql -U web_user transfers
+    psql (12.12 (Ubuntu 12.12-0ubuntu0.20.04.1))
+    Type "help" for help.
+
+    transfers=> \dt
+            List of relations
+    Schema |    Name     | Type  |  Owner
+    --------+-------------+-------+---------
+    public | dbcontent   | table | web_user
+    (1 row)
+    transfers=> \q
+
+Finally, test the access to these databases from the crawler machine. The command must include the private IP address of the web server. Here is the example for `transfers`,
+
+    $ psql -U web_user -h aaa.bbb.ccc.ddd transfers
+    psql (12.12 (Ubuntu 12.12-0ubuntu0.20.04.1))
+    SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+    Type "help" for help.
+
+    transfers=> \dt
+            List of relations
+    Schema |    Name     | Type  |  Owner
+    --------+-------------+-------+---------
+    public | dbcontent   | table | web_user
+    (1 row)
+    transfers=> \q
 
 #### Configure Apache
 

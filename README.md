@@ -186,30 +186,6 @@ Finally, enable the CGI module and reload Apache,
     sudo a2enmod fcgid
     sudo systemctl reload apache2
 
-#### Cofigure Wt
-
-Trokam web server is a binary executed by Apache as a fast CGI. So start adding the Trokam's site to the Apache configuration and enable it. And disable the default site.
-
-    sudo cp trokam_web_http.conf /etc/apache2/sites-available/
-    cd /etc/apache2/sites-available/
-    sudo a2ensite trokam_web_http.conf
-
-    cd /etc/apache2/sites-available/
-    sudo a2dissite 000-default.conf
-
-Modify Apache's fast CGI configuration. In the file /etc/apache2/mods-available/fcgid.conf replace this line,
-
-    AddHandler fcgid-script .wt
-
-By this one,
-
-    AddHandler fcgid-script .fcgi
-
-Finally, enable the CGI module and reload Apache,
-
-    sudo a2enmod fcgid
-    sudo systemctl reload apache2
-
 #### Configure Wt
 
 Go to directory `/etc/wt` and edit the file `wt_config.xml`. Replace this line:
@@ -262,7 +238,7 @@ tells you what pages are accessed on the server. And this file,
 
     /var/log/apache2/error.log
 
-Provides valuable information for debugging. Use these files as the primary source of information on what is happening with the server.
+provides valuable information for debugging. Use these files as the primary source of information on what is happening with the server.
 
 ### The crawler and data pump
 

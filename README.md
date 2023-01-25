@@ -33,7 +33,7 @@ Trokam is entirely programmed in C++.
 
 Trokam code is licensed as the GNU General Public License v3.0 (GPLv3). The file [LICENSE](https://github.com/trokam/step3.trokam.com/blob/master/LICENSE) is distributed with the code. Read [A Quick Guide to GPLv3](https://www.gnu.org/licenses/quick-guide-gplv3.html) to understand the essentials of this license.
 
-### Support Building Trokam
+## Support Building Trokam
 
 If you find a mistake or something that needs to be added to these instructions, possibly impeding you from successfully building Trokam, please get in touch with the project developer, Nicolas Slusarenko, at nicolas.slusarenko@trokam.com.
 
@@ -241,7 +241,6 @@ tells you what pages are accessed on the server. And this file,
 provides valuable information for debugging. Use these files as the primary source of information on what is happening with the server.
 
 ### The crawler and data pump
-
 
 #### Prerequisites
 

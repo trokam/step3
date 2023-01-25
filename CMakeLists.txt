@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16.3)
 
-project(Trokam)
+project(Trokam
+        VERSION 3
+        DESCRIPTION "Internet search engine"
+        HOMEPAGE_URL "https://trokam.com")
+
 set(CMAKE_CXX_STANDARD 17)
 set(SUBSYSTEM "ALL" CACHE STRING "Choose a system: WEB, CRAWLER, CONVEYOR or ALL")
 message(STATUS "System choice:" ${SUBSYSTEM})

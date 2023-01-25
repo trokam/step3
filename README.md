@@ -33,7 +33,11 @@ Trokam is entirely programmed in C++.
 
 Trokam code is licensed as the GNU General Public License v3.0 (GPLv3). The file [LICENSE](https://github.com/trokam/step3.trokam.com/blob/master/LICENSE) is distributed with the code. Read [A Quick Guide to GPLv3](https://www.gnu.org/licenses/quick-guide-gplv3.html) to understand the essentials of this license.
 
-## Building Trokam
+### Support Building Trokam
+
+If you find a mistake or something that needs to be added to these instructions, possibly impeding you from successfully building Trokam, please get in touch with the project developer, Nicolas Slusarenko, at nicolas.slusarenko@trokam.com.
+
+## Building and Installing Trokam
 
 ### Sources organization
 
@@ -105,17 +109,17 @@ by this one:
 
 Also edit the file `postgresql.conf`. Replace this line:
 
-    #listen_addresses = 'localhost'		# what IP address(es) to listen on;
+    #listen_addresses = 'localhost'        # what IP address(es) to listen on;
 
 With this one:
 
-    listen_addresses = '*'			# what IP address(es) to listen on;
+    listen_addresses = '*'            # what IP address(es) to listen on;
 
 If you are just getting acquainted with Trokam's code and testing it with virtual machines on a desktop computer, the web server, the crawlers, and the host will be in the same network. There is no distinction between private and public networks. And it does not matter in this case.
 
 However, if you are setting Trokam in the cloud or your organisation's intranet, ensure that the IP mask corresponds to the private network used by the web server and crawlers, not the public network.
 
-Accordingly, the web server should have at least two IPs, one that belongs to the public network and another to the private network. The private IP should be like aaa.bbb.ccc.yyy.
+Accordingly, the web server should have at least two IPs, one that belongs to the public network and another to the private network. The private IP should be like aaa.bbb.ccc.ddd.
 
 [PostgreSQL security settings](https://www.postgresql.org/docs/12/auth-pg-hba-conf.html) allow you several other possibilities. Read the documentation and feel confident with these settings. Learning about PostgreSQL is time well spent.
 
@@ -143,7 +147,7 @@ Finally, test the access to these databases from the web server. Here is the exa
     (1 row)
     transfers=> \q
 
-Finally, test the access to these databases from the crawler machine. The command must include the private IP address of the web server. Here is the example for `transfers`,
+Finally, test the access to these databases from the crawler machine. The command must use the private IP address of the web server. Here is the example for `transfers`,
 
     $ psql -U web_user -h aaa.bbb.ccc.ddd transfers
     psql (12.12 (Ubuntu 12.12-0ubuntu0.20.04.1))
@@ -160,10 +164,105 @@ Finally, test the access to these databases from the crawler machine. The comman
 
 #### Configure Apache
 
+Trokam web server is a binary executed by Apache as a fast CGI. So start adding the Trokam's site to the Apache configuration and enable it. And disable the default site.
 
+    sudo cp trokam_web_http.conf /etc/apache2/sites-available/
+    cd /etc/apache2/sites-available/
+    sudo a2ensite trokam_web_http.conf
 
-#### Build the web server
+    cd /etc/apache2/sites-available/
+    sudo a2dissite 000-default.conf
 
+Modify Apache's fast CGI configuration. In the file /etc/apache2/mods-available/fcgid.conf replace this line,
+
+    AddHandler fcgid-script .wt
+
+By this one,
+
+    AddHandler fcgid-script .fcgi
+
+Finally, enable the CGI module and reload Apache,
+
+    sudo a2enmod fcgid
+    sudo systemctl reload apache2
+
+#### Cofigure Wt
+
+Trokam web server is a binary executed by Apache as a fast CGI. So start adding the Trokam's site to the Apache configuration and enable it. And disable the default site.
+
+    sudo cp trokam_web_http.conf /etc/apache2/sites-available/
+    cd /etc/apache2/sites-available/
+    sudo a2ensite trokam_web_http.conf
+
+    cd /etc/apache2/sites-available/
+    sudo a2dissite 000-default.conf
+
+Modify Apache's fast CGI configuration. In the file /etc/apache2/mods-available/fcgid.conf replace this line,
+
+    AddHandler fcgid-script .wt
+
+By this one,
+
+    AddHandler fcgid-script .fcgi
+
+Finally, enable the CGI module and reload Apache,
+
+    sudo a2enmod fcgid
+    sudo systemctl reload apache2
+
+#### Configure Wt
+
+Go to directory `/etc/wt` and edit the file `wt_config.xml`. Replace this line:
+
+    <progressive-bootstrap>false</progressive-bootstrap>
+
+by this one,
+
+    <progressive-bootstrap>true</progressive-bootstrap>
+
+Add this line just before the closing tag `</properties>`:
+
+    <property name="approot">/usr/local/etc/trokam/approot</property>
+
+Create the directory `wt` and set its ownership to `www-data`:
+
+    $ sudo mkdir -p /var/run/wt
+    $ chown www-data:www-data -R /var/run/wt/
+
+Be sure that this directory will be there after a reboot. Hence, log in as root and edit the cron configuration,
+
+    # crontab -e
+
+Then add this line and save the configuration,
+
+    @reboot mkdir -p /var/run/wt; chown www-data:www-data -R /var/run/wt/
+
+#### Build and Install the Web Server
+
+The web server is build using CMake, following the usual procedure:
+
+    git clone git@github.com:trokam/step3.trokam.com.git
+    cd step3.trokam.com/
+    mkdir build_web
+    cmake -DSUBSYSTEM=WEB ..
+    make
+    sudo make install
+
+Take a look a the output. The last command installs binaries and files with specific settings.
+
+### Testing the Web Server
+
+Use a browser and point to the public IP address of the web server. You should get the Trokam start page. If you search for a term, you won't have any results because there are no databases, but this is not an error.
+
+The file,
+
+    /var/log/apache2/access.log
+
+tells you what pages are accessed on the server. And this file,
+
+    /var/log/apache2/error.log
+
+Provides valuable information for debugging. Use these files as the primary source of information on what is happening with the server.
 
 ### The crawler and data pump
 

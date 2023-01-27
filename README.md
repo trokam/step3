@@ -240,9 +240,69 @@ tells you what pages are accessed on the server. And this file,
 
 provides valuable information for debugging. Use these files as the primary source of information on what is happening with the server.
 
-### The crawler and data pump
+### The Crawler and the Pump
 
 #### Prerequisites
 
+Install the libraries available with the package manager,
 
-#### Build the data pump
+    $ sudo aptitude install cmake g++ libcurl4-openssl-dev libpqxx-dev postgresql postgresql-client-common libxapian-dev xapian-tools libboost1.67-all-dev libexttextcat-dev libexttextcat-data nlohmann-json3-dev libfmt-dev libncurses-dev sshfs
+
+Trokam uses a modified version of the Lynx browser to convert the HTML pages to text files. Download it and build it. Do not install it using make, but copy the files as indicated,
+
+    $ git clone https://github.com/trokam/lynx_modified
+    $ cd lynx_modified/
+    $ ./configure
+    $ make
+    $ sudo cp ./lynx /usr/local/bin/lynx_mod
+    $ sudo cp ./lynx.cfg /usr/local/etc/lynx_mod.cfg
+
+#### Configure PostgreSQL
+
+    $ sudo su - postgres
+    [postgres] $ createuser crawler_user
+    [postgres] $ createdb warehouse
+    [postgres] $ cd /etc/postgresql/12/main/
+
+Edit the file `pg_hba.conf`. Replace the line:
+
+    local   all             all                             peer
+
+by this one:
+
+    local   all             all                             trust
+
+Restart PostgreSQL engine,
+
+    [postgres] $ exit
+    $ sudo systemctl restart postgresql
+
+Create the database schema,
+
+    $ psql -U crawler_user warehouse < warehouse.postgresql
+
+#### Building
+
+Now, you have all set to compile and install the crawler and the pump. Build the pump,
+
+    $ mkdir build_pump
+    $ cd build_pump/
+    $ cmake -DSUBSYSTEM=PUMP ..
+    $ make
+    $ sudo make install
+
+Change to the root directory of your source files and build the crawler,
+
+    $ mkdir build_crawler
+    $ cd build_crawler/
+    $ cmake -DSUBSYSTEM=CRAWLER ..
+    $ make
+    $ sudo make install
+
+#### Running the Pump
+
+Execute the pump and save its output for review its operation,
+
+    $ pump 2>&1 1>>/tmp/pump.log &
+    $ exit
+

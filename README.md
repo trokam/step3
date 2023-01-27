@@ -226,7 +226,7 @@ The web server is build using CMake, following the usual procedure:
 
 Take a look a the output. The last command installs binaries and files with specific settings.
 
-### Testing the Web Server
+#### Testing the Web Server
 
 Use a browser and point to the public IP address of the web server. You should get the Trokam start page. If you search for a term, you won't have any results because there are no databases, but this is not an error.
 

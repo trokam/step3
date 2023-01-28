@@ -21,12 +21,13 @@
 
         <h1>Trokam needs your contribution!</h1>
 
-        <p class="fs-5">You have two alternatives to donate to Trokam: a montly
-                        contribution or a one-time contribution.
+        <p class="fs-5">You have several alternatives to donate to Trokam: a monthly
+                        or a one-time contribution using traditional currencies or a
+                        one-time contribution using cryptocurrencies.
         </p>
         &nbsp;<br/>
 
-        <h2>Montly contributions</h2>
+        <h2 id="monthly">Montly contributions</h2>
 
         <p class="fs-5">Set a montly contribution of &euro;1, &euro;3 or &euro;5 using Patreon.
                         Patreon provides a conversion to your local currency if possible.
@@ -50,7 +51,7 @@
           <a href="https://buy.stripe.com/28o8xi6LTazUcyk4gh" class="btn btn-success btn-lg px-4">Go to Trokam's Stripe page</a>
         </div>
 
-        <h2>One-time contributions</h2>
+        <h2 id="one-time-trad">One-time contributions</h2>
 
         <p class="fs-5">Make a one-time contribution to Trokam with any amount you want using Bunq.
                         Bunq gives you several options to pay depending on your country.
@@ -83,6 +84,86 @@
         <div class="mb-5">
           <a href="https://donate.stripe.com/5kA4h21rz4bw7e0bIK" class="btn btn-primary btn-lg px-4">Go to Trokam's Stripe page</a>
         </div>
+
+        <h2 id="one-time-crypto">Contributions with cryptocurrencies</h2>
+
+        <p class="fs-5">You can make a one-time donation using cryptocurrencies.
+        </p>
+
+        <div class="container">
+          <div class="row justify-content-md-left">
+            <div class="col-6 col-md-4">
+              <figure class="figure">
+                <img src="/info/images/trokam_bitcoin.png" alt="BTC address:34FHCL66jc1qWXEhtGMYci5kGNQ2Jg4sdt">
+              </figure>
+            </div>
+            <div class="col-md-8">
+              <h3>Bitcoin</h3>
+              <p><strong>BTC address:</br>34FHCL66jc1qWXEhtGMYci5kGNQ2Jg4sdt</br></strong>
+              This is a bitcoin network address. Do not send BTC over any other network
+              to this address or your funds may be lost. Do not send Bitcoin Cash (BCH)
+              to this address.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        &nbsp;<br/>
+
+        <div class="container">
+          <div class="row">
+            <div class="col-6 col-md-4">
+              <figure class="figure">
+                <img src="/info/images/trokam_ethereum.png" alt="ETH address:0x009B274181a3C69Dbda3A33e412fa54e38be2a8E">
+              </figure>
+            </div>
+            <div class="col-md-8">
+              <h3>Ethereum</h3>
+              <p><strong>ETH address:</br>0x009B274181a3C69Dbda3A33e412fa54e38be2a8E</br></strong>
+                This address can only receive Ethereum from the Ethereum
+                network. Don't send ETH from other networks, any ERC-20s
+                or NFTs, or it may result in a loss of funds.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        &nbsp;<br/>
+
+        <div class="container">
+          <div class="row">
+            <div class="col-6 col-md-4">
+              <figure class="figure">
+                <img src="/info/images/trokam_usdc.png" alt="USDC address:0x685a7e489483B8ae74250436F2b9B411C932e8C5">
+              </figure>
+            </div>
+            <div class="col-md-8">
+              <h3>USD Coin</h3>
+              <p><strong>USDC address:</br>0x685a7e489483B8ae74250436F2b9B411C932e8C5</br></strong>
+                This address can only receive USDC from the Ethereum network. Don't send
+                USDC from other networks, other ERC-20s or NFTs, or it may result in a
+                loss of funds.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        &nbsp;<br/>
+
+        <h2 id="legal-aspects">Legal aspects of donations</h2>
+
+        <p class="fs-5">Any donation to Trokam or Nicolas Slusarenko is voluntary
+                        and is not a fee for any services, goods, or advantages.
+                        By donating, you acknowledge that Trokam has the right to
+                        use the money you donate in any lawful way and for any lawful
+                        purpose. No obligation is to disclose the way and purpose to
+                        any party unless applicable law requires it. Although Trokam
+                        is built on free software, Trokam does not have any tax-exempt
+                        status. Trokam is not a registered non-profit corporation in
+                        any country. Your donation may or may not be tax-deductible;
+                        please consult your tax advisor. Trokam will not publish your
+                        name without your consent. Your donation is non-refundable.
+        </p>
 
       </main>
 

@@ -21,31 +21,52 @@
 
         <h1>Trokam is great news for the world!</h1>
 
-        <p class="fs-5">Trokam is an internet search engine. These are some of the unique features of Trokam:</p>
+        <div class="container">
 
-        <p class="fs-5"><strong>Ad-free</strong>. No advertisement at all!</p>
+          <p class="fs-5">Trokam is an internet search engine. These are some of the unique features of Trokam:</p>
 
-        <p class="fs-5"><strong>Transparency</strong>. You know how results are ranked.</p>
+          <p class="fs-5"><strong>Ad-free</strong>. No advertisement at all!</p>
 
-        <p class="fs-5"><strong>Free software</strong>. It is built entirely on <a href="https://github.com/trokam">open-source software.</a></p>
+          <p class="fs-5"><strong>Transparency</strong>. You know how results are ranked.</p>
 
-        <p class="fs-5"><strong>Privacy</strong>. Your searches are private.</p>
+          <p class="fs-5"><strong>Free software</strong>. It is built entirely on <a href="https://github.com/trokam">open-source software.</a></p>
 
-        &nbsp;<br/>
+          <p class="fs-5"><strong>Privacy</strong>. Your searches are private.</p>
+
+        </div>
 
         <h1 id="enhance-trokam">Join the most exciting software project of our time</h1>
 
-        <p class="fs-5">These are some ways you can contribute:</p>
+        <div class="container">
 
-        <p class="fs-5"><strong>Donate</strong>. Trokam has a few machines indexing less than 1% of all Internet pages. Nevertheless, Trokam delivers valuable results. Trokam needs your contribution right now to reach more pages. <a href="/info/donate">You have several alternatives to contribute.</a></p>
+          <p class="fs-5">These are some ways you can contribute:</p>
 
-        <p class="fs-5"><strong>Spread the word</strong>. Let others know about Trokam. Follow Trokam on <a href="https://twitter.com/trokam">Twitter</a> and <a href="https://www.linkedin.com/company/trokam/">LinkedIn</a>. Share and repost Trokam news.</p>
+          <p class="fs-5"><strong>Donate</strong>. Trokam has a few machines indexing less than 1% of all Internet pages. Nevertheless, Trokam delivers valuable results. Trokam needs your contribution right now to reach more pages. <a href="/info/donate">You have several alternatives to contribute.</a></p>
 
-        &nbsp;<br/>
+          <p class="fs-5"><strong>Spread the word</strong>. Let others know about Trokam. Follow Trokam on <a href="https://twitter.com/trokam">Twitter</a> and <a href="https://www.linkedin.com/company/trokam/">LinkedIn</a>. Share and repost Trokam news.</p>
+
+        </div>
 
         <h1>Who is developing Trokam?</h1>
 
-        <p class="fs-5">Nicolas Slusarenko is developing Trokam. Originally from Chile, he lives in the Netherlands. Nicolas has a full-time job in a tech company in Delft. He develops Trokam in his spare time. Contact him at nicolas.slusarenko@trokam.com</p>
+        <div class="container">
+          <div class="row justify-content-md-left">
+            <div class="col-md-8">
+              <p class="fs-5"><strong>Nicolas Slusarenko</strong>
+                is developing Trokam. Originally
+                from Chile, he lives in the Netherlands. Nicolas has
+                a full-time job in a tech company in Delft. He develops
+                Trokam in his spare time.
+                Contact him at nicolas.slusarenko@trokam.com
+              </p>
+            </div>
+            <div class="col-6 col-md-4">
+              <figure class="figure">
+                <img src="/info/images/nicolas_slusarenko.jpg" alt="Nicolas Slusarenko">
+              </figure>
+            </div>
+          </div>
+        </div>
 
       </main>
 

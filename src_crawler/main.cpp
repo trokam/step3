@@ -32,6 +32,10 @@
 #include "options.h"
 #include "plain_text_processor.h"
 
+/**
+ * This command, the crawler, read command line arguments
+ * to perform different actions with different options.
+ **/
 int main(int argc, char *argv[])
 {
     Trokam::Options opt(argc, argv);

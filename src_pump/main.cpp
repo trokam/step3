@@ -138,7 +138,10 @@ void check_disk_space(
 
 /**
  * This command 'pump' got its name because it is pumping data to the
- * webserver. The outline of its execution,
+ * webserver.
+ * The pump doesn't read any command line arguments. The pump get all the
+ * parameters from a configuration file.
+ * The outline of its execution,
  *  1 - Read the configuration file: this command do not have command
  *      line arguments. All is specified in the configuration file.
  *  2 - If the file '/tmp/stop_pump' exists, then it quits as soon as

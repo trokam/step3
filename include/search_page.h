@@ -93,7 +93,13 @@ namespace Trokam
             void destroySuggestionBox();
             bool isAgentMobile();
             void checkTraining();
-            // void training(const std::string &lang_value);
             void training();
+
+            /**
+             * Generates a human readable string with the languages
+             * selected to perform the search.
+             * For example: Spanish, Vietnamese, Polish and Indonesian.
+             **/
+            std::string getLanguagesSelected();
     };
 }

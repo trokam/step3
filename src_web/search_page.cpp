@@ -23,6 +23,7 @@
  **********************************************************************/
 
 // C++
+#include <cctype>
 #include <chrono>
 #include <thread>
 
@@ -276,7 +277,19 @@ void Trokam::SearchPage::showSearchResults()
     }
     else
     {
-        // Tell that there are not any results found.
+        // Tell the user that there are not any results found.
+        std::string msg;
+        msg += "&nbsp;</br>";
+        msg += "<h3 style=\"text-align:left\">No results were found.</h3>";
+        msg += "<h3 style=\"text-align:left\">&bull; Check term spelling. Try similar concepts and synonyms if possible.</h3>";
+        msg += "<h3 style=\"text-align:left\">&bull; Verify your preferences. You are searching for results in ";
+        msg += getLanguagesSelected() + ".</h3>";
+        msg += "<h3 style=\"text-align:left\">&bull; <a href=\"/info/about#enhance-trokam\"</a>Contribute to enhancing Trokam.</h3>";
+
+        userFindings->clear();
+        auto no_results_found = std::make_unique<Wt::WTemplate>();
+        no_results_found->setTemplateText(msg, Wt::TextFormat::UnsafeXHTML);
+        userFindings->elementAt(0, 0)->addWidget(std::move(no_results_found));
     }
 }
 
@@ -371,6 +384,18 @@ void Trokam::SearchPage::createFooter(
                 createFooter(base);
             }
         });
+
+    std::string msg;
+    msg += "&nbsp;</br>&nbsp;</br>";
+    msg += "<h3 style=\"text-align:left\">Did you find it? In case you didn't:</h3>";
+    msg += "<h3 style=\"text-align:left\">&bull; Check term spelling. Try similar concepts and synonyms if possible.</h3>";
+    msg += "<h3 style=\"text-align:left\">&bull; Verify your preferences. You are searching for results in ";
+    msg += getLanguagesSelected() + ".</h3>";
+    msg += "<h3 style=\"text-align:left\">&bull; <a href=\"/info/about#enhance-trokam\"</a>Contribute to enhancing Trokam.</h3>";
+
+    auto did_you_find_it = std::make_unique<Wt::WTemplate>();
+    did_you_find_it->setTemplateText(msg, Wt::TextFormat::UnsafeXHTML);
+    container_l1->addWidget(std::move(did_you_find_it));
 }
 
 void Trokam::SearchPage::showUserOptions()
@@ -689,5 +714,50 @@ void Trokam::SearchPage::training()
                     language_selected,
                     results_requested);
         }
+    }
+}
+
+std::string Trokam::SearchPage::getLanguagesSelected()
+{
+    std::vector<std::string> languages;
+    for(unsigned int i=0; i<language_options.size(); i++)
+    {
+        if(std::get<bool>(language_options[i]))
+        {
+            std::string language_name = Trokam::Preferences::languageName(i);
+            // Convert the fist letter of language_name to uppercase.
+            std::string language_formal;
+            language_formal += std::toupper(language_name[0]);
+            language_formal += language_name.substr(1);
+            languages.push_back(language_formal);
+        }
+    }
+
+    if(languages.size() == 0)
+    {
+        Wt::log("error") << "no language selected, assuming english.";
+        int index_english = Trokam::Language::ENGLISH;
+        std::string result = Trokam::Preferences::languageName(index_english);
+        return result;
+    }
+    else if(languages.size() == 1)
+    {
+        std::string result = languages[0];
+        return result;
+    }
+    else if(languages.size() == 2)
+    {
+        std::string result = languages[0] + " and " + languages[1];
+        return result;
+    }
+    else
+    {
+        std::string result = languages[0];
+        for(unsigned int i=1; i<(languages.size()-1); i++)
+        {
+            result += ", " + languages[i];
+        }
+        result += " and " + languages[languages.size()-1];
+        return result;
     }
 }

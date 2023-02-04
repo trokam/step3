@@ -4,7 +4,7 @@
 
 Trokam is an internet search engine. These are some of the unique features of Trokam:
 
-1. **Ad-free**. No advertisement at all.
+1. **Funding**. It is entirely funded by [donations](https://trokam.com/info/donate). Trokam is ad-free.
 2. **Transparency**. You know how results are ranked.
 3. **Free software**. It is built entirely on open-source software.
 4. **Privacy**. Your searches are private.

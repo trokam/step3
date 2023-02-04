@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<messages xmlns:if="Wt.WTemplate.conditions">
+
+  <message id="search-page-header">
+    <header class="mb-auto text-center">
+        <h3 class="float-md-start mb-0">Trokam</h3>
+        <nav class="nav nav-masthead justify-content-center float-md-end">
+            ${button_preferences}
+            &nbsp;
+            ${button_contributors}
+            &nbsp;
+            ${button_info}
+        </nav>
+
+        <div class="input-group mb-3 input-box">
+            ${input}
+            ${button}
+        </div>
+    </header>
+  </message>
+
+  <message id="no-results-found">
+    <h3>No results found</h3>
+    <h3>&bull; Check term spelling.</h3>
+    <h3>&bull; Verify your preferences. You are searching for results in English.</h3>
+    <h3>&bull; <a href="https://trokam.com/info/about">Contribute to enhancing Trokam.</a></h3>
+  </message>
+
+</messages>

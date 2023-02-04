@@ -1,0 +1,38 @@
+Trokam Contributor License Agreement (CLA)
+
+You accept and agree to the following terms and conditions for
+Your present and future contributions submitted to Trokam.
+
+1. Definitions. "You" or "Your" shall mean the copyright owner
+making this Agreement with Trokam. "Contribution" shall mean
+any original work of authorship, including any modifications
+or additions to an existing work you intentionally submitted
+to Trokam for inclusion in or documentation of Trokam.
+
+2. Grant of Copyright License. You keep the copyright on your
+contributions. Accordingly, you have the right to be mentioned
+among the copyright holders. However, subject to the terms and
+conditions of this Agreement, You hereby grant Trokam a perpetual,
+worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+copyright license to reproduce, prepare derivative works of,
+publicly display, publicly perform, sublicense, and distribute
+Your Contributions and such derivative works.
+
+3. Grant of Patent License. Subject to the terms and conditions
+of this Agreement, You hereby grant Trokam a perpetual, worldwide,
+non-exclusive, no-charge, royalty-free, irrevocable patent license
+to make, have made, use, sell, import, and otherwise transfer
+the work.
+
+4. Your Original Creation. You represent that each of Your
+Contributions is Your original creation.
+
+5. Your Contributions on "as is" Basis. You are only expected
+to support Your Contributions to the extent You desire to
+provide support. You may provide support for free, for a fee,
+or not at all. Unless required by applicable law or agreed to
+in writing, You provide Your Contributions on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+or implied, including, without limitation, any warranties or
+conditions of TITLE, NON- INFRINGEMENT, MERCHANTABILITY, or
+FITNESS FOR A PARTICULAR PURPOSE.

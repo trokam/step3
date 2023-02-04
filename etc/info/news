@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="About Trokam">
+    <meta name="author" content="Nicolas Slusarenko">
+    <title>Trokam News</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="/resources/themes/bootstrap/5/wt.css" rel="stylesheet" type="text/css">
+    <link href="/resources/moz-transitions.css" rel="stylesheet" type="text/css">
+    <link href="/style/trokam_common.css" rel="stylesheet" type="text/css">
+    <link href="/style/trokam_light.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <div class="col-lg-8 mx-auto p-4 py-md-5">
+
+      <header class="mb-auto text-center">
+
+        <h3 class="float-md-start mb-0">Trokam</h3>
+        <nav class="nav nav-masthead justify-content-center float-md-end">
+          <a href="/search">
+            <button type="button" class="paging-button btn btn-secondary">
+              <span class="paging-text">
+                Search
+              </span>
+            </button>
+          </a>
+          &nbsp;
+
+          <div class="btn-group">
+            <button class="paging-button btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="paging-text">Contributors</span></button>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/info/donating_people">Donating People</a></li>
+              <li><a class="dropdown-item" href="/info/donating_companies">Donating Companies</a></li>
+              <li><a class="dropdown-item" href="/info/developers">Developers</a></li>
+            </ul>
+          </div>
+          &nbsp;
+
+          <div class="btn-group">
+            <button class="paging-button btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="paging-text">Info</span></button>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/info/about">About</a></li>
+              <li><a class="dropdown-item" href="/info/donate">Donate</a></li>
+              <li><a class="dropdown-item" href="/info/develop">Develop</a></li>
+              <li><a class="dropdown-item" href="/info/news">News</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <div>&nbsp;<br/>&nbsp;<br/></div>
+
+      </header>
+
+      <main>
+
+        <h1>Follow Trokam</h1>
+
+        <div class="container">
+
+          <p class="fs-5">
+            <strong>
+              <a href="https://www.linkedin.com/company/trokam/">linkedin.com/company/trokam</a>
+          </p>
+
+          <p class="fs-5">
+            <strong>
+              <a href="https://twitter.com/trokam">twitter.com/trokam</a>
+          </p>
+
+          <div>&nbsp;<br/></div>
+
+        </div>
+
+        <h1>Trokam in the Media</h1>
+
+        <div class="container">
+
+          <p class="fs-5">
+            <strong>
+              <a href="https://www.fayerwayer.com/2018/08/trokam-buscador-internet-codigo-abierto/">Así es Trokam, el buscador chileno de código abierto “sin sesgo comercial”.</a>
+            </strong><br/>FayerWayer, 31 of August, 2018
+          </p>
+
+          <p class="fs-5">
+            <strong>
+              <a href="https://www.reddit.com/r/SideProject/comments/94adcu/trokam_an_internet_search_engine/">Trokam, an internet search engine</a>
+            </strong><br/>Reddit, 3 of August, 2018
+          </p>
+
+          <p class="fs-5">
+            <strong>
+              <a href="https://youtu.be/wA_MkFKHkrA">Trokam, an online search engine developed in C++.</a>
+            </strong><br/>Lightning Talk at CppCon, 2017
+          </p>
+
+          <p class="fs-5">
+            <strong>
+              <a href="https://search.slashdot.org/story/15/04/18/2032227/ask-slashdot-what-features-would-you-like-in-a-search-engine">Ask Slashdot: What Features Would You Like In a Search Engine?</a>
+            </strong><br/>SlashDot, 18 of April, 2015
+          </p>
+
+          <p class="fs-5">
+            <strong>
+              <a href="https://www.linkedin.com/pulse/why-i-developed-trokam-nicolas-slusarenko/">Why I developed Trokam?</a>
+            </strong><br/>LinkedIn, 17 of March, 2015
+          </p>
+
+        </div>
+
+      </main>
+
+      <footer class="pt-5 my-5 text-muted border-top">
+        Trokam is a registered trademark of Nicolas Slusarenko.
+      </footer>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+  </body>
+</html>
+

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="About Trokam">
+    <meta name="author" content="Nicolas Slusarenko">
+    <title>About Trokam - Internet Search Engine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="/resources/themes/bootstrap/5/wt.css" rel="stylesheet" type="text/css">
+    <link href="/resources/moz-transitions.css" rel="stylesheet" type="text/css">
+    <link href="/style/trokam_common.css" rel="stylesheet" type="text/css">
+    <link href="/style/trokam_light.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <div class="col-lg-8 mx-auto p-4 py-md-5">
+
+      <header class="mb-auto text-center">
+
+        <h3 class="float-md-start mb-0">Trokam</h3>
+        <nav class="nav nav-masthead justify-content-center float-md-end">
+          <a href="/search">
+            <button type="button" class="paging-button btn btn-secondary">
+              <span class="paging-text">
+                Search
+              </span>
+            </button>
+          </a>
+          &nbsp;
+
+          <div class="btn-group">
+            <button class="paging-button btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="paging-text">Contributors</span></button>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/info/donating_people">Donating People</a></li>
+              <li><a class="dropdown-item" href="/info/donating_companies">Donating Companies</a></li>
+              <li><a class="dropdown-item" href="/info/developers">Developers</a></li>
+            </ul>
+          </div>
+          &nbsp;
+
+          <div class="btn-group">
+            <button class="paging-button btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="paging-text">Info</span></button>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/info/about">About</a></li>
+              <li><a class="dropdown-item" href="/info/donate">Donate</a></li>
+              <li><a class="dropdown-item" href="/info/develop">Code</a></li>
+              <li><a class="dropdown-item" href="/info/news">News</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <div>&nbsp;<br/>&nbsp;<br/></div>
+
+      </header>
+
+      <main>
+
+        <h1>Your Help in Developing Trokam is Welcome!</h1>
+
+        <div class="container">
+
+          <p class="fs-5">Developing an internet search engine is hard. There is much work to do.
+                          But collaboration and teamwork can overcome all that challenges.
+                          So, your help is essential.</p>
+
+          <p class="fs-5">If you want to contribute to developing Trokam, read the <a href="#cla">Trokam
+                          Contributor License Agreement (CLA)</a>. It is deliberately compact so that you
+                          can read and understand it.</p>
+
+          <p class="fs-5">If you agree, then send an email to dev@trokam.com following these instructions:</p>
+
+            <ol>
+              <li>Indicate your name.</li>
+              <li>Add the phrase: I, [here your name], agree with Trokam Contributor License Agreement,
+                  which I attached to this email.</li>
+              <li><a href="/info/trokam_cla.txt">Download</a> and attach the Trokam Contributor License Agreement (CLA).</li>
+              <li>If you plan to request a merge or pull request in GitHub, indicate your GitHub
+                  account: https://github.com/your-name.</li>
+              <li>Indicate if you want to appear or avoid appearing on the
+                  page <a href="/info/developers">trokam.com/info/developers</a>.
+                  Be explicit, whatever your choice is.</li>
+              <li>If you want to appear on <a href="/info/developers">trokam.com/info/developers</a>,
+                  please indicate a link to your profile.</li>
+              <li>Indicate if you want to appear or avoid appearing among the copyright holders.
+                  Be explicit, whatever your choice is.</li>
+              <li>If you want to appear among the copyright holders, please indicate an email.</li>
+            </ol>
+
+          <p class="fs-5">
+            Wait for the confirmation. Once you get a reply from conforming reception, you are ready to
+            send contributions to develop Trokam.
+          </p>
+
+        </div>
+
+        <div>&nbsp;<br/>
+
+        <h1 id="cla">Where do You Begin?</h1>
+
+        <div class="container">
+
+          <p class="fs-5">
+            The best way to begin your contribution is to build and install a subsystem of Trokam.
+            For instance, you could try the crawler or the web server. Preferably, build it in an
+            isolated environment as a virtual machine or a set of Docker containers.
+            <a href="https://github.com/trokam/step3.trokam.com/issues">Take a look at pending issues</a>.
+          </p>
+
+        </div>
+
+        <div>&nbsp;<br/>
+
+        <h1 id="cla">Trokam Contributor License Agreement (CLA)</h1>
+
+        <div class="container">
+
+          <p class="fs-5">
+            You accept and agree to the following terms and conditions for Your present and future contributions
+            submitted to Trokam.
+          </p>
+
+          <p class="fs-5"><strong>1. Definitions.</strong>
+
+            "You" or "Your" shall mean the copyright owner making this Agreement with Trokam.
+
+            "Contribution" shall mean any original work of authorship, including any modifications or additions
+            to an existing work you intentionally submitted to Trokam for inclusion in or documentation of Trokam.
+
+          </p>
+
+          <p class="fs-5"><strong>2. Grant of Copyright License.</strong>
+
+            You keep the copyright on your contributions. Accordingly, you have the right to be
+            mentioned among the copyright holders. However, subject to the terms and conditions
+            of this Agreement, You hereby grant Trokam a perpetual, worldwide, non-exclusive,
+            no-charge, royalty-free, irrevocable copyright license to reproduce, prepare derivative
+            works of, publicly display, publicly perform, sublicense, and distribute Your
+            Contributions and such derivative works.
+
+          <p class="fs-5"><strong>3. Grant of Patent License.</strong>
+
+            Subject to the terms and conditions of this Agreement, You hereby grant Trokam a perpetual, worldwide,
+            non-exclusive, no-charge, royalty-free, irrevocable patent license to make, have made, use, sell,
+            import, and otherwise transfer the work.
+
+          <p class="fs-5"><strong>4. Your Original Creation.</strong>
+
+            You represent that each of Your Contributions is Your original creation.
+
+          <p class="fs-5"><strong>5. Your Contributions on "as is" Basis.</strong>
+
+            You are only expected to support Your Contributions to the extent You desire to provide support. You may
+            provide support for free, for a fee, or not at all. Unless required by applicable law or agreed to in writing,
+            You provide Your Contributions on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+            express or implied, including, without limitation, any warranties or conditions of TITLE, NON- INFRINGEMENT,
+            MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE.
+
+        </div>
+
+      </main>
+
+      <footer class="pt-5 my-5 text-muted border-top">
+        Trokam is a registered trademark of Nicolas Slusarenko.
+      </footer>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+  </body>
+</html>
+

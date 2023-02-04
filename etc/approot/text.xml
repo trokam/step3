@@ -7,7 +7,9 @@
         <nav class="nav nav-masthead justify-content-center float-md-end">
             ${button_preferences}
             &nbsp;
-            ${button_about}
+            ${button_contributors}
+            &nbsp;
+            ${button_info}
         </nav>
 
         <div class="input-group mb-3 input-box">

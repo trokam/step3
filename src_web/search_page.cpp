@@ -157,20 +157,38 @@ Trokam::SearchPage::SearchPage(
     w_button_preferences->
         clicked().connect(this, &Trokam::SearchPage::showUserOptions);
 
-    auto popup =
+    auto w_popup_contrib =
         std::make_unique<Wt::WPopupMenu>();
 
     // Create some menu items for the popup menu
-    popup->addItem("About")->setLink(Wt::WLink("/info/about"));
-    popup->addItem("Donate")->setLink(Wt::WLink("/info/donate"));
+    w_popup_contrib->addItem("Donating People")->setLink(Wt::WLink("/info/donating_people"));
+    w_popup_contrib->addItem("Donating Companies")->setLink(Wt::WLink("/info/donating_companies"));
+    w_popup_contrib->addItem("Developers")->setLink(Wt::WLink("/info/developers"));
 
-    w_about = header->bindWidget(
-        "button_about",
+    w_contrib = header->bindWidget(
+        "button_contributors",
         std::make_unique<Wt::WPushButton>());
-    w_about->addStyleClass("paging-button");
-    w_about->setTextFormat(Wt::TextFormat::XHTML);
-    w_about->setText("<span class=\"paging-text\">Info</span>");
-    w_about->setMenu(std::move(popup));
+    w_contrib->addStyleClass("paging-button");
+    w_contrib->setTextFormat(Wt::TextFormat::XHTML);
+    w_contrib->setText("<span class=\"paging-text\">Contributors</span>");
+    w_contrib->setMenu(std::move(w_popup_contrib));
+
+    auto w_popup_info =
+        std::make_unique<Wt::WPopupMenu>();
+
+    // Create some menu items for the popup menu
+    w_popup_info->addItem("About")->setLink(Wt::WLink("/info/about"));
+    w_popup_info->addItem("Donate")->setLink(Wt::WLink("/info/donate"));
+    w_popup_info->addItem("Develop")->setLink(Wt::WLink("/info/develop"));
+    w_popup_info->addItem("News")->setLink(Wt::WLink("/info/news"));
+
+    w_info = header->bindWidget(
+        "button_info",
+        std::make_unique<Wt::WPushButton>());
+    w_info->addStyleClass("paging-button");
+    w_info->setTextFormat(Wt::TextFormat::XHTML);
+    w_info->setText("<span class=\"paging-text\">Info</span>");
+    w_info->setMenu(std::move(w_popup_info));
 
     userFindings =
         container->addWidget(std::make_unique<Wt::WTable>());

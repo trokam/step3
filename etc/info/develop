@@ -68,6 +68,22 @@
                           But collaboration and teamwork can overcome all that challenges.
                           So, your help is essential.</p>
 
+          <p class="fs-5">
+            The best way to begin your contribution is to build and install Trokam.
+            Preferably, build it in an isolated environment as a virtual machine or a set of
+            Docker containers.
+            <a href="https://github.com/trokam/step3.trokam.com/issues">Then, take a look at pending
+            issues</a>. Start with issues labelled "good first issue".
+          </p>
+
+        </div>
+
+        <div>&nbsp;<br/>
+
+        <h1 id="cla">How to send you code?</h1>
+
+        <div class="container">
+
           <p class="fs-5">If you want to contribute to developing Trokam, read the <a href="#cla">Trokam
                           Contributor License Agreement (CLA)</a>. It is deliberately compact so that you
                           can read and understand it.</p>
@@ -94,21 +110,6 @@
           <p class="fs-5">
             Wait for the confirmation. Once you get a reply from conforming reception, you are ready to
             send contributions to develop Trokam.
-          </p>
-
-        </div>
-
-        <div>&nbsp;<br/>
-
-        <h1 id="cla">Where do You Begin?</h1>
-
-        <div class="container">
-
-          <p class="fs-5">
-            The best way to begin your contribution is to build and install a subsystem of Trokam.
-            For instance, you could try the crawler or the web server. Preferably, build it in an
-            isolated environment as a virtual machine or a set of Docker containers.
-            <a href="https://github.com/trokam/step3.trokam.com/issues">Take a look at pending issues</a>.
           </p>
 
         </div>

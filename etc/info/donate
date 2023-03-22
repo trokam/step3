@@ -86,6 +86,12 @@
             <a href="https://www.buymeacoffee.com/trokam" class="btn btn-success btn-lg px-4">Go to Trokam's Buy Me a Coffee page</a>
           </div>
 
+          <p class="fs-5">Set a montly contribution of &euro;1, &euro;2 or any amount with Ko-Fi.
+          </p>
+          <div class="mb-5">
+            <a href="https://ko-fi.com/trokam" class="btn btn-success btn-lg px-4">Go to Trokam's Ko-Fi page</a>
+          </div>
+
           <p class="fs-5">Set a montly contribution of &euro;1 or higher using Stripe. Stripe gives
                           you several options as Apple Pay, Google Pay, iDEAL and credit cards. Stripe
                           provides a conversion to your local currency if possible.

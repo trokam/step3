@@ -1,0 +1,23 @@
+#!/bin/bash
+
+createfp < languages/english.txt > signature/english.lm
+createfp < languages/russian.txt > signature/russian.lm
+createfp < languages/spanish.txt > signature/spanish.lm
+createfp < languages/turkish.txt > signature/turkish.lm
+createfp < languages/german.txt > signature/german.lm
+createfp < languages/french.txt > signature/french.lm
+createfp < languages/persian.txt > signature/persian.lm
+createfp < languages/japanese.txt > signature/japanese.lm
+createfp < languages/vietnamese.txt > signature/vietnamese.lm
+createfp < languages/chinese.txt > signature/chinese.lm
+createfp < languages/italian.txt > signature/italian.lm
+createfp < languages/dutch.txt > signature/dutch.lm
+createfp < languages/arabic.txt > signature/arabic.lm
+createfp < languages/polish.txt > signature/polish.lm
+createfp < languages/portuguese.txt > signature/portuguese.lm
+createfp < languages/indonesian.txt > signature/indonesian.lm
+createfp < languages/korean.txt > signature/korean.lm
+createfp < languages/ukrainian.txt > signature/ukrainian.lm
+createfp < languages/thai.txt > signature/thai.lm
+createfp < languages/hebrew.txt > signature/hebrew.lm
+createfp < languages/swedish.txt > signature/swedish.lm

@@ -47,7 +47,7 @@ std::string Trokam::Preferences::languageName(
         case Trokam::DUTCH:      return "dutch";
         case Trokam::ARABIC:     return "arabic";
         case Trokam::POLISH:     return "polish";
-        case Trokam::PORTUGUESE: return "postuguese";
+        case Trokam::PORTUGUESE: return "portuguese";
         case Trokam::INDONESIAN: return "indonesian";
         case Trokam::KOREAN:     return "korean";
         case Trokam::UKRAINIAN:  return "ukrainian";

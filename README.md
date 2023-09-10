@@ -220,6 +220,7 @@ The web server is build using CMake, following the usual procedure:
     git clone git@github.com:trokam/step3.trokam.com.git
     cd step3.trokam.com/
     mkdir build_web
+    cd build_web
     cmake -DSUBSYSTEM=WEB ..
     make
     sudo make install

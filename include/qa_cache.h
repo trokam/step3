@@ -1,6 +1,10 @@
 /***********************************************************************
  *                            T R O K A M
- *                      trokam.com / trokam.org
+ *                       Internet Search Engine
+ *                       trokam.com / trokam.org
+ *
+ * Copyright (C) Nicolas Slusarenko
+ *               nicolas.slusarenko@trokam.com
  *
  * This file is part of Trokam.
  *
@@ -22,47 +26,36 @@
 
 // C++
 #include <memory>
+#include <iostream>
+#include <string>
 #include <vector>
 
 // Json
 #include <nlohmann/json.hpp>
 
+// Postgresql
+#include <pqxx/pqxx>
+
 // Trokam
-#include "events.h"
-#include "options.h"
-#include "readable_content_db.h"
-#include "qa_cache.h"
-#include "transfers.h"
+#include "postgresql.h"
 
 namespace Trokam
 {
-    class SharedResources
+    class QAcache
     {
         public:
 
-            SharedResources(nlohmann::json &value);
-            ~SharedResources();
+            QAcache(nlohmann::json &config);
 
-            Trokam::ReadableContentDB readable_content_db;
-            void getNewDB();
-            std::string getPassword();
-            std::string getAuthToken();
-            void insertOccurrence();
-            std::string getAnswer(
-                const std::string &question);
+            std::string getAnswer(const std::string &question);
+
             void saveQA(
                 const std::string &question,
                 const std::string &answer);
 
         private:
 
-            std::vector<std::string> current_dates;
-            nlohmann::json &settings;
-            std::unique_ptr<Trokam::Events> events;
-            std::unique_ptr<Trokam::Transfers> transfers;
-            std::unique_ptr<Trokam::QAcache> qa_cache;
-
-            std::string password;
-            std::string auth_token;
+            std::unique_ptr<Trokam::Postgresql> m_db;
     };
 }
+

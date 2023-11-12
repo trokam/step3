@@ -32,6 +32,7 @@ if((SUBSYSTEM STREQUAL "WEB") OR (SUBSYSTEM STREQUAL "ALL"))
 
     target_link_libraries(
         search.wt
+        curl
         xapian
         Boost::system
         Boost::regex

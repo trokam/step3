@@ -34,6 +34,36 @@
 // Trokam
 #include "plain_text_processor.h"
 
+std::vector<std::string> Trokam::PlainTextProcessor::phrase_collection =
+{
+    "what is ",
+    "what are ",
+    "what ",
+    "where is located ",
+    "where are located ",
+    "where is ",
+    "where are ",
+    "where ",
+    "when ",
+    "who is ",
+    "who was ",
+    "who ",
+    "why is ",
+    "why ",
+    "how much ",
+    "how many ",
+    "how "
+    "which are ",
+    "which ",
+    "whose ",
+    "is there any ",
+    "is there ",
+    "is ",
+    "are ",
+    "do you ",
+    "tell me about "
+};
+
 std::string Trokam::PlainTextProcessor::getUrlPrefix(
     const std::string &url)
 {   std::string result;
@@ -352,4 +382,25 @@ float Trokam::PlainTextProcessor::howMuchOf(
     float remaining_length = text_block.length();
 
     return 100.0 * (original_length-remaining_length)/original_length;
+}
+
+std::tuple<std::string, std::string> Trokam::PlainTextProcessor::getQueryParts(
+    const std::string &text)
+{
+    std::string words;
+    std::string question;
+
+    for(size_t i=0; i<phrase_collection.size(); i++)
+    {
+        size_t len = phrase_collection[i].length();
+        if(text.substr(0, len) == phrase_collection[i])
+        {
+            question = text;
+            words = text.substr(len);
+            // boost::erase_all(words, boost::is_any_of("¡!¿?/%$·@()+=\\"));
+            boost::erase_all(words, "?");
+            return {words, question};
+        }
+    }
+    return {text, question};
 }

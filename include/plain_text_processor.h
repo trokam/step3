@@ -26,6 +26,7 @@
 // C++
 #include <iostream>
 #include <string>
+#include <tuple>
 #include <vector>
 
 // Boost
@@ -40,6 +41,9 @@ namespace Trokam
     class PlainTextProcessor
     {
         public:
+
+            static std::vector<std::string>
+                phrase_collection;
 
             static std::string getUrlPrefix(
                 const std::string &url);
@@ -62,10 +66,12 @@ namespace Trokam
                 std::string text,
                 const char &delimiter = ' ');
 
+            /**
             static std::string snippet(
                 const std::string &block_text,
                 const std::string &search_text,
                 const size_t &snippet_length);
+            **/
 
             static size_t caseInsensitiveFind(
                 const std::string &text_block,
@@ -74,5 +80,8 @@ namespace Trokam
             static float howMuchOf(
                 std::string text_block,
                 std::string text_piece);
+
+            static std::tuple<std::string, std::string> getQueryParts(
+                const std::string &text);
     };
 }

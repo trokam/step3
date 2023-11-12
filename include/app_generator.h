@@ -46,7 +46,8 @@ namespace Trokam
         public:
             AppGenerator(nlohmann::json &opt);
             std::unique_ptr<Wt::WApplication>
-                createApplication(const Wt::WEnvironment& env);
+                createApplication(
+                    const Wt::WEnvironment& env);
 
         private:
             boost::shared_ptr<Trokam::SharedResources> commonResources;

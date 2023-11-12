@@ -92,8 +92,7 @@ std::unique_ptr<Wt::WApplication>
      **/
     app->messageResourceBundle().use(app->appRoot() + "text");
     app->root()->addWidget(
-        std::make_unique<Trokam::SearchPage>(
-            commonResources, app.get()));
+        std::make_unique<Trokam::SearchPage>(commonResources));
 
     /**
      * Set web site title.

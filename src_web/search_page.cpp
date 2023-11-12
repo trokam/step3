@@ -25,7 +25,6 @@
 // C++
 #include <cctype>
 #include <chrono>
-#include <thread>
 
 // Boost
 #include <boost/algorithm/string.hpp>
@@ -48,7 +47,6 @@
 #include <Wt/WStringListModel.h>
 #include <Wt/WTable.h>
 #include <Wt/WTabWidget.h>
-#include <Wt/WTemplate.h>
 #include <Wt/WText.h>
 #include <Wt/Utils.h>
 
@@ -61,14 +59,35 @@
 #include "search_page.h"
 #include "shared_resources.h"
 
+/**
+ * Called by libcurl as soon as there is data received that
+ * needs to be saved. More info:
+ * https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
+ */
+static int appendData(
+    char *incoming_data,
+    size_t size,
+    size_t nmemb,
+    std::string *current_data)
+{
+    if(current_data == NULL)
+    {
+        // TODO: report an error.
+        return 0;
+    }
+
+    current_data->append(incoming_data, size*nmemb);
+    return size * nmemb;
+}
+
 Trokam::SearchPage::SearchPage(
-    boost::shared_ptr<Trokam::SharedResources> &sr,
-    Wt::WApplication* app):
+    boost::shared_ptr<Trokam::SharedResources> &sr):
         Wt::WContainerWidget(),
-        application(app),
         shared_resources(sr)
 {
-    const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
+    application = Wt::WApplication::instance();
+    const Wt::WEnvironment& env = application->environment();
+    auth_token = shared_resources->getAuthToken();
 
     std::string cookie_preferences;
     if(env.getCookie("preferences"))
@@ -119,6 +138,12 @@ Trokam::SearchPage::SearchPage(
             timer->stop();
             destroySuggestionBox();
             std::string user_input= input->text().toUTF8();
+            boost::algorithm::trim_if(user_input, boost::algorithm::is_any_of(" \n\r\t\\"));
+            searching = true;
+            if(user_input.empty())
+            {
+                searching = false;
+            }
             user_input = Xapian::Unicode::tolower(user_input);
             const std::string encoded_terms= Wt::Utils::urlEncode(user_input);
             std::string internal_url = "/";
@@ -131,6 +156,7 @@ Trokam::SearchPage::SearchPage(
     if(!isAgentMobile())
     {
         input->textInput().connect(this, &Trokam::SearchPage::textInput);
+        text_clipping = 700;
     }
 
     auto button = header->bindWidget(
@@ -142,6 +168,12 @@ Trokam::SearchPage::SearchPage(
         [=] {
             std::string user_input= input->text().toUTF8();
             user_input = Xapian::Unicode::tolower(user_input);
+            boost::algorithm::trim_if(user_input, boost::algorithm::is_any_of(" \n\r\t\\"));
+            searching = true;
+            if(user_input.empty())
+            {
+                searching = false;
+            }
             const std::string encoded_terms= Wt::Utils::urlEncode(user_input);
             std::string internal_url = "/";
             internal_url+= encoded_terms;
@@ -190,6 +222,22 @@ Trokam::SearchPage::SearchPage(
     w_info->setText("<span class=\"paging-text\">Info</span>");
     w_info->setMenu(std::move(w_popup_info));
 
+    w_answer = container->addNew<Wt::WTemplate>();
+
+    w_progress_bar = container->addNew<Wt::WProgressBar>();
+    w_progress_bar->addStyleClass("w-100");
+    w_progress_bar->setFormat("generating answer: %.0f %%");
+    w_progress_bar->setMargin(10);
+    w_progress_bar->setRange(0, 60);
+    w_progress_bar->setHidden(true);
+
+    w_button_clipping = container->addNew<Wt::WPushButton>();
+    w_button_clipping->addStyleClass("paging-button");
+    w_button_clipping->setTextFormat(Wt::TextFormat::XHTML);
+    w_button_clipping->setText("<span class=\"paging-text\">show more</span>");
+    w_button_clipping->setHidden(true);
+    w_button_clipping->clicked().connect(this, &Trokam::SearchPage::showAnswer);
+
     userFindings =
         container->addWidget(std::make_unique<Wt::WTable>());
 
@@ -205,20 +253,41 @@ Trokam::SearchPage::SearchPage(
     }
     language_options = user_settings.getLanguages();
 
-    timer = app->root()->addChild(std::make_unique<Wt::WTimer>());
+    timer = application->root()->addChild(std::make_unique<Wt::WTimer>());
     timer->setInterval(std::chrono::milliseconds(750));
     timer->timeout().connect(this, &Trokam::SearchPage::timeout);
 
     input->setFocus();
 
+    // Initialize curl.
+    curl = curl_easy_init();
+
     // training();
     checkTraining();
+}
+
+Trokam::SearchPage::~SearchPage()
+{
+    if(curl != NULL)
+    {
+        curl_easy_cleanup(curl);
+    }
 }
 
 void Trokam::SearchPage::search(
     const std::string &terms)
 {
+    if(terms.empty())
+    {
+        items_found.clear();
+        searching = false;
+        return;
+    }
+
     std::string low_case_terms= Xapian::Unicode::tolower(terms);
+
+    auto [words, question] =
+        Trokam::PlainTextProcessor::getQueryParts(low_case_terms);
 
     Xapian::doccount results_requested = 24;
 
@@ -245,11 +314,97 @@ void Trokam::SearchPage::search(
     items_found =
         shared_resources->
             readable_content_db.search(
-                low_case_terms,
+                words,
                 language_selected,
                 results_requested);
 
     createFooter(container);
+
+    if(ai_task.joinable())
+    {
+        ai_task.join();
+    }
+
+    if(!question.empty())
+    {
+        w_answer->setTemplateText("", Wt::TextFormat::UnsafeXHTML);
+        w_button_clipping->setHidden(true);
+        showing_complete_answer = true;
+
+        answer = shared_resources->getAnswer(terms);
+        if(!answer.empty())
+        {
+            showAnswer();
+            return;
+        }
+
+        application->enableUpdates(true);
+        waiting_for_answer = true;
+
+        w_progress_bar->setHidden(false);
+        ai_task =
+            std::thread(
+                &Trokam::SearchPage::getAiAnswer, this, application, question);
+
+        std::thread show_progress(
+            &Trokam::SearchPage::waitingTick, this, application);
+
+        show_progress.detach();
+    }
+    else
+    {
+        w_answer->setTemplateText("", Wt::TextFormat::UnsafeXHTML);
+        w_button_clipping->setHidden(true);
+        showing_complete_answer = true;
+    }
+}
+
+// void Trokam::SearchPage::getAiAnswer()
+void Trokam::SearchPage::getAiAnswer(Wt::WApplication *app, const std::string &terms)
+{
+    answer = exec_post(terms);
+    waiting_for_answer = false;
+
+    Wt::WApplication::UpdateLock uiLock(app);
+    if(uiLock)
+    {
+        w_progress_bar->setValue(0);
+        w_progress_bar->setHidden(true);
+
+        shared_resources->saveQA(terms, answer);
+        showAnswer();
+        app->triggerUpdate();
+        app->enableUpdates(false);
+    }
+    else
+    {
+        Wt::log("error") << "failed getting uiLock in SearchPage::getAiAnswer(..)";
+    }
+}
+
+void Trokam::SearchPage::waitingTick(Wt::WApplication *app)
+{
+    int i=0;
+    while((i<100) && waiting_for_answer)
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        Wt::WApplication::UpdateLock uiLock(app);
+        if(uiLock)
+        {
+            w_progress_bar->setValue(i);
+            app->triggerUpdate();
+        }
+        i++;
+    }
+
+    if((i >= 100) && waiting_for_answer)
+    {
+        waiting_for_answer = false;
+        application->enableUpdates(false);
+        w_progress_bar->setValue(0);
+        w_progress_bar->setHidden(true);
+        application->refresh();
+    }
 }
 
 void Trokam::SearchPage::showSearchResults()
@@ -276,6 +431,7 @@ void Trokam::SearchPage::showSearchResults()
         {
             std::string out;
 
+            out=+ "<br/>";
             out+= "<h2 class=\"page-title\"><a href=\"" + items_found[i].url + "\" target=\"_blank\">" + items_found[i].title + "</a></h2>";
             out+= "<a href=\"" + items_found[i].url + "\" target=\"_blank\">" + items_found[i].url + "</a><br/>";
             out+= "<span class=\"snippet\">" + items_found[i].snippet + "</strong></span><br/>";
@@ -286,14 +442,19 @@ void Trokam::SearchPage::showSearchResults()
             out+= "</strong> relevance title:<strong>" + std::to_string((int)items_found[i].relevance_title);
             out+= "</strong> total:<strong>" + std::to_string((int)items_found[i].relevance_total);
             out+= "</strong></span><br/>";
-            out+= "</p>";
+            // out+= "</p>";
 
             auto oneRow = std::make_unique<Wt::WTemplate>();
             oneRow->setTemplateText(out, Wt::TextFormat::UnsafeXHTML);
             userFindings->elementAt(i, 0)->addWidget(std::move(oneRow));
         }
+
+        std::string out= "<br/>";
+        auto oneRow = std::make_unique<Wt::WTemplate>();
+        oneRow->setTemplateText(out, Wt::TextFormat::UnsafeXHTML);
+        userFindings->elementAt(end, 0)->addWidget(std::move(oneRow));
     }
-    else
+    else if((items_found.size() == 0) && searching && !waiting_for_answer)
     {
         // Tell the user that there are not any results found.
         std::string msg;
@@ -302,12 +463,21 @@ void Trokam::SearchPage::showSearchResults()
         msg += "<h3 style=\"text-align:left\">&bull; Check term spelling. Try similar concepts and synonyms if possible.</h3>";
         msg += "<h3 style=\"text-align:left\">&bull; Verify your preferences. You are searching for results in ";
         msg += getLanguagesSelected() + ".</h3>";
-        msg += "<h3 style=\"text-align:left\">&bull; <a href=\"/info/about#enhance-trokam\"</a>Contribute to enhancing Trokam.</h3>";
+        // msg += "<h3 style=\"text-align:left\">&bull; <a href=\"/info/about#enhance-trokam\"</a>Contribute to enhancing Trokam.</h3>";
 
         userFindings->clear();
+        w_answer->setTemplateText("", Wt::TextFormat::UnsafeXHTML);
         auto no_results_found = std::make_unique<Wt::WTemplate>();
         no_results_found->setTemplateText(msg, Wt::TextFormat::UnsafeXHTML);
         userFindings->elementAt(0, 0)->addWidget(std::move(no_results_found));
+    }
+    else
+    {
+        // Clear the table of findings and the answer.
+        userFindings->clear();
+        w_answer->setTemplateText("", Wt::TextFormat::UnsafeXHTML);
+        w_footer->clear();
+        searching = false;
     }
 }
 
@@ -348,7 +518,6 @@ void Trokam::SearchPage::createFooter(
     button_previous->setText("<span class=\"paging-text\">Previous</span>");
     button_previous->clicked().connect(
         [=] {
-            Wt::log("info") << "previous";
             if(current_page > 1)
             {
                 current_page--;
@@ -394,7 +563,6 @@ void Trokam::SearchPage::createFooter(
     button_next->setText("<span class=\"paging-text\">Next</span>");
     button_next->clicked().connect(
         [=] {
-            Wt::log("info") << "next";
             if(current_page < total_pages)
             {
                 current_page++;
@@ -409,7 +577,6 @@ void Trokam::SearchPage::createFooter(
     msg += "<h3 style=\"text-align:left\">&bull; Check term spelling. Try similar concepts and synonyms if possible.</h3>";
     msg += "<h3 style=\"text-align:left\">&bull; Verify your preferences. You are searching for results in ";
     msg += getLanguagesSelected() + ".</h3>";
-    msg += "<h3 style=\"text-align:left\">&bull; <a href=\"/info/about#enhance-trokam\"</a>Contribute to enhancing Trokam.</h3>";
 
     auto did_you_find_it = std::make_unique<Wt::WTemplate>();
     did_you_find_it->setTemplateText(msg, Wt::TextFormat::UnsafeXHTML);
@@ -468,14 +635,6 @@ void Trokam::SearchPage::showUserOptions()
             "Languages",
             Wt::ContentLoading::Eager);
 
-    /*
-    tabW.get()->
-        addTab(
-            std::move(wt_show_analysis),
-            "Analysis",
-            Wt::ContentLoading::Eager);
-    */
-
     tabW.get()->
         addTab(
             std::move(w_theme),
@@ -513,7 +672,6 @@ void Trokam::SearchPage::showUserOptions()
 
 bool Trokam::SearchPage::savePreferences()
 {
-    // Wt::log("info") << "group->selectedButtonIndex():" << group->selectedButtonIndex();
     unsigned int theme = group->selectedButtonIndex();
     user_settings.setTheme(theme);
     user_settings.setLanguages(language_options);
@@ -778,4 +936,131 @@ std::string Trokam::SearchPage::getLanguagesSelected()
         result += " and " + languages[languages.size()-1];
         return result;
     }
+}
+
+std::string Trokam::SearchPage::exec_post(const std::string &terms)
+{
+    std::string raw;
+    struct curl_slist *list = NULL;
+    std::vector<std::string> headers;
+
+    std::string header_0 = "Content-Type: application/json";
+    headers.push_back(header_0);
+
+    std::string header_1 = "Authorization: Bearer " + auth_token;
+    headers.push_back(header_1);
+
+    for(size_t i=0; i<headers.size(); i++)
+    {
+        list = curl_slist_append(list, headers[i].c_str());
+    }
+
+    std::vector<nlohmann::json> messages;
+
+    nlohmann::json msg0;
+    msg0["content"] = "You are a helpful assistant.";
+    msg0["role"] = "system";
+    messages.push_back(msg0);
+
+    nlohmann::json msg1;
+    msg1["content"] = terms;
+    msg1["role"] = "user";
+    messages.push_back(msg1);
+
+    nlohmann::json data;
+    data["model"] = "gpt-3.5-turbo";
+    data["messages"] = messages;
+
+    std::string payload = data.dump();
+
+    std::string url= "https://api.openai.com/v1/chat/completions";
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list);
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, payload.length());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, appendData);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &raw);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1000L);
+
+    std::string answer;
+
+    /* Perform the request, res will get the return code */
+    CURLcode res = curl_easy_perform(curl);
+    if(res != CURLE_OK)
+    {
+        Wt::log("info") << "libcurl fail:" << curl_easy_strerror(res);
+        return answer;
+    }
+
+    if(list != NULL)
+    {
+        curl_slist_free_all(list);
+    }
+
+    try
+    {
+        nlohmann::json reply = nlohmann::json::parse(raw);
+        for(auto& elem : reply["choices"])
+        {
+            answer = elem["message"]["content"];
+        }
+    }
+    catch(const std::exception& e)
+    {
+        Wt::log("error") << "fail processing reply from ai reply.";
+        Wt::log("error") << e.what();
+        return "";
+    }
+
+    return answer;
+}
+
+void Trokam::SearchPage::showAnswer()
+{
+    std::string out;
+
+    if(answer.length() > text_clipping)
+    {
+        if(showing_complete_answer)
+        {
+            size_t loc= answer.find("\n\n", text_clipping);
+            if(loc != std::string::npos)
+            {
+                std::string partial = answer.substr(0, loc);
+                boost::replace_all(partial, "\n\n", "<br/><br/>");
+                partial += " [..]";
+                out+= "<span class=\"snippet\">" + partial + "</strong></span><br/>";
+                out+= "<br/>";
+            }
+            else
+            {
+                std::string partial = answer.substr(0, text_clipping);
+                boost::replace_all(partial, "\n\n", "<br/><br/>");
+                partial += " [..]";
+                out+= "<span class=\"snippet\">" + partial + "</strong></span><br/>";
+                out+= "<br/>";
+            }
+            w_button_clipping->setText("<span class=\"paging-text\">show more</span>");
+            w_button_clipping->setHidden(false);
+            showing_complete_answer = false;
+        }
+        else
+        {
+            boost::replace_all(answer, "\n\n", "<br/><br/>");
+            out+= "<span class=\"snippet\">" + answer + "</strong></span><br/>";
+            out+= "<br/>";
+            w_button_clipping->setText("<span class=\"paging-text\">show less</span>");
+            w_button_clipping->setHidden(false);
+            showing_complete_answer = true;
+        }
+    }
+    else
+    {
+        boost::replace_all(answer, "\n\n", "<br/><br/>");
+        out+= "<span class=\"snippet\">" + answer + "</strong></span><br/>";
+        out+= "<br/>";
+        w_button_clipping->setHidden(true);
+    }
+    w_answer->setTemplateText(out, Wt::TextFormat::UnsafeXHTML);
 }

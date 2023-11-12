@@ -52,7 +52,8 @@ std::vector<std::string> Trokam::PlainTextProcessor::phrase_collection =
     "why ",
     "how much ",
     "how many ",
-    "how "
+    "how to ",
+    "how ",
     "which are ",
     "which ",
     "whose ",

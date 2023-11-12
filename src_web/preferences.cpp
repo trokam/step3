@@ -144,7 +144,6 @@ std::string Trokam::Preferences::serialize()
     preferences["theme"] = pref_theme;
     preferences["languages"] = pref_languages;
     std::string result = preferences.dump();
-    Wt::log("info") << "serialize -- result=" << result;
     return result;
 }
 

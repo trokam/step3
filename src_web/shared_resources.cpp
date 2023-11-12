@@ -37,13 +37,15 @@
 #include "shared_resources.h"
 
 Trokam::SharedResources::SharedResources(
-    nlohmann::json &value):
-        settings(value)
+    nlohmann::json &value)
+    : settings(value)
 {
     transfers.reset(new Trokam::Transfers(settings));
     events.reset(new Trokam::Events(settings));
+    qa_cache.reset(new Trokam::QAcache(settings));
     getNewDB();
     password = settings["training_password"];
+    auth_token = settings["openai_auth_token"];
 }
 
 Trokam::SharedResources::~SharedResources()
@@ -92,7 +94,25 @@ std::string Trokam::SharedResources::getPassword()
     return password;
 }
 
+std::string Trokam::SharedResources::getAuthToken()
+{
+    return auth_token;
+}
+
 void Trokam::SharedResources::insertOccurrence()
 {
     events->insertOccurrence();
+}
+
+std::string Trokam::SharedResources::getAnswer(
+    const std::string &question)
+{
+    return qa_cache->getAnswer(question);
+}
+
+void Trokam::SharedResources::saveQA(
+    const std::string &question,
+    const std::string &answer)
+{
+    qa_cache->saveQA(question, answer);
 }

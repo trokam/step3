@@ -95,8 +95,7 @@ namespace Trokam
 
         private:
 
-            // nlohmann::json preferences;
-            unsigned int pref_theme = Trokam::Theme::LIGHT;
+            unsigned int pref_theme = Trokam::Theme::DARK;
             bool pref_show_analysis = true;
             std::vector<unsigned int> pref_languages = {Trokam::Language::ENGLISH};
 

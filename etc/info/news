@@ -31,24 +31,10 @@
 
           <div class="btn-group">
             <button class="paging-button btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <span class="paging-text">Contributors</span></button>
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/info/donating_people">Donating People</a></li>
-              <li><a class="dropdown-item" href="/info/donating_companies">Donating Companies</a></li>
-              <li><a class="dropdown-item" href="/info/developers">Developers</a></li>
-            </ul>
-          </div>
-          &nbsp;
-
-          <div class="btn-group">
-            <button class="paging-button btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="paging-text">Info</span></button>
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="/info/about">About</a></li>
-              <li><a class="dropdown-item" href="/info/donate">Donate</a></li>
-              <li><a class="dropdown-item" href="/info/develop">Develop</a></li>
               <li><a class="dropdown-item" href="/info/news">News</a></li>
             </ul>
           </div>

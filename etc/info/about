@@ -31,24 +31,10 @@
 
           <div class="btn-group">
             <button class="paging-button btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <span class="paging-text">Contributors</span></button>
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/info/donating_people">Donating People</a></li>
-              <li><a class="dropdown-item" href="/info/donating_companies">Donating Companies</a></li>
-              <li><a class="dropdown-item" href="/info/developers">Developers</a></li>
-            </ul>
-          </div>
-          &nbsp;
-
-          <div class="btn-group">
-            <button class="paging-button btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="paging-text">Info</span></button>
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="/info/about">About</a></li>
-              <li><a class="dropdown-item" href="/info/donate">Donate</a></li>
-              <li><a class="dropdown-item" href="/info/develop">Develop</a></li>
               <li><a class="dropdown-item" href="/info/news">News</a></li>
             </ul>
           </div>
@@ -60,39 +46,19 @@
 
       <main>
 
-        <h1>Trokam is great news for the world!</h1>
+        <h1>Trokam: a knowledge engine</h1>
 
         <div class="container">
 
-          <p class="fs-5">Trokam is an internet search engine. These are some of the unique features of Trokam:</p>
+          <p class="fs-5">These are some of the unique features of Trokam:</p>
 
-          <p class="fs-5"><strong>Funding</strong>. It is entirely funded by <a href="/info/donate">donations</a>. Trokam is ad-free.</p>
+          <p class="fs-5"><strong>Ad-free</strong>. Trokam is ad-free.</p>
 
           <p class="fs-5"><strong>Transparency</strong>. You know how results are ranked.</p>
 
           <p class="fs-5"><strong>Free software</strong>. It is built entirely on <a href="https://github.com/trokam">open-source software.</a></p>
 
           <p class="fs-5"><strong>Privacy</strong>. Your searches are private.</p>
-
-        </div>
-
-        <h1 id="enhance-trokam">Join an exciting project</h1>
-
-        <div class="container">
-
-          <p class="fs-5">These are some ways you can contribute:</p>
-
-          <p class="fs-5"><strong>Donate</strong>. Trokam has a few machines indexing less than 1% of all Internet pages.
-            Nevertheless, Trokam delivers valuable results. Trokam needs your contribution right
-            now to reach more pages. <a href="/info/donate">You have several alternatives to contribute.</a></p>
-
-          <p class="fs-5"><strong>Develop</strong>. There is much work ahead to transform Trokam into a
-            high-performance Internet search engine. <a href="/info/develop">Get to know how you can contribute</a>.</p>
-
-          <p class="fs-5"><strong>Spread the word</strong>. Let others know about Trokam. Follow Trokam
-            on <a href="https://twitter.com/trokam">Twitter</a> and
-             <a href="https://www.linkedin.com/company/trokam/">LinkedIn</a>.
-             Share and repost Trokam <a href="/info/news">news</a>.</p>
 
         </div>
 
